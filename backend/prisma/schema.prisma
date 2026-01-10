@@ -1,0 +1,599 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BUYER
+  OWNER
+  CONTRACTOR
+  SUPPLIER
+  AGENT
+  ADMIN
+}
+
+enum PropertyType {
+  LAND
+  HOUSE
+  APARTMENT
+  COMMERCIAL
+}
+
+enum PropertyStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  VERIFIED
+  RESERVED
+  SOLD
+}
+
+enum ContractorStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum EntityType {
+  PROPERTY
+  CONTRACTOR
+  SUPPLIER
+  USER
+}
+
+enum DocumentType {
+  OWNERSHIP_DEED
+  COMPANY_REGISTRATION
+  TAX_CLEARANCE
+  INSURANCE
+  LICENSE
+  IDENTITY
+  CONTRACT
+  OTHER
+}
+
+enum ProjectType {
+  NEW_CONSTRUCTION
+  RENOVATION
+  EXTENSION
+  LANDSCAPING
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  INSPECTION
+  COMPLETED
+  CANCELLED
+}
+
+enum StageStatus {
+  PENDING
+  IN_PROGRESS
+  INSPECTION_REQUIRED
+  INSPECTION_PASSED
+  COMPLETED
+  BLOCKED
+}
+
+enum PaymentMilestoneStatus {
+  NOT_DUE
+  PENDING
+  PAID
+}
+
+enum InspectionType {
+  SITE_SURVEY
+  FOUNDATION
+  STRUCTURAL
+  ELECTRICAL
+  PLUMBING
+  FINAL
+  OTHER
+}
+
+enum InspectionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  PASSED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYNOW
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum TransactionType {
+  CHARGE
+  REFUND
+  TRANSFER
+  FEE
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum NotificationCategory {
+  VERIFICATION
+  PAYMENT
+  PROJECT
+  PROPERTY
+  SYSTEM
+}
+
+enum ReservationStatus {
+  ACTIVE
+  EXPIRED
+  CONVERTED
+  CANCELLED
+}
+
+enum ReviewEntityType {
+  CONTRACTOR
+  PROPERTY
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  firstName       String    @map("first_name")
+  lastName        String    @map("last_name")
+  phone           String?
+  role            UserRole
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  isActive        Boolean   @default(true) @map("is_active")
+  isSuspended     Boolean   @default(false) @map("is_suspended")
+  profileImageUrl String?   @map("profile_image_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  lastLogin       DateTime? @map("last_login")
+
+  // Relations
+  refreshTokens   RefreshToken[]
+  properties      Property[]
+  contractor      Contractor?
+  projects        Project[]
+  documents       Document[]
+  verifications   Verification[]  @relation("SubmittedVerifications")
+  reviewedVerifications Verification[] @relation("ReviewedVerifications")
+  payments        Payment[]       @relation("PayerPayments")
+  receivedPayments Payment[]      @relation("RecipientPayments")
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  reservations    Reservation[]
+  reviews         Review[]
+  inspections     Inspection[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@map("users")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  tokenHash  String   @unique @map("token_hash")
+  expiresAt  DateTime @map("expires_at")
+  isRevoked  Boolean  @default(false) @map("is_revoked")
+  deviceInfo Json?    @map("device_info")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+model Property {
+  id              String         @id @default(uuid())
+  ownerId         String         @map("owner_id")
+  title           String
+  description     String
+  propertyType    PropertyType   @map("property_type")
+  price           Decimal        @db.Decimal(15, 2)
+  currency        String         @default("USD")
+  locationCity    String         @map("location_city")
+  locationArea    String?        @map("location_area")
+  locationAddress String?        @map("location_address")
+  coordinatesLat  Decimal?       @map("coordinates_lat") @db.Decimal(10, 8)
+  coordinatesLng  Decimal?       @map("coordinates_lng") @db.Decimal(11, 8)
+  sizeSqm         Decimal?       @map("size_sqm") @db.Decimal(10, 2)
+  bedrooms        Int?
+  bathrooms       Int?
+  status          PropertyStatus @default(DRAFT)
+  isVerified      Boolean        @default(false) @map("is_verified")
+  verifiedAt      DateTime?      @map("verified_at")
+  isFeatured      Boolean        @default(false) @map("is_featured")
+  viewCount       Int            @default(0) @map("view_count")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  owner        User              @relation(fields: [ownerId], references: [id])
+  images       PropertyImage[]
+  documents    Document[]
+  verifications Verification[]
+  projects     Project[]
+  reservations Reservation[]
+  reviews      Review[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([isVerified])
+  @@index([propertyType])
+  @@index([locationCity])
+  @@index([price])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id           String   @id @default(uuid())
+  propertyId   String   @map("property_id")
+  imageUrl     String   @map("image_url")
+  isPrimary    Boolean  @default(false) @map("is_primary")
+  displayOrder Int      @default(0) @map("display_order")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([isPrimary])
+  @@map("property_images")
+}
+
+model Contractor {
+  id                 String            @id @default(uuid())
+  userId             String            @unique @map("user_id")
+  companyName        String            @map("company_name")
+  registrationNumber String?           @map("registration_number")
+  description        String
+  servicesOffered    String[]          @map("services_offered")
+  yearsExperience    Int?              @map("years_experience")
+  employeesCount     Int?              @map("employees_count")
+  locationCity       String?           @map("location_city")
+  locationAddress    String?           @map("location_address")
+  isVerified         Boolean           @default(false) @map("is_verified")
+  verifiedAt         DateTime?         @map("verified_at")
+  ratingAverage      Decimal           @default(0.00) @map("rating_average") @db.Decimal(3, 2)
+  ratingCount        Int               @default(0) @map("rating_count")
+  status             ContractorStatus  @default(PENDING)
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents     Document[]
+  verifications Verification[]
+  stages        WorkflowStage[]
+  services      ContractorService[]
+  reviews       Review[]
+
+  @@index([userId])
+  @@index([isVerified])
+  @@index([status])
+  @@index([locationCity])
+  @@map("contractors")
+}
+
+model ServiceCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  icon        String?
+  isActive    Boolean   @default(true) @map("is_active")
+
+  contractors ContractorService[]
+
+  @@map("service_categories")
+}
+
+model ContractorService {
+  contractorId String @map("contractor_id")
+  serviceId    String @map("service_id")
+
+  contractor Contractor      @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  service    ServiceCategory @relation(fields: [serviceId], references: [id])
+
+  @@id([contractorId, serviceId])
+  @@map("contractor_services")
+}
+
+model Document {
+  id                String       @id @default(uuid())
+  uploadedBy        String       @map("uploaded_by")
+  relatedEntityType EntityType   @map("related_entity_type")
+  relatedEntityId   String       @map("related_entity_id")
+  documentType      DocumentType @map("document_type")
+  fileName          String       @map("file_name")
+  filePath          String       @map("file_path")
+  fileSize          Int          @map("file_size")
+  mimeType          String       @map("mime_type")
+  uploadedAt        DateTime     @default(now()) @map("uploaded_at")
+  expiresAt         DateTime?    @map("expires_at")
+
+  uploader      User           @relation(fields: [uploadedBy], references: [id])
+  property      Property?      @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade)
+  contractor    Contractor?    @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade)
+  verifications Verification[]
+
+  @@index([uploadedBy])
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([documentType])
+  @@map("documents")
+}
+
+model Verification {
+  id              String             @id @default(uuid())
+  entityType      EntityType         @map("entity_type")
+  entityId        String             @map("entity_id")
+  submittedBy     String             @map("submitted_by")
+  reviewedBy      String?            @map("reviewed_by")
+  status          VerificationStatus @default(PENDING)
+  submissionNotes String?            @map("submission_notes")
+  reviewNotes     String?            @map("review_notes")
+  submittedAt     DateTime           @default(now()) @map("submitted_at")
+  reviewedAt      DateTime?          @map("reviewed_at")
+  expiresAt       DateTime?          @map("expires_at")
+  badgeIssued     Boolean            @default(false) @map("badge_issued")
+
+  submitter User        @relation("SubmittedVerifications", fields: [submittedBy], references: [id])
+  reviewer  User?       @relation("ReviewedVerifications", fields: [reviewedBy], references: [id])
+  property  Property?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  contractor Contractor? @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  @@index([entityType, entityId])
+  @@index([submittedBy])
+  @@index([reviewedBy])
+  @@index([status])
+  @@map("verifications")
+}
+
+model Project {
+  id              String        @id @default(uuid())
+  clientId        String        @map("client_id")
+  propertyId      String?       @map("property_id")
+  projectName     String        @map("project_name")
+  projectType     ProjectType   @map("project_type")
+  description     String
+  budget          Decimal?      @db.Decimal(15, 2)
+  currency        String        @default("USD")
+  startDate       DateTime?     @map("start_date")
+  expectedEndDate DateTime?     @map("expected_end_date")
+  actualEndDate   DateTime?     @map("actual_end_date")
+  status          ProjectStatus @default(PLANNING)
+  currentStageId  String?       @map("current_stage_id")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  client      User            @relation(fields: [clientId], references: [id])
+  property    Property?       @relation(fields: [propertyId], references: [id])
+  stages      WorkflowStage[]
+  inspections Inspection[]
+  payments    Payment[]
+
+  @@index([clientId])
+  @@index([propertyId])
+  @@index([status])
+  @@map("projects")
+}
+
+model WorkflowStage {
+  id                   String                 @id @default(uuid())
+  projectId            String                 @map("project_id")
+  stageName            String                 @map("stage_name")
+  stageOrder           Int                    @map("stage_order")
+  description          String?
+  assignedContractorId String?                @map("assigned_contractor_id")
+  status               StageStatus            @default(PENDING)
+  paymentMilestone     Decimal?               @map("payment_milestone") @db.Decimal(15, 2)
+  paymentStatus        PaymentMilestoneStatus @default(NOT_DUE) @map("payment_status")
+  startedAt            DateTime?              @map("started_at")
+  completedAt          DateTime?              @map("completed_at")
+  notes                String?
+
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractor Contractor? @relation(fields: [assignedContractorId], references: [id])
+  inspections Inspection[]
+  payments   Payment[]
+
+  @@index([projectId, stageOrder])
+  @@index([assignedContractorId])
+  @@index([status])
+  @@map("workflow_stages")
+}
+
+model Inspection {
+  id             String           @id @default(uuid())
+  projectId      String           @map("project_id")
+  stageId        String?          @map("stage_id")
+  inspectorId    String?          @map("inspector_id")
+  inspectionType InspectionType   @map("inspection_type")
+  scheduledDate  DateTime         @map("scheduled_date")
+  completedDate  DateTime?        @map("completed_date")
+  status         InspectionStatus @default(SCHEDULED)
+  findings       String?
+  photos         Json?
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  project   Project        @relation(fields: [projectId], references: [id])
+  stage     WorkflowStage? @relation(fields: [stageId], references: [id])
+  inspector User?          @relation(fields: [inspectorId], references: [id])
+
+  @@index([projectId])
+  @@index([stageId])
+  @@index([inspectorId])
+  @@index([status])
+  @@map("inspections")
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  payerId           String        @map("payer_id")
+  recipientId       String?       @map("recipient_id")
+  relatedEntityType String        @map("related_entity_type")
+  relatedEntityId   String        @map("related_entity_id")
+  amount            Decimal       @db.Decimal(15, 2)
+  currency          String        @default("USD")
+  paymentMethod     PaymentMethod @map("payment_method")
+  paymentProvider   String?       @map("payment_provider")
+  providerPaymentId String?       @map("provider_payment_id")
+  providerIntentId  String?       @map("provider_intent_id")
+  status            PaymentStatus @default(PENDING)
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now()) @map("created_at")
+  completedAt       DateTime?     @map("completed_at")
+
+  payer        User            @relation("PayerPayments", fields: [payerId], references: [id])
+  recipient    User?           @relation("RecipientPayments", fields: [recipientId], references: [id])
+  project      Project?        @relation(fields: [relatedEntityId], references: [id])
+  stage        WorkflowStage?  @relation(fields: [relatedEntityId], references: [id])
+  transactions Transaction[]
+
+  @@index([payerId])
+  @@index([recipientId])
+  @@index([relatedEntityType, relatedEntityId])
+  @@index([providerPaymentId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Transaction {
+  id             String            @id @default(uuid())
+  paymentId      String            @map("payment_id")
+  transactionType TransactionType  @map("transaction_type")
+  amount         Decimal           @db.Decimal(15, 2)
+  currency       String            @default("USD")
+  providerTxId   String?           @map("provider_tx_id")
+  status         TransactionStatus @default(PENDING)
+  errorMessage   String?           @map("error_message")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  processedAt    DateTime?         @map("processed_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@index([providerTxId])
+  @@index([status])
+  @@map("transactions")
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  userId    String               @map("user_id")
+  type      NotificationType
+  category  NotificationCategory
+  title     String
+  message   String
+  linkUrl   String?              @map("link_url")
+  isRead    Boolean              @default(false) @map("is_read")
+  readAt    DateTime?            @map("read_at")
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@index([category])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String    @id @default(uuid())
+  userId     String?   @map("user_id")
+  action     String
+  entityType String?   @map("entity_type")
+  entityId   String?   @map("entity_id")
+  oldValues  Json?     @map("old_values")
+  newValues  Json?     @map("new_values")
+  ipAddress  String?   @map("ip_address")
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Reservation {
+  id              String            @id @default(uuid())
+  propertyId      String            @map("property_id")
+  buyerId         String            @map("buyer_id")
+  reservationDate DateTime          @default(now()) @map("reservation_date")
+  expiryDate      DateTime          @map("expiry_date")
+  depositAmount   Decimal?          @map("deposit_amount") @db.Decimal(15, 2)
+  depositPaid     Boolean           @default(false) @map("deposit_paid")
+  status          ReservationStatus @default(ACTIVE)
+  notes           String?
+
+  property Property @relation(fields: [propertyId], references: [id])
+  buyer    User     @relation(fields: [buyerId], references: [id])
+
+  @@index([propertyId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([expiryDate])
+  @@map("reservations")
+}
+
+model Review {
+  id                  String           @id @default(uuid())
+  reviewerId          String           @map("reviewer_id")
+  reviewedEntityType  ReviewEntityType @map("reviewed_entity_type")
+  reviewedEntityId    String           @map("reviewed_entity_id")
+  rating              Int
+  comment             String?
+  isVerifiedPurchase  Boolean          @default(false) @map("is_verified_purchase")
+  isVisible           Boolean          @default(true) @map("is_visible")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+
+  reviewer   User        @relation(fields: [reviewerId], references: [id])
+  contractor Contractor? @relation(fields: [reviewedEntityId], references: [id])
+  property   Property?   @relation(fields: [reviewedEntityId], references: [id])
+
+  @@index([reviewedEntityType, reviewedEntityId])
+  @@index([reviewerId])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("reviews")
+}
