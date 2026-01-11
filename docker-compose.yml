@@ -27,13 +27,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: development
     container_name: zimbuild-backend
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: development
       PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-zimbuild}?schema=public
       JWT_SECRET: ${JWT_SECRET}
@@ -46,8 +47,9 @@ services:
       PAYNOW_INTEGRATION_ID: ${PAYNOW_INTEGRATION_ID}
       PAYNOW_INTEGRATION_KEY: ${PAYNOW_INTEGRATION_KEY}
     volumes:
+      - ./backend:/app:cached
+      - /app/node_modules
       - uploads:/app/uploads
-      - ./backend/prisma:/app/prisma
     ports:
       - "${BACKEND_PORT:-4000}:4000"
     networks:
@@ -63,14 +65,21 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: development
     container_name: zimbuild-frontend
     restart: unless-stopped
     depends_on:
       - backend
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
+      NODE_ENV: development
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:4000}
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      WATCHPACK_POLLING: 'true'
+      CHOKIDAR_USEPOLLING: 'true'
+    volumes:
+      - ./frontend:/app:cached
+      - /app/node_modules
+      - /app/.next
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     networks:

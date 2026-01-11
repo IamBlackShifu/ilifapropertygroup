@@ -346,8 +346,8 @@ model Document {
   expiresAt         DateTime?    @map("expires_at")
 
   uploader      User           @relation(fields: [uploadedBy], references: [id])
-  property      Property?      @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade)
-  contractor    Contractor?    @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade)
+  property      Property?      @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade, map: "document_property_fk")
+  contractor    Contractor?    @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade, map: "document_contractor_fk")
   verifications Verification[]
 
   @@index([uploadedBy])
@@ -372,8 +372,8 @@ model Verification {
 
   submitter User        @relation("SubmittedVerifications", fields: [submittedBy], references: [id])
   reviewer  User?       @relation("ReviewedVerifications", fields: [reviewedBy], references: [id])
-  property  Property?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
-  contractor Contractor? @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  property  Property?   @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "verification_property_fk")
+  contractor Contractor? @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "verification_contractor_fk")
   documents Document[]
 
   @@index([entityType, entityId])
@@ -481,8 +481,8 @@ model Payment {
 
   payer        User            @relation("PayerPayments", fields: [payerId], references: [id])
   recipient    User?           @relation("RecipientPayments", fields: [recipientId], references: [id])
-  project      Project?        @relation(fields: [relatedEntityId], references: [id])
-  stage        WorkflowStage?  @relation(fields: [relatedEntityId], references: [id])
+  project      Project?        @relation(fields: [relatedEntityId], references: [id], map: "payment_project_fk")
+  stage        WorkflowStage?  @relation(fields: [relatedEntityId], references: [id], map: "payment_stage_fk")
   transactions Transaction[]
 
   @@index([payerId])
@@ -588,8 +588,8 @@ model Review {
   updatedAt           DateTime         @updatedAt @map("updated_at")
 
   reviewer   User        @relation(fields: [reviewerId], references: [id])
-  contractor Contractor? @relation(fields: [reviewedEntityId], references: [id])
-  property   Property?   @relation(fields: [reviewedEntityId], references: [id])
+  contractor Contractor? @relation(fields: [reviewedEntityId], references: [id], map: "review_contractor_fk")
+  property   Property?   @relation(fields: [reviewedEntityId], references: [id], map: "review_property_fk")
 
   @@index([reviewedEntityType, reviewedEntityId])
   @@index([reviewerId])

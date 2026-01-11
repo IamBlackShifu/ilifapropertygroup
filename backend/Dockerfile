@@ -1,13 +1,35 @@
 # Backend Dockerfile
 FROM node:20-alpine AS base
 
+# Install openssl for Prisma
+RUN apk add --no-cache openssl
+
+# Development stage
+FROM base AS development
+WORKDIR /app
+
+# Copy package files
+COPY package.json ./
+RUN npm install --legacy-peer-deps
+
+# Copy source code
+COPY . .
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+EXPOSE 4000
+
+# Development uses nest start --watch for hot reload
+CMD ["npm", "run", "start:dev"]
+
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json ./
+RUN npm install --legacy-peer-deps
 
 # Build the application
 FROM base AS builder
@@ -36,11 +58,12 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 
-# Create uploads directory
-RUN mkdir -p ./uploads && chown nestjs:nodejs ./uploads
+# Create uploads directory with proper permissions
+RUN mkdir -p ./uploads && chown -R nestjs:nodejs ./uploads ./node_modules
 
 USER nestjs
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "node dist/main"]
+

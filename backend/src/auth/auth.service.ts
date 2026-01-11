@@ -199,7 +199,7 @@ export class AuthService {
     }
   }
 
-  private async generateTokens(user: User) {
+  private async generateTokens(user: Pick<User, 'id' | 'email' | 'role'>) {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
