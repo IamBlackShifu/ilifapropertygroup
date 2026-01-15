@@ -73,3 +73,84 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
+// Auth API methods
+export const authAPI = {
+  login: (email: string, password: string) =>
+    apiClient.post<{ accessToken: string; refreshToken: string; user: any }>('/auth/login', {
+      email,
+      password,
+    }),
+
+  register: (data: {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+    role: string
+    phone?: string
+  }) =>
+    apiClient.post<{ accessToken: string; refreshToken: string; user: any }>(
+      '/auth/register',
+      data
+    ),
+
+  logout: () => apiClient.post('/auth/logout', {}),
+
+  forgotPassword: (email: string) =>
+    apiClient.post('/auth/forgot-password', { email }),
+
+  resetPassword: (token: string, password: string) =>
+    apiClient.post('/auth/reset-password', { token, password }),
+
+  getCurrentUser: () => apiClient.get<any>('/auth/me'),
+}
+
+// Properties API methods
+export const propertiesAPI = {
+  getAll: (params?: any) => apiClient.get<any[]>('/properties', { params }),
+
+  getById: (id: string) => apiClient.get<any>(`/properties/${id}`),
+
+  create: (data: any) => apiClient.post<any>('/properties', data),
+
+  update: (id: string, data: any) => apiClient.patch<any>(`/properties/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/properties/${id}`),
+}
+
+// Professionals API methods
+export const professionalsAPI = {
+  getAll: (params?: any) => apiClient.get<any[]>('/professionals', { params }),
+
+  getById: (id: string) => apiClient.get<any>(`/professionals/${id}`),
+
+  create: (data: any) => apiClient.post<any>('/professionals', data),
+
+  update: (id: string, data: any) => apiClient.patch<any>(`/professionals/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/professionals/${id}`),
+}
+
+// Projects API methods
+export const projectsAPI = {
+  getAll: (params?: any) => apiClient.get<any[]>('/projects', { params }),
+
+  getById: (id: string) => apiClient.get<any>(`/projects/${id}`),
+
+  create: (data: any) => apiClient.post<any>('/projects', data),
+
+  update: (id: string, data: any) => apiClient.patch<any>(`/projects/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/projects/${id}`),
+}
+
+// Users API methods
+export const usersAPI = {
+  getAll: (params?: any) => apiClient.get<any[]>('/users', { params }),
+
+  getById: (id: string) => apiClient.get<any>(`/users/${id}`),
+
+  update: (id: string, data: any) => apiClient.patch<any>(`/users/${id}`, data),
+
+  delete: (id: string) => apiClient.delete(`/users/${id}`),
+}
