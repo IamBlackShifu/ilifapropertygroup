@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { ThemeSwitcher } from './ThemeSwitcher'
 
 interface NavItem {
   label: string
@@ -228,6 +229,9 @@ export function Header() {
 
             {/* Auth Button / User Menu */}
             <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+              {/* Theme Switcher */}
+              <ThemeSwitcher />
+              
               {isAuthenticated && user ? (
                 <>
                   {/* User Info Card */}

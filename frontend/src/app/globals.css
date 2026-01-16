@@ -7,6 +7,120 @@
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 255, 255, 255;
     --background-end-rgb: 255, 255, 255;
+    
+    /* Default theme colors (blue) */
+    --color-primary: #2563eb;
+    --color-primary-dark: #1e40af;
+    --color-primary-light: #3b82f6;
+    --color-secondary: #10b981;
+    --color-accent: #f59e0b;
+  }
+  
+  /* Apply CSS variables to all primary color classes */
+  .bg-primary-600, 
+  .from-primary-600,
+  .to-primary-700,
+  .to-primary-800 {
+    background-color: var(--color-primary) !important;
+  }
+  
+  .bg-primary-700,
+  .from-primary-700 {
+    background-color: var(--color-primary-dark) !important;
+  }
+  
+  .bg-primary-800 {
+    background-color: color-mix(in srgb, var(--color-primary-dark) 90%, black) !important;
+  }
+  
+  .bg-primary-50,
+  .from-primary-50 {
+    background-color: color-mix(in srgb, var(--color-primary) 8%, white) !important;
+  }
+  
+  .bg-primary-100 {
+    background-color: color-mix(in srgb, var(--color-primary) 15%, white) !important;
+  }
+  
+  .bg-primary-200 {
+    background-color: color-mix(in srgb, var(--color-primary) 25%, white) !important;
+  }
+  
+  .text-primary-600 {
+    color: var(--color-primary) !important;
+  }
+  
+  .text-primary-700 {
+    color: var(--color-primary-dark) !important;
+  }
+  
+  .text-primary-100 {
+    color: color-mix(in srgb, var(--color-primary) 90%, white) !important;
+  }
+  
+  .border-primary-200 {
+    border-color: color-mix(in srgb, var(--color-primary) 25%, white) !important;
+  }
+  
+  .border-primary-100 {
+    border-color: color-mix(in srgb, var(--color-primary) 15%, white) !important;
+  }
+  
+  /* Hover states */
+  .hover\:bg-primary-700:hover {
+    background-color: var(--color-primary-dark) !important;
+  }
+  
+  .hover\:text-primary-600:hover {
+    color: var(--color-primary) !important;
+  }
+  
+  .hover\:bg-primary-50:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 8%, white) !important;
+  }
+  
+  /* Active states */
+  .active\:bg-primary-800:active {
+    background-color: color-mix(in srgb, var(--color-primary-dark) 90%, black) !important;
+  }
+  
+  /* Focus states */
+  .ring-primary-500,
+  .focus\:ring-primary-500:focus {
+    --tw-ring-color: var(--color-primary-light) !important;
+  }
+  
+  /* Gradient support */
+  .from-primary-600 {
+    --tw-gradient-from: var(--color-primary) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(from var(--color-primary) r g b / 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+  
+  .from-primary-700 {
+    --tw-gradient-from: var(--color-primary-dark) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(from var(--color-primary-dark) r g b / 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+  
+  .to-primary-700 {
+    --tw-gradient-to: var(--color-primary-dark) var(--tw-gradient-to-position) !important;
+  }
+  
+  .to-primary-800 {
+    --tw-gradient-to: color-mix(in srgb, var(--color-primary-dark) 90%, black) var(--tw-gradient-to-position) !important;
+  }
+  
+  .from-primary-50 {
+    --tw-gradient-from: color-mix(in srgb, var(--color-primary) 8%, white) var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+  }
+  
+  /* Shadow colors */
+  .shadow-primary-500\/50 {
+    --tw-shadow-color: color-mix(in srgb, var(--color-primary) 50%, transparent) !important;
+    --tw-shadow: var(--tw-shadow-colored) !important;
   }
 }
 

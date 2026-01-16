@@ -4,13 +4,13 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-primary-800 text-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
             <h3 className="text-white text-lg font-semibold mb-4">ZimBuildHub</h3>
-            <p className="text-sm mb-4">
+            <p className="text-sm mb-4 text-gray-200">
               Zimbabwe's trusted platform for verified properties, contractors, and construction projects.
             </p>
             <div className="flex space-x-4">
@@ -39,11 +39,11 @@ export function Footer() {
           <div>
             <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">For Buyers</h3>
             <ul className="space-y-2">
-              <li><Link href="/buy-property" className="text-sm hover:text-white transition-colors">Buy Property</Link></li>
-              <li><Link href="/build-home" className="text-sm hover:text-white transition-colors">Build a Home</Link></li>
-              <li><Link href="/diaspora" className="text-sm hover:text-white transition-colors">Diaspora Support</Link></li>
-              <li><Link href="/verify/property" className="text-sm hover:text-white transition-colors">Verify Property</Link></li>
-              <li><Link href="/learn" className="text-sm hover:text-white transition-colors">Learning Hub</Link></li>
+              <li><Link href="/buy-property" className="text-sm text-gray-200 hover:text-white transition-colors">Buy Property</Link></li>
+              <li><Link href="/build-home" className="text-sm text-gray-200 hover:text-white transition-colors">Build a Home</Link></li>
+              <li><Link href="/diaspora" className="text-sm text-gray-200 hover:text-white transition-colors">Diaspora Support</Link></li>
+              <li><Link href="/verify/property" className="text-sm text-gray-200 hover:text-white transition-colors">Verify Property</Link></li>
+              <li><Link href="/learn" className="text-sm text-gray-200 hover:text-white transition-colors">Learning Hub</Link></li>
             </ul>
           </div>
 
@@ -51,10 +51,10 @@ export function Footer() {
           <div>
             <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">For Professionals</h3>
             <ul className="space-y-2">
-              <li><Link href="/professionals" className="text-sm hover:text-white transition-colors">Find Professionals</Link></li>
-              <li><Link href="/suppliers" className="text-sm hover:text-white transition-colors">Suppliers Directory</Link></li>
-              <li><Link href="/for-professionals" className="text-sm hover:text-white transition-colors">List Your Business</Link></li>
-              <li><Link href="/verify/agent" className="text-sm hover:text-white transition-colors">Get Verified</Link></li>
+              <li><Link href="/professionals" className="text-sm text-gray-200 hover:text-white transition-colors">Find Professionals</Link></li>
+              <li><Link href="/suppliers" className="text-sm text-gray-200 hover:text-white transition-colors">Suppliers Directory</Link></li>
+              <li><Link href="/for-professionals" className="text-sm text-gray-200 hover:text-white transition-colors">List Your Business</Link></li>
+              <li><Link href="/verify/agent" className="text-sm text-gray-200 hover:text-white transition-colors">Get Verified</Link></li>
             </ul>
           </div>
 
@@ -62,17 +62,17 @@ export function Footer() {
           <div>
             <h3 className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Company</h3>
             <ul className="space-y-2">
-              <li><Link href="/about" className="text-sm hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/market-insights" className="text-sm hover:text-white transition-colors">Market Insights</Link></li>
-              <li><Link href="/contact" className="text-sm hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/terms" className="text-sm hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-200 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/market-insights" className="text-sm text-gray-200 hover:text-white transition-colors">Market Insights</Link></li>
+              <li><Link href="/contact" className="text-sm text-gray-200 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/terms" className="text-sm text-gray-200 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-sm text-gray-200 hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-          <p className="text-sm">
+        <div className="mt-8 pt-8 border-t border-primary-700 text-center">
+          <p className="text-sm text-gray-200">
             &copy; {currentYear} ZimBuildHub. All rights reserved. Built for Zimbabwe.
           </p>
         </div>
