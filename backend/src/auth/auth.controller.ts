@@ -48,24 +48,31 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user' })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.login(dto);
+    try {
+      console.log('🔵 [AuthController] Login attempt for:', dto.email);
+      const result = await this.authService.login(dto);
+      console.log('✅ [AuthController] Login successful for:', dto.email);
 
-    // Set refresh token in HTTP-only cookie
-    res.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+      // Set refresh token in HTTP-only cookie
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-    return {
-      success: true,
-      data: {
-        user: result.user,
-        accessToken: result.accessToken,
-      },
-      message: 'Login successful',
-    };
+      return {
+        success: true,
+        data: {
+          user: result.user,
+          accessToken: result.accessToken,
+        },
+        message: 'Login successful',
+      };
+    } catch (error) {
+      console.error('❌ [AuthController] Login error:', error);
+      throw error;
+    }
   }
 
   @Post('refresh')

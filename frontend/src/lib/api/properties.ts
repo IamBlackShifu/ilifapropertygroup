@@ -1,5 +1,5 @@
-import apiClient from './api-client';
-import { Property, PropertyStatus, PropertyType } from '../types';
+import apiClient from '@/lib/api-client';
+import { Property, PropertyStatus, PropertyType } from '@/types';
 
 export interface PropertyFilters {
   search?: string;

@@ -144,6 +144,8 @@ enum NotificationType {
   SUCCESS
   WARNING
   ERROR
+  ORDER_RECEIVED
+  ORDER_STATUS_UPDATED
 }
 
 enum NotificationCategory {
@@ -152,6 +154,7 @@ enum NotificationCategory {
   PROJECT
   PROPERTY
   SYSTEM
+  ORDER
 }
 
 enum ReservationStatus {
@@ -164,6 +167,51 @@ enum ReservationStatus {
 enum ReviewEntityType {
   CONTRACTOR
   PROPERTY
+  SUPPLIER
+}
+
+enum ViewingStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum SupplierStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
+enum ProductCategory {
+  CEMENT
+  BRICKS
+  STEEL
+  TIMBER
+  ROOFING
+  PLUMBING
+  ELECTRICAL
+  PAINT
+  TILES
+  DOORS_WINDOWS
+  HARDWARE
+  TOOLS
+  OTHER
+}
+
+enum ProductStatus {
+  AVAILABLE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
 model User {
@@ -186,6 +234,7 @@ model User {
   refreshTokens   RefreshToken[]
   properties      Property[]
   contractor      Contractor?
+  supplier        Supplier?
   projects        Project[]
   documents       Document[]
   verifications   Verification[]  @relation("SubmittedVerifications")
@@ -197,6 +246,13 @@ model User {
   reservations    Reservation[]
   reviews         Review[]
   inspections     Inspection[]
+  savedProperties SavedProperty[]
+  propertyViewings PropertyViewing[] @relation("ViewingRequester")
+  ownedPropertyViewings PropertyViewing[] @relation("PropertyOwner")
+  buyerOrders     Order[]          @relation("BuyerOrders")
+  subscriptions   Subscription[]
+  invoices        Invoice[]
+  serviceRequests ServiceRequest[] @relation("ServiceRequester")
 
   @@index([email])
   @@index([role])
@@ -248,9 +304,12 @@ model Property {
   images       PropertyImage[]
   documents    Document[]
   verifications Verification[]
+  savedBy      SavedProperty[]
+  viewings     PropertyViewing[]
   projects     Project[]
   reservations Reservation[]
   reviews      Review[]
+  serviceRequests ServiceRequest[]
 
   @@index([ownerId])
   @@index([status])
@@ -301,6 +360,7 @@ model Contractor {
   stages        WorkflowStage[]
   services      ContractorService[]
   reviews       Review[]
+  serviceRequests ServiceRequest[]
 
   @@index([userId])
   @@index([isVerified])
@@ -348,6 +408,7 @@ model Document {
   uploader      User           @relation(fields: [uploadedBy], references: [id])
   property      Property?      @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade, map: "document_property_fk")
   contractor    Contractor?    @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade, map: "document_contractor_fk")
+  supplier      Supplier?      @relation(fields: [relatedEntityId], references: [id], onDelete: Cascade, map: "document_supplier_fk")
   verifications Verification[]
 
   @@index([uploadedBy])
@@ -374,6 +435,7 @@ model Verification {
   reviewer  User?       @relation("ReviewedVerifications", fields: [reviewedBy], references: [id])
   property  Property?   @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "verification_property_fk")
   contractor Contractor? @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "verification_contractor_fk")
+  supplier   Supplier?   @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "verification_supplier_fk")
   documents Document[]
 
   @@index([entityType, entityId])
@@ -590,6 +652,7 @@ model Review {
   reviewer   User        @relation(fields: [reviewerId], references: [id])
   contractor Contractor? @relation(fields: [reviewedEntityId], references: [id], map: "review_contractor_fk")
   property   Property?   @relation(fields: [reviewedEntityId], references: [id], map: "review_property_fk")
+  supplier   Supplier?   @relation(fields: [reviewedEntityId], references: [id], map: "review_supplier_fk")
 
   @@index([reviewedEntityType, reviewedEntityId])
   @@index([reviewerId])
@@ -597,3 +660,312 @@ model Review {
   @@index([createdAt])
   @@map("reviews")
 }
+
+model Supplier {
+  id                 String         @id @default(uuid())
+  userId             String         @unique @map("user_id")
+  companyName        String         @map("company_name")
+  registrationNumber String?        @map("registration_number")
+  description        String
+  categories         ProductCategory[]
+  yearsInBusiness    Int?           @map("years_in_business")
+  locationCity       String?        @map("location_city")
+  locationAddress    String?        @map("location_address")
+  websiteUrl         String?        @map("website_url")
+  isVerified         Boolean        @default(false) @map("is_verified")
+  verifiedAt         DateTime?      @map("verified_at")
+  ratingAverage      Decimal        @default(0.00) @map("rating_average") @db.Decimal(3, 2)
+  ratingCount        Int            @default(0) @map("rating_count")
+  status             SupplierStatus @default(PENDING)
+  deliveryAvailable  Boolean        @default(false) @map("delivery_available")
+  deliveryRadius     Int?           @map("delivery_radius")
+  minOrderAmount     Decimal?       @map("min_order_amount") @db.Decimal(15, 2)
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products      Product[]
+  orders        Order[]
+  documents     Document[]
+  verifications Verification[]
+  reviews       Review[]
+
+  @@index([userId])
+  @@index([isVerified])
+  @@index([status])
+  @@index([locationCity])
+  @@map("suppliers")
+}
+
+model Product {
+  id           String          @id @default(uuid())
+  supplierId   String          @map("supplier_id")
+  name         String
+  description  String
+  category     ProductCategory
+  unit         String          // e.g., "bag", "piece", "ton", "meter"
+  price        Decimal         @db.Decimal(15, 2)
+  currency     String          @default("USD")
+  stockQuantity Int            @default(0) @map("stock_quantity")
+  minOrderQty  Int            @default(1) @map("min_order_qty")
+  imageUrls    String[]       @map("image_urls")
+  status       ProductStatus  @default(AVAILABLE)
+  specifications Json?
+  isFeatured   Boolean        @default(false) @map("is_featured")
+  viewCount    Int            @default(0) @map("view_count")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  supplier  Supplier     @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([supplierId])
+  @@index([category])
+  @@index([status])
+  @@index([isFeatured])
+  @@map("products")
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  orderNumber    String      @unique @map("order_number")
+  buyerId        String      @map("buyer_id")
+  supplierId     String      @map("supplier_id")
+  totalAmount    Decimal     @db.Decimal(15, 2) @map("total_amount")
+  currency       String      @default("USD")
+  status         OrderStatus @default(PENDING)
+  deliveryAddress String     @map("delivery_address")
+  deliveryCity   String      @map("delivery_city")
+  contactName    String      @map("contact_name")
+  contactPhone   String      @map("contact_phone")
+  notes          String?
+  orderDate      DateTime    @default(now()) @map("order_date")
+  confirmedAt    DateTime?   @map("confirmed_at")
+  deliveredAt    DateTime?   @map("delivered_at")
+  cancelledAt    DateTime?   @map("cancelled_at")
+
+  buyer      User        @relation("BuyerOrders", fields: [buyerId], references: [id])
+  supplier   Supplier    @relation(fields: [supplierId], references: [id])
+  items      OrderItem[]
+
+  @@index([buyerId])
+  @@index([supplierId])
+  @@index([status])
+  @@index([orderDate])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  quantity  Int
+  unitPrice Decimal @db.Decimal(15, 2) @map("unit_price")
+  totalPrice Decimal @db.Decimal(15, 2) @map("total_price")
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model SavedProperty {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  propertyId String   @map("property_id")
+  notes      String?
+  savedAt    DateTime @default(now()) @map("saved_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("saved_properties")
+}
+
+model PropertyViewing {
+  id                String        @id @default(uuid())
+  propertyId        String        @map("property_id")
+  requestedBy       String        @map("requested_by")
+  ownerId           String        @map("owner_id")
+  preferredDate     DateTime      @map("preferred_date")
+  preferredTime     String        @map("preferred_time")
+  contactName       String        @map("contact_name")
+  contactEmail      String        @map("contact_email")
+  contactPhone      String        @map("contact_phone")
+  message           String?
+  status            ViewingStatus @default(REQUESTED)
+  confirmedDate     DateTime?     @map("confirmed_date")
+  confirmedTime     String?       @map("confirmed_time")
+  ownerNotes        String?       @map("owner_notes")
+  completionNotes   String?       @map("completion_notes")
+  requestedAt       DateTime      @default(now()) @map("requested_at")
+  respondedAt       DateTime?     @map("responded_at")
+  completedAt       DateTime?     @map("completed_at")
+
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requester User     @relation("ViewingRequester", fields: [requestedBy], references: [id], onDelete: Cascade)
+  owner     User     @relation("PropertyOwner", fields: [ownerId], references: [id])
+
+  @@index([propertyId])
+  @@index([requestedBy])
+  @@index([ownerId])
+  @@index([status])
+  @@index([preferredDate])
+  @@map("property_viewings")
+}
+
+// ==================== SUBSCRIPTION & BILLING ====================
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+}
+
+model Subscription {
+  id               String             @id @default(uuid())
+  userId           String             @map("user_id")
+  plan             SubscriptionPlan   @default(FREE)
+  status           SubscriptionStatus @default(ACTIVE)
+  amount           Decimal            @db.Decimal(10, 2)
+  currency         String             @default("USD")
+  billingCycle     String             @map("billing_cycle") // MONTHLY, YEARLY
+  startDate        DateTime           @map("start_date") @default(now())
+  endDate          DateTime           @map("end_date")
+  lastPaymentDate  DateTime?          @map("last_payment_date")
+  nextBillingDate  DateTime           @map("next_billing_date")
+  autoRenew        Boolean            @default(true) @map("auto_renew")
+  
+  // Features based on plan
+  maxProperties    Int                @default(0) @map("max_properties") // For property owners
+  maxProducts      Int                @default(0) @map("max_products") // For suppliers
+  maxProjects      Int                @default(0) @map("max_projects") // For contractors
+  canReceiveLeads  Boolean            @default(false) @map("can_receive_leads")
+  canAccessAnalytics Boolean          @default(false) @map("can_access_analytics")
+  prioritySupport  Boolean            @default(false) @map("priority_support")
+  
+  // Payment tracking
+  paymentMethod    PaymentMethod?     @map("payment_method")
+  paymentProviderId String?           @map("payment_provider_id")
+  
+  metadata         Json?
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  cancelledAt      DateTime?          @map("cancelled_at")
+
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoices         Invoice[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([endDate])
+  @@map("subscriptions")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  subscriptionId String        @map("subscription_id")
+  userId         String        @map("user_id")
+  invoiceNumber  String        @unique @map("invoice_number")
+  amount         Decimal       @db.Decimal(10, 2)
+  currency       String        @default("USD")
+  status         InvoiceStatus @default(PENDING)
+  dueDate        DateTime      @map("due_date")
+  paidDate       DateTime?     @map("paid_date")
+  
+  // Payment details
+  paymentMethod  PaymentMethod? @map("payment_method")
+  paymentId      String?        @map("payment_id")
+  paynowPollUrl  String?        @map("paynow_poll_url")
+  
+  items          Json // Array of line items
+  metadata       Json?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  subscription   Subscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([userId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+// ==================== SERVICE REQUESTS ====================
+enum ServiceRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model ServiceRequest {
+  id            String               @id @default(uuid())
+  requesterId   String               @map("requester_id")
+  contractorId  String               @map("contractor_id")
+  propertyId    String?              @map("property_id")
+  serviceType   String               @map("service_type")
+  description   String
+  urgency       String               @default("NORMAL") // URGENT, NORMAL, LOW
+  status        ServiceRequestStatus @default(PENDING)
+  
+  // Timeline
+  preferredDate DateTime?            @map("preferred_date")
+  startDate     DateTime?            @map("start_date")
+  completedDate DateTime?            @map("completed_date")
+  
+  // Location
+  locationCity    String?            @map("location_city")
+  locationAddress String?            @map("location_address")
+  
+  // Budget
+  estimatedBudget Decimal?           @db.Decimal(15, 2) @map("estimated_budget")
+  quotedAmount    Decimal?           @db.Decimal(15, 2) @map("quoted_amount")
+  currency        String             @default("USD")
+  
+  // Communication
+  contractorNotes String?            @map("contractor_notes")
+  rejectionReason String?            @map("rejection_reason")
+  
+  // Timestamps
+  requestedAt   DateTime             @default(now()) @map("requested_at")
+  respondedAt   DateTime?            @map("responded_at")
+  completedAt   DateTime?            @map("completed_at")
+  
+  // Relations
+  requester  User       @relation("ServiceRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  contractor Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  property   Property?  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([requesterId])
+  @@index([contractorId])
+  @@index([propertyId])
+  @@index([status])
+  @@index([requestedAt])
+  @@map("service_requests")
+}
+

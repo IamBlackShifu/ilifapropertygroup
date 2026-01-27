@@ -26,9 +26,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         email: true,
         firstName: true,
         lastName: true,
+        phone: true,
         role: true,
         isActive: true,
         isSuspended: true,
+        profileImageUrl: true,
       },
     });
 
@@ -36,6 +38,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return null;
     }
 
-    return user;
+    // Transform to match frontend interface
+    return {
+      id: user.id,
+      userId: user.id, // For backward compatibility
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      avatar: user.profileImageUrl,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
   }
 }

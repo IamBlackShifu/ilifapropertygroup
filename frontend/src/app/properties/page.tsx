@@ -236,7 +236,7 @@ export default function PropertiesPage() {
                   <div className="relative h-48 bg-gray-200">
                     {property.images && property.images.length > 0 ? (
                       <img
-                        src={property.images[0].imageUrl}
+                        src={`http://localhost:4000${property.images[0].imageUrl}`}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />

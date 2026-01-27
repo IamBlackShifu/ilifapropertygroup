@@ -141,7 +141,7 @@ export default function ImageUpload({ images, onImagesChange, maxImages = 10 }: 
             >
               {/* Image */}
               <img
-                src={imageUrl}
+                src={`http://localhost:4000${imageUrl}`}
                 alt={`Property image ${index + 1}`}
                 className="w-full h-full object-cover"
               />

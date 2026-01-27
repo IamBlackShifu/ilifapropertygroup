@@ -10,6 +10,9 @@ import { ProjectsModule } from './projects/projects.module';
 import { PaymentsModule } from './payments/payments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FilesModule } from './files/files.module';
+import { AdminModule } from './admin/admin.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -21,11 +24,14 @@ import { FilesModule } from './files/files.module';
     UsersModule,
     PropertiesModule,
     ContractorsModule,
+    SuppliersModule,
     VerificationsModule,
     ProjectsModule,
     PaymentsModule,
     NotificationsModule,
     FilesModule,
+    AdminModule,
+    ServicesModule,
   ],
 })
 export class AppModule {}

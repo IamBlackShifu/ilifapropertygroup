@@ -83,14 +83,42 @@ function MyPropertiesContent() {
     }
   }
 
+  const handleSubmitForVerification = async (id: string) => {
+    try {
+      const token = localStorage.getItem('accessToken')
+      const response = await fetch(`http://localhost:4000/api/properties/${id}/submit-verification`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        // Refresh the list
+        fetchProperties()
+        alert('Property submitted for verification successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.message || 'Failed to submit property')
+      }
+    } catch (error) {
+      alert('An error occurred while submitting the property')
+    }
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'VERIFIED': return 'bg-green-100 text-green-800'
       case 'PENDING_VERIFICATION': return 'bg-yellow-100 text-yellow-800'
       case 'DRAFT': return 'bg-gray-100 text-gray-800'
+      case 'RESERVED': return 'bg-blue-100 text-blue-800'
       case 'SOLD': return 'bg-red-100 text-red-800'
       default: return 'bg-blue-100 text-blue-800'
     }
+  }
+
+  const getStatusLabel = (status: string) => {
+    return status.replace(/_/g, ' ')
   }
 
   if (loading) {
@@ -160,7 +188,7 @@ function MyPropertiesContent() {
                   <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
                     {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                       <img
-                        src={property.images[0].imageUrl}
+                        src={`http://localhost:4000${property.images[0].imageUrl}`}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />
@@ -171,7 +199,7 @@ function MyPropertiesContent() {
                     )}
                     <div className="absolute top-4 right-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(property.status)}`}>
-                        {property.status.replace('_', ' ')}
+                        {getStatusLabel(property.status)}
                       </span>
                     </div>
                   </div>
@@ -179,9 +207,10 @@ function MyPropertiesContent() {
                   {/* Property Details */}
                   <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900 mb-2 truncate">{property.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-gray-600 mb-2">
                       {property.locationCity}{property.locationArea ? `, ${property.locationArea}` : ''}
                     </p>
+                    <p className="text-xs text-gray-500 mb-4">{property.propertyType}</p>
                     
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-2xl font-bold text-blue-600">
@@ -192,26 +221,68 @@ function MyPropertiesContent() {
                       </span>
                     </div>
 
+                    {/* Status Info */}
+                    {property.status === 'DRAFT' && (
+                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p className="text-xs text-amber-800">
+                          📝 This property is in draft mode. Submit it for verification to make it live.
+                        </p>
+                      </div>
+                    )}
+                    {property.status === 'PENDING_VERIFICATION' && (
+                      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-xs text-yellow-800">
+                          ⏳ Pending admin verification
+                        </p>
+                      </div>
+                    )}
+                    {property.status === 'VERIFIED' && (
+                      <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-xs text-green-800">
+                          ✅ Property is live and visible to buyers
+                        </p>
+                      </div>
+                    )}
+
                     {/* Actions */}
-                    <div className="flex space-x-2">
-                      <Link
-                        href={`/buy-property/${property.id}`}
-                        className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-center text-sm font-medium"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/my-properties/edit/${property.id}`}
-                        className="flex-1 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition text-center text-sm font-medium"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => setDeleteConfirm(property.id)}
-                        className="flex-1 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium"
-                      >
-                        Delete
-                      </button>
+                    <div className="space-y-2">
+                      <div className="flex space-x-2">
+                        <Link
+                          href={`/properties/${property.id}`}
+                          className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-center text-sm font-medium"
+                        >
+                          View
+                        </Link>
+                        <Link
+                          href={`/my-properties/${property.id}/analytics`}
+                          className="flex-1 px-4 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition text-center text-sm font-medium"
+                          title="View Analytics"
+                        >
+                          📊
+                        </Link>
+                        {property.status === 'DRAFT' && (
+                          <Link
+                            href={`/my-properties/edit/${property.id}`}
+                            className="flex-1 px-4 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition text-center text-sm font-medium"
+                          >
+                            Edit
+                          </Link>
+                        )}
+                        <button
+                          onClick={() => setDeleteConfirm(property.id)}
+                          className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      {property.status === 'DRAFT' && (
+                        <button
+                          onClick={() => handleSubmitForVerification(property.id)}
+                          className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition text-sm font-semibold"
+                        >
+                          Submit for Verification
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

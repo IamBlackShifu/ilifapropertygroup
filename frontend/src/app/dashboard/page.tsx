@@ -11,6 +11,15 @@ interface DashboardStats {
   projects: number
   reservations: number
   totalValue: number
+  totalViews?: number
+  propertyStats?: {
+    total: number
+    draft: number
+    pending: number
+    verified: number
+    reserved: number
+    sold: number
+  }
 }
 
 export default function DashboardPage() {
@@ -29,6 +38,15 @@ function DashboardContent() {
     projects: 0,
     reservations: 0,
     totalValue: 0,
+    totalViews: 0,
+    propertyStats: {
+      total: 0,
+      draft: 0,
+      pending: 0,
+      verified: 0,
+      reserved: 0,
+      sold: 0
+    }
   })
   const [dashboardLoading, setDashboardLoading] = useState(true)
   const [recentActivity, setRecentActivity] = useState<any[]>([])
@@ -55,9 +73,14 @@ function DashboardContent() {
       
       // Fetch data based on role
       if (user.role === 'OWNER' || user.role === 'AGENT' || user.role === 'ADMIN') {
-        const propertiesRes = await fetch('http://localhost:4000/api/properties/my-properties', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+        const [propertiesRes, statsRes] = await Promise.all([
+          fetch('http://localhost:4000/api/properties/my-properties', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('http://localhost:4000/api/properties/user/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ])
         
         if (propertiesRes.ok) {
           const propertiesData = await propertiesRes.json()
@@ -66,12 +89,39 @@ function DashboardContent() {
           const totalValue = properties.reduce((sum: number, prop: any) => 
             sum + parseFloat(prop.price), 0
           )
+
+          const totalViews = properties.reduce((sum: number, prop: any) => 
+            sum + (prop.viewCount || 0), 0
+          )
+          
+          let propertyStats: any = {
+            total: properties.length,
+            draft: 0,
+            pending: 0,
+            verified: 0,
+            reserved: 0,
+            sold: 0
+          }
+
+          if (statsRes.ok) {
+            const statsData = await statsRes.json()
+            propertyStats = {
+              total: statsData.data.total,
+              draft: statsData.data.byStatus.draft,
+              pending: statsData.data.byStatus.pending,
+              verified: statsData.data.byStatus.verified,
+              reserved: statsData.data.byStatus.reserved,
+              sold: statsData.data.byStatus.sold
+            }
+          }
           
           setStats({
             properties: properties.length,
             projects: 0,
             reservations: 0,
             totalValue: totalValue,
+            totalViews: totalViews,
+            propertyStats: propertyStats
           })
           
           setRecentActivity(properties.slice(0, 5))
@@ -192,6 +242,7 @@ function BuyerDashboard() {
 function OwnerDashboard({ stats, loading, recentActivity }: any) {
   return (
     <>
+      {/* Main Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard 
           title="My Properties" 
@@ -207,18 +258,47 @@ function OwnerDashboard({ stats, loading, recentActivity }: any) {
           color="green"
         />
         <StatCard 
-          title="Property Views" 
-          value="0" 
+          title="Total Views" 
+          value={loading ? '...' : stats.totalViews?.toString() || '0'} 
           icon="eye" 
           color="purple"
         />
         <StatCard 
-          title="Inquiries" 
-          value="0" 
-          icon="message" 
+          title="Live Properties" 
+          value={loading ? '...' : stats.propertyStats?.verified.toString() || '0'} 
+          icon="check" 
           color="orange"
         />
       </div>
+
+      {/* Property Status Breakdown */}
+      {!loading && stats.propertyStats && (
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Property Status Overview</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-gray-700">{stats.propertyStats.draft}</div>
+              <div className="text-xs text-gray-600 mt-1">Draft</div>
+            </div>
+            <div className="text-center p-4 bg-yellow-50 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-700">{stats.propertyStats.pending}</div>
+              <div className="text-xs text-yellow-600 mt-1">Pending</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-700">{stats.propertyStats.verified}</div>
+              <div className="text-xs text-green-600 mt-1">Verified</div>
+            </div>
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-700">{stats.propertyStats.reserved}</div>
+              <div className="text-xs text-blue-600 mt-1">Reserved</div>
+            </div>
+            <div className="text-center p-4 bg-red-50 rounded-lg">
+              <div className="text-2xl font-bold text-red-700">{stats.propertyStats.sold}</div>
+              <div className="text-xs text-red-600 mt-1">Sold</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <QuickActions actions={[
         { href: '/my-properties/new', icon: 'plus', title: 'List a Property', desc: 'Add new listing', color: 'blue' },

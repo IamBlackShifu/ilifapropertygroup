@@ -65,45 +65,16 @@ export class AuthService {
     await this.storeRefreshToken(user.id, refreshToken);
 
     return {
-      user,
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async login(dto: LoginDto) {
-    // Validate user
-    const user = await this.validateUser(dto.email, dto.password);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Check if user is active
-    if (!user.isActive || user.isSuspended) {
-      throw new UnauthorizedException('Account is inactive or suspended');
-    }
-
-    // Update last login
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() },
-    });
-
-    // Generate tokens
-    const { accessToken, refreshToken } = await this.generateTokens(user);
-
-    // Store refresh token
-    await this.storeRefreshToken(user.id, refreshToken);
-
-    return {
       user: {
         id: user.id,
+        userId: user.id, // For backward compatibility
+        name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         phone: user.phone,
         role: user.role,
+        avatar: user.profileImageUrl,
         emailVerified: user.emailVerified,
         isActive: user.isActive,
         profileImageUrl: user.profileImageUrl,
@@ -113,6 +84,67 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async login(dto: LoginDto) {
+    try {
+      console.log('🔵 [AuthService] Starting login for:', dto.email);
+      
+      // Validate user
+      const user = await this.validateUser(dto.email, dto.password);
+
+      if (!user) {
+        console.log('❌ [AuthService] Invalid credentials for:', dto.email);
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      // Check if user is active
+      if (!user.isActive || user.isSuspended) {
+        console.log('❌ [AuthService] Inactive/suspended account:', dto.email);
+        throw new UnauthorizedException('Account is inactive or suspended');
+      }
+
+      console.log('✅ [AuthService] User validated:', dto.email);
+
+      // Update last login
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+
+      // Generate tokens
+      console.log('🔵 [AuthService] Generating tokens for:', dto.email);
+      const { accessToken, refreshToken } = await this.generateTokens(user);
+      console.log('✅ [AuthService] Tokens generated successfully');
+
+      // Store refresh token
+      await this.storeRefreshToken(user.id, refreshToken);
+      console.log('✅ [AuthService] Refresh token stored');
+
+      return {
+        user: {
+          id: user.id,
+          userId: user.id, // For backward compatibility
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phone: user.phone,
+          role: user.role,
+          avatar: user.profileImageUrl,
+          emailVerified: user.emailVerified,
+          isActive: user.isActive,
+          profileImageUrl: user.profileImageUrl,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      console.error('❌ [AuthService] Login error:', error);
+      throw error;
+    }
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {

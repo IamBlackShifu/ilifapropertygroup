@@ -162,7 +162,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     );
   }
 
-  const isOwner = user?.userId === property.ownerId;
+  const isOwner = user?.id === property.owner?.id;
   const isAdmin = user?.role === 'ADMIN';
 
   return (
@@ -179,7 +179,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
               <p className="text-gray-600 mb-2">
-                📍 {property.locationCity}{property.locationArea ? `, ${property.locationArea}` : ''}
+                📍 {[property.locationCity, property.locationArea].filter(Boolean).join(', ')}
               </p>
               {property.locationAddress && (
                 <p className="text-gray-500 text-sm">{property.locationAddress}</p>
@@ -201,7 +201,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               {property.images && property.images.length > 0 ? (
                 <div className="relative">
                   <img
-                    src={property.images[currentImageIndex].imageUrl}
+                    src={`http://localhost:4000${property.images[currentImageIndex].imageUrl}`}
                     alt={property.title}
                     className="w-full h-96 object-cover"
                   />
@@ -276,22 +276,6 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                 <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
                 <p className="text-gray-700 whitespace-pre-line">{property.description}</p>
               </div>
-
-              {property.features && property.features.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Features</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {property.features.map((feature, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-primary-100 text-primary-800 text-sm rounded-full"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -303,7 +287,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <div className="flex items-center gap-3 mb-4">
                 {property.owner?.profileImageUrl ? (
                   <img
-                    src={property.owner.profileImageUrl}
+                    src={`http://localhost:4000${property.owner.profileImageUrl}`}
                     alt={`${property.owner.firstName} ${property.owner.lastName}`}
                     className="w-12 h-12 rounded-full object-cover"
                   />
@@ -332,7 +316,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                   {isOwner && (
                     <>
                       <Link
-                        href={`/properties/edit/${property.id}`}
+                        href={`/my-properties/edit/${property.id}`}
                         className="block w-full text-center btn-primary px-4 py-2 rounded-lg"
                       >
                         Edit Property

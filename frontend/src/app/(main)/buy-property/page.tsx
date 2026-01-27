@@ -374,7 +374,7 @@ export default function BuyPropertyPage() {
                       <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
                         {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                           <img
-                            src={property.images[0].imageUrl}
+                            src={`http://localhost:4000${property.images[0].imageUrl}`}
                             alt={property.title}
                             className="w-full h-full object-cover"
                           />

@@ -71,9 +71,28 @@ export default function LoginPage() {
       })
       console.log('🔵 [LoginPage] RefreshToken stored in HTTP-only cookie by backend')
 
-      // Force a page reload to trigger AuthContext to load the user
-      console.log('🔵 [LoginPage] Redirecting and reloading to initialize auth state')
-      window.location.href = '/'
+      // Redirect based on user role
+      const userRole = loginData.user?.role
+      console.log('🔵 [LoginPage] User role:', userRole)
+      
+      let redirectUrl = '/dashboard'
+      
+      if (userRole === 'ADMIN') {
+        redirectUrl = '/admin'
+        console.log('🔵 [LoginPage] Admin user - redirecting to /admin')
+      } else if (userRole === 'OWNER') {
+        redirectUrl = '/my-properties'
+        console.log('🔵 [LoginPage] Owner user - redirecting to /my-properties')
+      } else if (userRole === 'BUYER') {
+        redirectUrl = '/properties'
+        console.log('🔵 [LoginPage] Buyer user - redirecting to /properties')
+      } else if (userRole === 'CONTRACTOR') {
+        redirectUrl = '/projects'
+        console.log('🔵 [LoginPage] Contractor user - redirecting to /projects')
+      }
+
+      console.log('🔵 [LoginPage] Redirecting to:', redirectUrl)
+      window.location.href = redirectUrl
     } catch (err: any) {
       console.error('❌ [LoginPage] Login error:', err)
       setError(err.message || 'An error occurred during login')
