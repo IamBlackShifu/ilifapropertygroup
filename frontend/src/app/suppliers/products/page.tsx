@@ -84,7 +84,7 @@ export default function ProductsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -113,7 +113,7 @@ export default function ProductsPage() {
             </div>
             <Link
               href="/suppliers/products/new"
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+              className="px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
             >
               + Add Product
             </Link>
@@ -183,7 +183,7 @@ export default function ProductsPage() {
             {products.length === 0 && (
               <Link
                 href="/suppliers/products/new"
-                className="inline-block px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="inline-block px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
                 Add Your First Product
               </Link>
@@ -238,7 +238,7 @@ export default function ProductsPage() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Price:</span>
-                      <span className="font-bold text-blue-600">${Number(product.price).toFixed(2)}</span>
+                      <span className="font-bold text-primary-600">${Number(product.price).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Stock:</span>
@@ -260,7 +260,7 @@ export default function ProductsPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/suppliers/products/${product.id}/edit`}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 text-sm font-medium"
+                      className="flex-1 px-4 py-2 bg-primary-600 text-white text-center rounded-md hover:bg-primary-700 text-sm font-medium"
                     >
                       Edit
                     </Link>

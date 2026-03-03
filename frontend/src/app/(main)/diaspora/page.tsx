@@ -15,7 +15,7 @@ export default function DiasporaPage() {
 
       {/* Why Choose Us */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-3xl font-bold text-center mb-12">Why Diaspora Buyers Choose ZimBuildHub</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">Why Diaspora Buyers Choose ILifa Property Group</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {[
@@ -133,7 +133,7 @@ export default function DiasporaPage() {
               <h3 className="font-semibold mb-2">Budget Tracking</h3>
               <p className="text-sm text-gray-600">See exactly where every dollar goes</p>
             </div>
-            <div className="p-6 bg-blue-50 rounded-lg">
+            <div className="p-6 bg-primary-50 rounded-lg">
               <h3 className="font-semibold mb-2">Document Storage</h3>
               <p className="text-sm text-gray-600">All contracts and approvals in one place</p>
             </div>

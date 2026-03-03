@@ -1,7 +1,7 @@
 {
   "name": "zimbuild-root",
   "version": "1.0.0",
-  "description": "ZimBuildHub - Construction & Property Verification Platform",
+  "description": "ILifa Property Group - Construction & Property Verification Platform",
   "private": true,
   "workspaces": [
     "frontend",

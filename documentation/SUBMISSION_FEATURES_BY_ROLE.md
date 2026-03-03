@@ -1,7 +1,7 @@
 # Submission & Update Functionalities by Role
 
 ## Overview
-This document outlines all submission and update capabilities for each user role in ZimBuildHub.
+This document outlines all submission and update capabilities for each user role in ILifa Property Group.
 
 ---
 

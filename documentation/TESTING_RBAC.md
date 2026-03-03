@@ -1,7 +1,7 @@
 # Testing Role-Based Access Control (RBAC)
 
 ## Overview
-This guide helps you test the complete role-based access control system in ZimBuildHub.
+This guide helps you test the complete role-based access control system in ILifa Property Group.
 
 ---
 

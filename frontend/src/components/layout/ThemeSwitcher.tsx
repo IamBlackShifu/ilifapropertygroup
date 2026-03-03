@@ -67,7 +67,7 @@ export function ThemeSwitcher() {
                     setIsOpen(false)
                   }}
                   className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors ${
-                    theme === t.id ? 'bg-blue-50' : ''
+                    theme === t.id ? 'bg-primary-50' : ''
                   }`}
                 >
                   <div className="flex gap-1">

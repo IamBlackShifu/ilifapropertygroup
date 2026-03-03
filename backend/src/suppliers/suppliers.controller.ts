@@ -181,4 +181,119 @@ export class SuppliersController {
   getAnalytics(@Request() req) {
     return this.suppliersService.getSupplierAnalytics(req.user.userId);
   }
+
+  // ==================== INVENTORY MANAGEMENT ====================
+
+  @Post('products/:id/stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPPLIER')
+  updateStock(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { quantity: number; operation: 'add' | 'set' | 'subtract' },
+  ) {
+    return this.suppliersService.updateStock(
+      req.user.userId,
+      id,
+      body.quantity,
+      body.operation,
+    );
+  }
+
+  @Post('products/:id/reorder-level')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPPLIER')
+  setReorderLevel(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { reorderLevel: number; reorderQuantity: number },
+  ) {
+    return this.suppliersService.setReorderLevel(
+      req.user.userId,
+      id,
+      body.reorderLevel,
+      body.reorderQuantity,
+    );
+  }
+
+  @Get('inventory/low-stock')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPPLIER')
+  getLowStockProducts(@Request() req) {
+    return this.suppliersService.getLowStockProducts(req.user.userId);
+  }
+
+  @Get('inventory/summary')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPPLIER')
+  getInventorySummary(@Request() req) {
+    return this.suppliersService.getInventorySummary(req.user.userId);
+  }
+
+  @Post('inventory/bulk-update')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('SUPPLIER')
+  bulkUpdateStock(
+    @Request() req,
+    @Body() body: { updates: Array<{ productId: string; quantity: number }> },
+  ) {
+    return this.suppliersService.bulkUpdateStock(req.user.userId, body.updates);
+  }
+
+  // ==================== BULK ORDERING ====================
+
+  @Post('orders/bulk')
+  @UseGuards(JwtAuthGuard)
+  createBulkOrder(
+    @Request() req,
+    @Body() body: {
+      orders: Array<{
+        supplierId: string;
+        items: Array<{ productId: string; quantity: number }>;
+        deliveryAddress: string;
+        deliveryCity: string;
+        contactName: string;
+        contactPhone: string;
+        notes?: string;
+      }>;
+    },
+  ) {
+    return this.suppliersService.createBulkOrder(req.user.userId, body.orders);
+  }
+
+  @Post('products/:id/bulk-discount')
+  @UseGuards(JwtAuthGuard)
+  calculateBulkDiscount(
+    @Param('id') id: string,
+    @Body() body: { quantity: number },
+  ) {
+    return this.suppliersService.calculateBulkDiscount(id, body.quantity);
+  }
+
+  @Post('bulk-quote')
+  @UseGuards(JwtAuthGuard)
+  generateBulkQuote(
+    @Request() req,
+    @Body() body: { items: Array<{ productId: string; quantity: number }> },
+  ) {
+    return this.suppliersService.generateBulkQuote(req.user.userId, body.items);
+  }
+
+  @Post('bulk-quote-request')
+  @UseGuards(JwtAuthGuard)
+  requestBulkOrderQuote(
+    @Request() req,
+    @Body() body: {
+      supplierId: string;
+      items: Array<{ productId: string; quantity: number }>;
+      message: string;
+    },
+  ) {
+    return this.suppliersService.requestBulkOrderQuote(
+      req.user.userId,
+      body.supplierId,
+      body.items,
+      body.message,
+    );
+  }
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/suppliers-api'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface AnalyticsData {
   totalProducts: number
@@ -52,7 +53,7 @@ export default function SupplierDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -70,6 +71,7 @@ export default function SupplierDashboard() {
   }
 
   return (
+    <DashboardLayout>
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -85,8 +87,8 @@ export default function SupplierDashboard() {
                 <p className="text-sm font-medium text-gray-600">Total Products</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{analytics.totalProducts}</p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-primary-100 p-3 rounded-full">
+                <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
@@ -168,7 +170,7 @@ export default function SupplierDashboard() {
             <div className="space-y-3">
               <button
                 onClick={() => router.push('/suppliers/products/new')}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+                className="w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition"
               >
                 Add New Product
               </button>
@@ -239,7 +241,7 @@ export default function SupplierDashboard() {
                             order.status === 'PENDING'
                               ? 'bg-yellow-100 text-yellow-800'
                               : order.status === 'CONFIRMED'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-primary-100 text-primary-800'
                               : order.status === 'DELIVERED'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
@@ -260,5 +262,6 @@ export default function SupplierDashboard() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   )
 }

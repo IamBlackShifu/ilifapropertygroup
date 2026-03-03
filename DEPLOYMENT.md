@@ -1,4 +1,4 @@
-# ZimBuildHub - Deployment Guide
+# ILifa Property Group - Deployment Guide
 
 ## 📋 Table of Contents
 
@@ -39,8 +39,8 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ZimBuildHub.git
-cd ZimBuildHub
+git clone https://github.com/yourusername/ilifa-property-group.git
+cd ilifa-property-group
 ```
 
 ### 2. Setup Environment Variables
@@ -129,8 +129,8 @@ docker compose version
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/ZimBuildHub.git
-cd ZimBuildHub
+git clone https://github.com/yourusername/ilifa-property-group.git
+cd ilifa-property-group
 
 # Setup environment
 cp .env.example .env
@@ -221,7 +221,7 @@ docker compose exec backend npx prisma studio
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `NEXT_PUBLIC_API_URL` | Backend API URL | Yes | - |
-| `NEXT_PUBLIC_APP_NAME` | Application name | No | ZimBuildHub |
+| `NEXT_PUBLIC_APP_NAME` | Application name | No | ILifa Property Group |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | Yes | - |
 
 ---
@@ -500,9 +500,9 @@ services:
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/yourusername/ZimBuildHub/issues
-- Documentation: https://docs.zimbuild.com
-- Email: support@zimbuild.com
+- GitHub Issues: https://github.com/yourusername/ilifa-property-group/issues
+- Documentation: https://docs.ilifapropertygroup.com
+- Email: support@ilifapropertygroup.com
 
 ---
 

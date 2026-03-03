@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# ZimBuildHub Setup Script
+# ILifa Property Group Setup Script
 # This script helps you set up the project quickly
 
 set -e
 
-echo "🚀 ZimBuildHub Setup Script"
+echo "🚀 ILifa Property Group Setup Script"
 echo "============================"
 echo ""
 

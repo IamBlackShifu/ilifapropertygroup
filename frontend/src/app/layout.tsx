@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ZimBuildHub - Construction & Property Verification Platform',
+  title: 'ILifa Property Group - Construction & Property Verification Platform',
   description: 'Verified construction, contractors, and properties in Zimbabwe',
 }
 

@@ -16,6 +16,7 @@ import { CreatePropertyDto, UpdatePropertyDto, FilterPropertyDto } from './dto';
 import { SavePropertyDto } from './dto/save-property.dto';
 import { ScheduleViewingDto } from './dto/schedule-viewing.dto';
 import { ContactOwnerDto } from './dto/contact-owner.dto';
+import { CreateInquiryDto, RespondToInquiryDto } from './dto/create-inquiry.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
@@ -319,6 +320,75 @@ export class PropertiesController {
       success: true,
       data: result,
       message: result.message,
+    };
+  }
+
+  // Property Inquiry Endpoints
+  @Post('inquiries')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a property inquiry' })
+  @ApiResponse({ status: 201, description: 'Inquiry created successfully' })
+  async createInquiry(@CurrentUser() user: any, @Body() dto: CreateInquiryDto) {
+    const inquiry = await this.propertiesService.createInquiry(user.userId, dto);
+    return {
+      success: true,
+      data: inquiry,
+      message: 'Inquiry sent successfully',
+    };
+  }
+
+  @Get('inquiries/my-inquiries')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get inquiries made by current user' })
+  async getMyInquiries(@CurrentUser() user: any) {
+    const inquiries = await this.propertiesService.getMyInquiries(user.userId);
+    return {
+      success: true,
+      data: inquiries,
+    };
+  }
+
+  @Get('inquiries/received')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get inquiries received by property owner' })
+  async getReceivedInquiries(@CurrentUser() user: any) {
+    const inquiries = await this.propertiesService.getReceivedInquiries(user.userId);
+    return {
+      success: true,
+      data: inquiries,
+    };
+  }
+
+  @Patch('inquiries/:id/respond')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Respond to a property inquiry' })
+  async respondToInquiry(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() dto: RespondToInquiryDto,
+  ) {
+    const inquiry = await this.propertiesService.respondToInquiry(user.userId, id, dto.ownerResponse);
+    return {
+      success: true,
+      data: inquiry,
+      message: 'Response sent successfully',
+    };
+  }
+
+  @Patch('inquiries/:id/close')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Close a property inquiry' })
+  async closeInquiry(@CurrentUser() user: any, @Param('id') id: string) {
+    const inquiry = await this.propertiesService.closeInquiry(user.userId, id);
+    return {
+      success: true,
+      data: inquiry,
+      message: 'Inquiry closed successfully',
     };
   }
 }

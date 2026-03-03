@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface DashboardStats {
   properties: number
@@ -25,7 +26,9 @@ interface DashboardStats {
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <DashboardContent />
+      <DashboardLayout>
+        <DashboardContent />
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }
@@ -147,26 +150,15 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Back to Home Button */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          <span className="font-medium">Back to Home</span>
-        </Link>
-        
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">        
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name || 'User'}!</h1>
               <p className="mt-2 text-gray-600">
-                Role: <span className="font-semibold text-blue-600">{getRoleName()}</span>
+                Role: <span className="font-semibold text-primary-600">{getRoleName()}</span>
               </p>
             </div>
             <div className="flex items-center space-x-3">
@@ -288,9 +280,9 @@ function OwnerDashboard({ stats, loading, recentActivity }: any) {
               <div className="text-2xl font-bold text-green-700">{stats.propertyStats.verified}</div>
               <div className="text-xs text-green-600 mt-1">Verified</div>
             </div>
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-700">{stats.propertyStats.reserved}</div>
-              <div className="text-xs text-blue-600 mt-1">Reserved</div>
+            <div className="text-center p-4 bg-primary-50 rounded-lg">
+              <div className="text-2xl font-bold text-primary-700">{stats.propertyStats.reserved}</div>
+              <div className="text-xs text-primary-600 mt-1">Reserved</div>
             </div>
             <div className="text-center p-4 bg-red-50 rounded-lg">
               <div className="text-2xl font-bold text-red-700">{stats.propertyStats.sold}</div>
@@ -397,7 +389,7 @@ function ContractorDashboard() {
 
       <InfoCard 
         title="Grow Your Contracting Business"
-        description="Connect with homeowners, showcase your portfolio, and win more projects on ZimBuildHub."
+        description="Connect with homeowners, showcase your portfolio, and win more projects on ILifa Property Group."
       />
     </>
   )
@@ -504,7 +496,8 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, color, link }: StatCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-100 text-blue-600',
+    primary: 'bg-primary-100 text-primary-600',
+    blue: 'bg-primary-100 text-primary-600',
     green: 'bg-green-100 text-green-600',
     purple: 'bg-purple-100 text-purple-600',
     orange: 'bg-orange-100 text-orange-600',
@@ -556,7 +549,8 @@ function StatCard({ title, value, icon, color, link }: StatCardProps) {
 
 function QuickActions({ actions }: { actions: Array<{ href: string; icon: string; title: string; desc: string; color: string }> }) {
   const colorClasses: Record<string, { border: string; bg: string; icon: string }> = {
-    blue: { border: 'hover:border-blue-500', bg: 'hover:bg-blue-50', icon: 'bg-blue-100 text-blue-600' },
+    primary: { border: 'hover:border-primary-500', bg: 'hover:bg-primary-50', icon: 'bg-primary-100 text-primary-600' },
+    blue: { border: 'hover:border-primary-500', bg: 'hover:bg-primary-50', icon: 'bg-primary-100 text-primary-600' },
     green: { border: 'hover:border-green-500', bg: 'hover:bg-green-50', icon: 'bg-green-100 text-green-600' },
     purple: { border: 'hover:border-purple-500', bg: 'hover:bg-purple-50', icon: 'bg-purple-100 text-purple-600' },
     orange: { border: 'hover:border-orange-500', bg: 'hover:bg-orange-50', icon: 'bg-orange-100 text-orange-600' },
@@ -607,7 +601,7 @@ function QuickActions({ actions }: { actions: Array<{ href: string; icon: string
 
 function InfoCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+    <div className="bg-gradient-to-r from-primary-50 to-secondary-50 border border-primary-200 rounded-lg p-6">
       <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </div>
@@ -630,7 +624,7 @@ function RecentPropertiesCard({ properties, title }: { properties: any[]; title:
               <p className="text-sm text-gray-600">{property.locationCity}</p>
             </div>
             <div className="text-right">
-              <p className="font-bold text-blue-600">${parseFloat(property.price).toLocaleString()}</p>
+              <p className="font-bold text-primary-600">${parseFloat(property.price).toLocaleString()}</p>
               <p className="text-sm text-gray-500">{property.propertyType}</p>
             </div>
           </Link>

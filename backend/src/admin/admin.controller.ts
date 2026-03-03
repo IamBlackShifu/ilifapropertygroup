@@ -326,4 +326,66 @@ export class AdminController {
   async getPaymentStats() {
     return this.adminService.getPaymentStats();
   }
+
+  // ==================== ANALYTICS ====================
+  @Get('analytics/platform')
+  @ApiOperation({ summary: 'Get comprehensive platform analytics' })
+  async getPlatformAnalytics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.adminService.getPlatformAnalytics(start, end);
+  }
+
+  @Get('analytics/revenue')
+  @ApiOperation({ summary: 'Get revenue analytics' })
+  async getRevenueAnalytics(
+    @Query('period') period?: 'daily' | 'weekly' | 'monthly',
+    @Query('months') months?: string,
+  ) {
+    return this.adminService.getRevenueAnalytics(
+      period || 'monthly',
+      months ? parseInt(months) : 12,
+    );
+  }
+
+  @Get('analytics/user-growth')
+  @ApiOperation({ summary: 'Get user growth analytics' })
+  async getUserGrowthAnalytics(@Query('months') months?: string) {
+    return this.adminService.getUserGrowthAnalytics(
+      months ? parseInt(months) : 12,
+    );
+  }
+
+  @Get('analytics/supplier-performance')
+  @ApiOperation({ summary: 'Get supplier performance analytics' })
+  async getSupplierPerformance() {
+    return this.adminService.getSupplierPerformanceAnalytics();
+  }
+
+  @Get('analytics/contractor-performance')
+  @ApiOperation({ summary: 'Get contractor performance analytics' })
+  async getContractorPerformance() {
+    return this.adminService.getContractorPerformanceAnalytics();
+  }
+
+  @Get('analytics/property-market')
+  @ApiOperation({ summary: 'Get property market analytics' })
+  async getPropertyMarketAnalytics() {
+    return this.adminService.getPropertyMarketAnalytics();
+  }
+
+  @Get('analytics/export/:reportType')
+  @ApiOperation({ summary: 'Export analytics data' })
+  async exportAnalytics(
+    @Param('reportType') reportType: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.adminService.exportAnalyticsData(reportType, start, end);
+  }
 }

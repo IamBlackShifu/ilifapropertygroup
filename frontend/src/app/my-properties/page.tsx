@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface Property {
   id: string
@@ -23,7 +24,9 @@ interface Property {
 export default function MyPropertiesPage() {
   return (
     <ProtectedRoute allowedRoles={['OWNER', 'AGENT', 'ADMIN']}>
-      <MyPropertiesContent />
+      <DashboardLayout>
+        <MyPropertiesContent />
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }
@@ -111,9 +114,9 @@ function MyPropertiesContent() {
       case 'VERIFIED': return 'bg-green-100 text-green-800'
       case 'PENDING_VERIFICATION': return 'bg-yellow-100 text-yellow-800'
       case 'DRAFT': return 'bg-gray-100 text-gray-800'
-      case 'RESERVED': return 'bg-blue-100 text-blue-800'
+      case 'RESERVED': return 'bg-primary-100 text-primary-800'
       case 'SOLD': return 'bg-red-100 text-red-800'
-      default: return 'bg-blue-100 text-blue-800'
+      default: return 'bg-primary-100 text-primary-800'
     }
   }
 
@@ -125,7 +128,7 @@ function MyPropertiesContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading properties...</p>
         </div>
       </div>
@@ -143,7 +146,7 @@ function MyPropertiesContent() {
             </div>
             <Link
               href="/my-properties/new"
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-semibold"
+              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition font-semibold"
             >
               + Add New Property
             </Link>
@@ -175,7 +178,7 @@ function MyPropertiesContent() {
               <p className="mt-2 text-gray-600">Get started by listing your first property</p>
               <Link
                 href="/my-properties/new"
-                className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-semibold"
+                className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition font-semibold"
               >
                 List Your First Property
               </Link>
@@ -185,7 +188,7 @@ function MyPropertiesContent() {
               {properties.map((property) => (
                 <div key={property.id} className="bg-white rounded-lg shadow hover:shadow-xl transition overflow-hidden">
                   {/* Property Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
+                  <div className="relative h-48 bg-gradient-to-br from-primary-500 to-secondary-600">
                     {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                       <img
                         src={`http://localhost:4000${property.images[0].imageUrl}`}
@@ -213,7 +216,7 @@ function MyPropertiesContent() {
                     <p className="text-xs text-gray-500 mb-4">{property.propertyType}</p>
                     
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="text-2xl font-bold text-primary-600">
                         ${parseFloat(property.price).toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-500">
@@ -249,7 +252,7 @@ function MyPropertiesContent() {
                       <div className="flex space-x-2">
                         <Link
                           href={`/properties/${property.id}`}
-                          className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-center text-sm font-medium"
+                          className="flex-1 px-4 py-2 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition text-center text-sm font-medium"
                         >
                           View
                         </Link>
@@ -278,7 +281,7 @@ function MyPropertiesContent() {
                       {property.status === 'DRAFT' && (
                         <button
                           onClick={() => handleSubmitForVerification(property.id)}
-                          className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition text-sm font-semibold"
+                          className="w-full px-4 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition text-sm font-semibold"
                         >
                           Submit for Verification
                         </button>

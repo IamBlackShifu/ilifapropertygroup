@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface Message {
   id: string
@@ -53,7 +54,9 @@ const mockMessages: Message[] = [
 export default function MessagesPage() {
   return (
     <ProtectedRoute>
-      <MessagesContent />
+      <DashboardLayout>
+        <MessagesContent />
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }

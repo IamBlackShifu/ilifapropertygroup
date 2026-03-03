@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface Property {
   id: string
@@ -56,7 +57,9 @@ const mockSavedProperties: Property[] = [
 export default function SavedPropertiesPage() {
   return (
     <ProtectedRoute>
-      <SavedPropertiesContent />
+      <DashboardLayout>
+        <SavedPropertiesContent />
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }

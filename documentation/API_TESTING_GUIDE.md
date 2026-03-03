@@ -1,4 +1,4 @@
-# 🧪 API TESTING GUIDE - ZimBuildHub
+# 🧪 API TESTING GUIDE - ILifa Property Group
 
 ## Quick Start
 
@@ -404,7 +404,7 @@ Import this collection into Postman for quick testing:
 ```json
 {
   "info": {
-    "name": "ZimBuildHub API",
+    "name": "ILifa Property Group API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

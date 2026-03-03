@@ -1,7 +1,7 @@
-# ZimBuildHub Setup Script (Windows)
+# ILifa Property Group Setup Script (Windows)
 # Run this in PowerShell
 
-Write-Host "🚀 ZimBuildHub Setup Script" -ForegroundColor Green
+Write-Host "🚀 ILifa Property Group Setup Script" -ForegroundColor Green
 Write-Host "============================" -ForegroundColor Green
 Write-Host ""
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { propertiesAPI } from '@/lib/api-client'
 import Link from 'next/link'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 export default function MyViewingsPage() {
   const [viewings, setViewings] = useState<any[]>([])
@@ -30,7 +31,7 @@ export default function MyViewingsPage() {
       case 'CONFIRMED':
         return 'bg-green-100 text-green-800'
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       case 'CANCELLED':
         return 'bg-red-100 text-red-800'
       default:
@@ -44,18 +45,21 @@ export default function MyViewingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <DashboardLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <DashboardLayout>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Viewing Requests</h1>
           <p className="mt-2 text-gray-600">Track your property viewing appointments</p>
@@ -116,8 +120,8 @@ export default function MyViewingsPage() {
                     )}
 
                     {viewing.ownerNotes && (
-                      <div className="mt-4 p-3 bg-blue-50 rounded">
-                        <p className="text-sm text-blue-800"><strong>Owner's Response:</strong> {viewing.ownerNotes}</p>
+                      <div className="mt-4 p-3 bg-primary-50 rounded">
+                        <p className="text-sm text-primary-800"><strong>Owner's Response:</strong> {viewing.ownerNotes}</p>
                       </div>
                     )}
 
@@ -140,5 +144,6 @@ export default function MyViewingsPage() {
         )}
       </div>
     </div>
+    </DashboardLayout>
   )
 }

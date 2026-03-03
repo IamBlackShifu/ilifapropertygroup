@@ -139,6 +139,17 @@ export default function AdminLayout({
 
         {/* User Info */}
         <div className="p-4 border-t border-gray-800">
+          {/* Back to Main Site */}
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white transition-all duration-200 shadow-lg hover:shadow-xl mb-3"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            {isSidebarOpen && <span className="font-medium">Back to Main Site</span>}
+          </Link>
+          
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
               {user.firstName[0]}{user.lastName[0]}
@@ -161,14 +172,8 @@ export default function AdminLayout({
         <header className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-gray-800">
-              ZimBuildHub Administration
+              ILifa Property Group Administration
             </h2>
-            <Link
-              href="/"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              View Site →
-            </Link>
           </div>
         </header>
 

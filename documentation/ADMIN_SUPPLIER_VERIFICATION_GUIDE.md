@@ -3,7 +3,7 @@
 ## Prerequisites
 1. Backend running on http://localhost:4000
 2. Frontend running on http://localhost:3000
-3. Admin user created (email: admin@zimbuild.com)
+3. Admin user created (email: admin@ilifapropertygroup.com)
 4. 8 suppliers seeded in database (run seed-suppliers.ts if not done)
 
 ## Test Flow

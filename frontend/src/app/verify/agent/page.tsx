@@ -70,14 +70,14 @@ function VerifyAgentContent() {
         </div>
 
         {/* Info Card */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <div className="bg-primary-50 border border-primary-200 rounded-lg p-6 mb-8">
           <div className="flex items-start">
-            <svg className="w-6 h-6 text-blue-600 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-primary-600 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">Why get verified?</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <h3 className="font-semibold text-primary-900 mb-2">Why get verified?</h3>
+              <ul className="text-sm text-primary-800 space-y-1">
                 <li>• Build trust and credibility with potential clients</li>
                 <li>• Get a verified badge on your profile</li>
                 <li>• Rank higher in search results</li>
@@ -104,7 +104,7 @@ function VerifyAgentContent() {
                   value={formData.businessName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="ABC Construction Ltd"
                 />
               </div>
@@ -119,7 +119,7 @@ function VerifyAgentContent() {
                   value={formData.registrationNumber}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="BR1234567"
                 />
               </div>
@@ -135,7 +135,7 @@ function VerifyAgentContent() {
                   onChange={handleChange}
                   required
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="5"
                 />
               </div>
@@ -150,7 +150,7 @@ function VerifyAgentContent() {
                   value={formData.specializations}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="Residential Construction, Commercial Buildings, Renovations"
                 />
                 <p className="mt-1 text-sm text-gray-500">
@@ -168,7 +168,7 @@ function VerifyAgentContent() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="Tell us about your business, services, and what makes you unique..."
                 />
               </div>
@@ -188,7 +188,7 @@ function VerifyAgentContent() {
                 value={formData.certifications}
                 onChange={handleChange}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="List your professional certifications, licenses, and qualifications"
               />
             </div>
@@ -212,7 +212,7 @@ function VerifyAgentContent() {
                   value={formData.idDocument}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="https://drive.google.com/..."
                 />
               </div>
@@ -227,7 +227,7 @@ function VerifyAgentContent() {
                   value={formData.businessLicense}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="https://drive.google.com/..."
                 />
               </div>
@@ -241,7 +241,7 @@ function VerifyAgentContent() {
                   name="insuranceCertificate"
                   value={formData.insuranceCertificate}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="https://drive.google.com/... (optional)"
                 />
               </div>
@@ -255,7 +255,7 @@ function VerifyAgentContent() {
                   value={formData.portfolioImages}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="https://image1.jpg, https://image2.jpg (comma-separated)"
                 />
                 <p className="mt-1 text-sm text-gray-500">
@@ -272,11 +272,11 @@ function VerifyAgentContent() {
                 <input
                   type="checkbox"
                   required
-                  className="mt-1 mr-3 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="mt-1 mr-3 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-700">
                   I confirm that all information provided is accurate and I agree to the{' '}
-                  <a href="#" className="text-blue-600 hover:underline">verification terms and conditions</a>
+                  <a href="#" className="text-primary-600 hover:underline">verification terms and conditions</a>
                 </span>
               </label>
             </div>
@@ -287,7 +287,7 @@ function VerifyAgentContent() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Submitting...' : 'Submit for Verification'}
             </button>
@@ -306,21 +306,21 @@ function VerifyAgentContent() {
           <h3 className="font-semibold text-gray-900 mb-3">Verification Process</h3>
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-semibold text-xs mr-3 mt-0.5">1</span>
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-semibold text-xs mr-3 mt-0.5">1</span>
               <div>
                 <p className="font-medium text-gray-900">Submit Application</p>
                 <p>Complete the form and submit required documents</p>
               </div>
             </div>
             <div className="flex items-start">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-semibold text-xs mr-3 mt-0.5">2</span>
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-semibold text-xs mr-3 mt-0.5">2</span>
               <div>
                 <p className="font-medium text-gray-900">Document Review</p>
                 <p>Our team will verify your credentials (3-5 business days)</p>
               </div>
             </div>
             <div className="flex items-start">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-semibold text-xs mr-3 mt-0.5">3</span>
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-600 font-semibold text-xs mr-3 mt-0.5">3</span>
               <div>
                 <p className="font-medium text-gray-900">Get Verified</p>
                 <p>Receive your verified badge and enhanced profile features</p>

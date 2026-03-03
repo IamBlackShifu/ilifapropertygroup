@@ -253,6 +253,11 @@ model User {
   subscriptions   Subscription[]
   invoices        Invoice[]
   serviceRequests ServiceRequest[] @relation("ServiceRequester")
+  inquiriesMade   PropertyInquiry[] @relation("InquiryInquirer")
+  inquiriesReceived PropertyInquiry[] @relation("InquiryOwner")
+  quotesReceived  Quote[] @relation("ClientQuotes")
+  contractsAsClient Contract[] @relation("ClientContracts")
+  contractsAsContractor Contract[] @relation("ContractorContracts")
 
   @@index([email])
   @@index([role])
@@ -310,6 +315,7 @@ model Property {
   reservations Reservation[]
   reviews      Review[]
   serviceRequests ServiceRequest[]
+  inquiries    PropertyInquiry[]
 
   @@index([ownerId])
   @@index([status])
@@ -361,6 +367,7 @@ model Contractor {
   services      ContractorService[]
   reviews       Review[]
   serviceRequests ServiceRequest[]
+  quotes        Quote[]
 
   @@index([userId])
   @@index([isVerified])
@@ -467,6 +474,8 @@ model Project {
   stages      WorkflowStage[]
   inspections Inspection[]
   payments    Payment[]
+  milestones  ProjectMilestone[]
+  contracts   Contract[]
 
   @@index([clientId])
   @@index([propertyId])
@@ -713,6 +722,13 @@ model Product {
   specifications Json?
   isFeatured   Boolean        @default(false) @map("is_featured")
   viewCount    Int            @default(0) @map("view_count")
+  
+  // Inventory management fields
+  reorderLevel Int?           @map("reorder_level") // Minimum stock level before reorder
+  reorderQuantity Int?        @map("reorder_quantity") // Quantity to reorder
+  lowStockAlert Boolean       @default(false) @map("low_stock_alert")
+  lastRestockedAt DateTime?   @map("last_restocked_at")
+  
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
 
@@ -923,6 +939,55 @@ enum ServiceRequestStatus {
   CANCELLED
 }
 
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  CLOSED
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  SIGNED
+  ACTIVE
+  COMPLETED
+  TERMINATED
+}
+
+model PropertyInquiry {
+  id         String        @id @default(uuid())
+  propertyId String        @map("property_id")
+  inquirerId String        @map("inquirer_id")
+  ownerId    String        @map("owner_id")
+  name       String
+  email      String
+  phone      String
+  message    String
+  status     InquiryStatus @default(PENDING)
+  ownerResponse String?     @map("owner_response")
+  respondedAt   DateTime?   @map("responded_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  
+  property  Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  inquirer  User     @relation("InquiryInquirer", fields: [inquirerId], references: [id], onDelete: Cascade)
+  owner     User     @relation("InquiryOwner", fields: [ownerId], references: [id])
+
+  @@index([propertyId])
+  @@index([inquirerId])
+  @@index([ownerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("property_inquiries")
+}
+
 model ServiceRequest {
   id            String               @id @default(uuid())
   requesterId   String               @map("requester_id")
@@ -960,6 +1025,7 @@ model ServiceRequest {
   requester  User       @relation("ServiceRequester", fields: [requesterId], references: [id], onDelete: Cascade)
   contractor Contractor @relation(fields: [contractorId], references: [id], onDelete: Cascade)
   property   Property?  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  quotes     Quote[]
 
   @@index([requesterId])
   @@index([contractorId])
@@ -969,3 +1035,120 @@ model ServiceRequest {
   @@map("service_requests")
 }
 
+// ==================== QUOTES SYSTEM ====================
+model Quote {
+  id              String      @id @default(uuid())
+  contractorId    String      @map("contractor_id")
+  clientId        String      @map("client_id")
+  serviceRequestId String?    @map("service_request_id")
+  projectId       String?     @map("project_id")
+  quoteNumber     String      @unique @map("quote_number")
+  
+  // Details
+  title           String
+  description     String
+  
+  // Financial
+  subtotal        Decimal     @db.Decimal(15, 2)
+  taxAmount       Decimal     @default(0) @db.Decimal(15, 2) @map("tax_amount")
+  totalAmount     Decimal     @db.Decimal(15, 2) @map("total_amount")
+  currency        String      @default("USD")
+  
+  // Line items
+  items           Json        // Array of quote items {description, quantity, rate, amount}
+  
+  // Terms
+  validUntil      DateTime    @map("valid_until")
+  paymentTerms    String?     @map("payment_terms")
+  notes           String?
+  
+  // Status tracking
+  status          QuoteStatus @default(DRAFT)
+  sentAt          DateTime?   @map("sent_at")
+  viewedAt        DateTime?   @map("viewed_at")
+  acceptedAt      DateTime?   @map("accepted_at")
+  rejectedAt      DateTime?   @map("rejected_at")
+  rejectionReason String?     @map("rejection_reason")
+  
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  contractor      Contractor  @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  client          User        @relation("ClientQuotes", fields: [clientId], references: [id])
+  serviceRequest  ServiceRequest? @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
+
+  @@index([contractorId])
+  @@index([clientId])
+  @@index([serviceRequestId])
+  @@index([status])
+  @@index([validUntil])
+  @@map("quotes")
+}
+
+// ==================== PROJECT MILESTONES ====================
+model ProjectMilestone {
+  id              String      @id @default(uuid())
+  projectId       String      @map("project_id")
+  title           String
+  description     String?
+  amount          Decimal     @db.Decimal(15, 2)
+  currency        String      @default("USD")
+  dueDate         DateTime?   @map("due_date")
+  completedDate   DateTime?   @map("completed_date")
+  isPaid          Boolean     @default(false) @map("is_paid")
+  paidDate        DateTime?   @map("paid_date")
+  order           Int         // Milestone order/sequence
+  
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  
+  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([isPaid])
+  @@map("project_milestones")
+}
+
+// ==================== CONTRACTS ====================
+model Contract {
+  id              String         @id @default(uuid())
+  projectId       String         @map("project_id")
+  contractorId    String         @map("contractor_id")
+  clientId        String         @map("client_id")
+  contractNumber  String         @unique @map("contract_number")
+  
+  title           String
+  description     String
+  scope           String         // Scope of work
+  terms           String         // Terms and conditions
+  
+  startDate       DateTime       @map("start_date")
+  endDate         DateTime       @map("end_date")
+  
+  totalAmount     Decimal        @db.Decimal(15, 2) @map("total_amount")
+  currency        String         @default("USD")
+  
+  status          ContractStatus @default(DRAFT)
+  
+  // Document
+  documentUrl     String?        @map("document_url")
+  
+  // Signatures
+  clientSigned    Boolean        @default(false) @map("client_signed")
+  clientSignedAt  DateTime?      @map("client_signed_at")
+  contractorSigned Boolean       @default(false) @map("contractor_signed")
+  contractorSignedAt DateTime?   @map("contractor_signed_at")
+  
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractor      User           @relation("ContractorContracts", fields: [contractorId], references: [id])
+  client          User           @relation("ClientContracts", fields: [clientId], references: [id])
+
+  @@index([projectId])
+  @@index([contractorId])
+  @@index([clientId])
+  @@index([status])
+  @@map("contracts")
+}

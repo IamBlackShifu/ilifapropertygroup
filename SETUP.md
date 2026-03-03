@@ -13,7 +13,7 @@ This guide will get you up and running in 5 minutes.
 ```bash
 # 1. Clone and navigate
 git clone <your-repo-url>
-cd ZimBuildHub
+cd ilifa-property-group
 
 # 2. Setup environment
 cp .env.example .env
@@ -46,7 +46,7 @@ That's it! 🎉
 ```bash
 # 1. Clone repository
 git clone <your-repo-url>
-cd ZimBuildHub
+cd ilifa-property-group
 
 # 2. Setup PostgreSQL database
 sudo -u postgres psql

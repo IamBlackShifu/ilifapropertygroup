@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface Project {
   id: string
@@ -55,7 +56,9 @@ const mockProjects: Project[] = [
 export default function ProjectsPage() {
   return (
     <ProtectedRoute allowedRoles={['BUYER', 'OWNER', 'ADMIN']}>
-      <ProjectsContent />
+      <DashboardLayout>
+        <ProjectsContent />
+      </DashboardLayout>
     </ProtectedRoute>
   )
 }

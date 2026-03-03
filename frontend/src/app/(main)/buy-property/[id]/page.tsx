@@ -175,7 +175,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       </span>
                     )}
                     {property.status === 'VERIFIED' && (
-                      <span className="block px-4 py-2 bg-blue-500 text-white font-semibold rounded-full">
+                      <span className="block px-4 py-2 bg-primary-500 text-white font-semibold rounded-full">
                         Available
                       </span>
                     )}

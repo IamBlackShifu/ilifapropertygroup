@@ -1,4 +1,4 @@
-# 🗺️ NEXT STEPS ROADMAP - ZimBuildHub
+# 🗺️ NEXT STEPS ROADMAP - ILifa Property Group
 
 ## 📅 Day 2 Plan (Estimated 8-10 hours)
 
@@ -421,7 +421,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASSWORD=your-app-password
-EMAIL_FROM=noreply@zimbuild hub.com
+EMAIL_FROM=noreply@ilifapropertygroup.com
 
 # Upload Configuration
 UPLOAD_DIR=./uploads

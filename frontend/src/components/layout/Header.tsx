@@ -145,11 +145,11 @@ export function Header() {
                 </svg>
                 <span className="hidden sm:inline">+263 71 234 5678</span>
               </a>
-              <a href="mailto:info@zimbuildshub.com" className="flex items-center hover:text-primary-100 transition-colors">
+              <a href="mailto:info@ilifapropertygroup.com" className="flex items-center hover:text-primary-100 transition-colors">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <span className="hidden md:inline">info@zimbuildshub.com</span>
+                <span className="hidden md:inline">info@ilifapropertygroup.com</span>
               </a>
             </div>
             <div className="flex items-center space-x-1 sm:space-x-2">
@@ -169,11 +169,11 @@ export function Header() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">Z</span>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <img src="/logo.png" alt="ILifa Property Group" className="h-10 w-auto" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent hidden sm:block">
-                ZimBuildHub
+                ILifa Property Group
               </span>
             </Link>
 
@@ -230,12 +230,12 @@ export function Header() {
             {/* Auth Button / User Menu */}
             <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
               {/* Theme Switcher */}
-              <ThemeSwitcher />
+              {/* <ThemeSwitcher /> */}
               
               {isAuthenticated && user ? (
                 <>
                   {/* User Info Card */}
-                  <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg border border-primary-200">
+                  <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg border border-primary-200">
                     <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
                       {user.avatar ? (
                         <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full" />
@@ -265,7 +265,7 @@ export function Header() {
 
                     {userDropdownOpen && (
                       <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
-                        <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-blue-50 border-b border-gray-200">
+                        <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-gray-200">
                           <p className="text-sm font-semibold text-gray-900">{user.name || 'User'}</p>
                           <p className="text-xs text-gray-600 mt-0.5">{user.email || ''}</p>
                         </div>
@@ -435,7 +435,7 @@ export function Header() {
                 {isAuthenticated && user ? (
                   <>
                     {/* Mobile User Info Card */}
-                    <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg border border-primary-200 mb-3">
+                    <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-secondary-50 rounded-lg border border-primary-200 mb-3">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-md">
                           {user.avatar ? (

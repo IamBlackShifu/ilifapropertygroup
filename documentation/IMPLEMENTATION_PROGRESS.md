@@ -1,4 +1,4 @@
-# ZimBuildHub Implementation Progress
+# ILifa Property Group Implementation Progress
 
 **Last Updated**: January 12, 2026
 **Current Sprint**: Authentication & Backend API Integration
@@ -358,7 +358,7 @@
 
 1. **Header Contact Information** - Update placeholder contact details in Header.tsx:
    - Phone: +263 71 234 5678
-   - Email: info@zimbuildshub.com
+   - Email: info@ilifapropertygroup.com
    - Hours: Mon-Fri: 8AM-5PM
 
 2. **Docker Compose Warning** - Remove obsolete `version` attribute from docker-compose.yml

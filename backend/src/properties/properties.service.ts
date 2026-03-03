@@ -580,6 +580,38 @@ export class PropertiesService {
             },
           },
         },
+        viewings: {
+          include: {
+            requester: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+          orderBy: {
+            requestedAt: 'desc',
+          },
+        },
+        inquiries: {
+          include: {
+            inquirer: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
         reviews: {
           include: {
             reviewer: {
@@ -615,6 +647,22 @@ export class PropertiesService {
       r => r.status === 'ACTIVE'
     ).length;
     
+    const totalViewings = property.viewings.length;
+    const pendingViewings = property.viewings.filter(
+      v => v.status === 'REQUESTED'
+    ).length;
+    const confirmedViewings = property.viewings.filter(
+      v => v.status === 'CONFIRMED'
+    ).length;
+    
+    const totalInquiries = property.inquiries.length;
+    const pendingInquiries = property.inquiries.filter(
+      i => i.status === 'PENDING'
+    ).length;
+    const respondedInquiries = property.inquiries.filter(
+      i => i.status === 'RESPONDED'
+    ).length;
+    
     const totalReviews = property.reviews.length;
     const averageRating = totalReviews > 0
       ? property.reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
@@ -632,6 +680,12 @@ export class PropertiesService {
         totalViews: property.viewCount,
         totalReservations,
         activeReservations,
+        totalViewings,
+        pendingViewings,
+        confirmedViewings,
+        totalInquiries,
+        pendingInquiries,
+        respondedInquiries,
         totalReviews,
         averageRating: parseFloat(averageRating.toFixed(2)),
       },
@@ -641,6 +695,34 @@ export class PropertiesService {
         status: r.status,
         reservationDate: r.reservationDate,
         expiresAt: r.expiryDate,
+      })),
+      viewings: property.viewings.map(v => ({
+        id: v.id,
+        requester: v.requester,
+        contactName: v.contactName,
+        contactEmail: v.contactEmail,
+        contactPhone: v.contactPhone,
+        preferredDate: v.preferredDate,
+        preferredTime: v.preferredTime,
+        confirmedDate: v.confirmedDate,
+        confirmedTime: v.confirmedTime,
+        status: v.status,
+        message: v.message,
+        ownerNotes: v.ownerNotes,
+        requestedAt: v.requestedAt,
+        respondedAt: v.respondedAt,
+      })),
+      inquiries: property.inquiries.map(i => ({
+        id: i.id,
+        inquirer: i.inquirer,
+        name: i.name,
+        email: i.email,
+        phone: i.phone,
+        message: i.message,
+        status: i.status,
+        ownerResponse: i.ownerResponse,
+        createdAt: i.createdAt,
+        respondedAt: i.respondedAt,
       })),
       reviews: property.reviews.map(r => ({
         id: r.id,
@@ -898,6 +980,30 @@ export class PropertiesService {
       throw new NotFoundException('Property not found');
     }
 
+    // Store the contact message as a property inquiry
+    const inquiry = await this.prisma.propertyInquiry.create({
+      data: {
+        propertyId: dto.propertyId,
+        inquirerId: userId,
+        ownerId: property.ownerId,
+        name: dto.name,
+        email: dto.email,
+        phone: dto.phone,
+        message: dto.message,
+      },
+      include: {
+        inquirer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
     // Create notification for owner
     await this.prisma.notification.create({
       data: {
@@ -906,7 +1012,7 @@ export class PropertiesService {
         category: 'PROPERTY',
         title: 'New Message About Your Property',
         message: `${dto.name} (${dto.email}) sent you a message about "${property.title}": ${dto.message.substring(0, 100)}...`,
-        linkUrl: `/my-properties/${property.id}`,
+        linkUrl: `/my-properties/${property.id}/inquiries`,
       },
     });
 
@@ -916,6 +1022,183 @@ export class PropertiesService {
       success: true,
       message: 'Your message has been sent to the property owner',
       ownerEmail: property.owner.email,
+      inquiry,
     };
+  }
+
+  // Property Inquiries System
+  async createInquiry(userId: string, dto: any) {
+    const property = await this.prisma.property.findUnique({
+      where: { id: dto.propertyId },
+      include: { owner: true },
+    });
+
+    if (!property) {
+      throw new NotFoundException('Property not found');
+    }
+
+    const inquiry = await this.prisma.propertyInquiry.create({
+      data: {
+        propertyId: dto.propertyId,
+        inquirerId: userId,
+        ownerId: property.ownerId,
+        name: dto.name,
+        email: dto.email,
+        phone: dto.phone,
+        message: dto.message,
+      },
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            propertyType: true,
+          },
+        },
+        inquirer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    // Create notification for owner
+    await this.prisma.notification.create({
+      data: {
+        userId: property.ownerId,
+        type: 'INFO',
+        category: 'PROPERTY',
+        title: 'New Inquiry About Your Property',
+        message: `${dto.name} sent an inquiry about "${property.title}"`,
+        linkUrl: `/my-properties/inquiries/${inquiry.id}`,
+      },
+    });
+
+    return inquiry;
+  }
+
+  async getMyInquiries(userId: string) {
+    const inquiries = await this.prisma.propertyInquiry.findMany({
+      where: { inquirerId: userId },
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            propertyType: true,
+            locationCity: true,
+            price: true,
+            images: {
+              where: { isPrimary: true },
+              select: { imageUrl: true },
+            },
+          },
+        },
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return inquiries;
+  }
+
+  async getReceivedInquiries(userId: string) {
+    const inquiries = await this.prisma.propertyInquiry.findMany({
+      where: { ownerId: userId },
+      include: {
+        property: {
+          select: {
+            id: true,
+            title: true,
+            propertyType: true,
+          },
+        },
+        inquirer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return inquiries;
+  }
+
+  async respondToInquiry(userId: string, inquiryId: string, response: string) {
+    const inquiry = await this.prisma.propertyInquiry.findUnique({
+      where: { id: inquiryId },
+      include: { property: true },
+    });
+
+    if (!inquiry) {
+      throw new NotFoundException('Inquiry not found');
+    }
+
+    if (inquiry.ownerId !== userId) {
+      throw new ForbiddenException('You can only respond to inquiries about your own properties');
+    }
+
+    const updated = await this.prisma.propertyInquiry.update({
+      where: { id: inquiryId },
+      data: {
+        ownerResponse: response,
+        status: 'RESPONDED',
+        respondedAt: new Date(),
+      },
+      include: {
+        property: true,
+        inquirer: true,
+      },
+    });
+
+    // Notify inquirer
+    await this.prisma.notification.create({
+      data: {
+        userId: inquiry.inquirerId,
+        type: 'SUCCESS',
+        category: 'PROPERTY',
+        title: 'Property Owner Responded',
+        message: `The owner of "${inquiry.property.title}" has responded to your inquiry`,
+        linkUrl: `/buy-property/${inquiry.propertyId}`,
+      },
+    });
+
+    return updated;
+  }
+
+  async closeInquiry(userId: string, inquiryId: string) {
+    const inquiry = await this.prisma.propertyInquiry.findUnique({
+      where: { id: inquiryId },
+    });
+
+    if (!inquiry) {
+      throw new NotFoundException('Inquiry not found');
+    }
+
+    if (inquiry.ownerId !== userId) {
+      throw new ForbiddenException('You can only close inquiries about your own properties');
+    }
+
+    return this.prisma.propertyInquiry.update({
+      where: { id: inquiryId },
+      data: { status: 'CLOSED' },
+    });
   }
 }

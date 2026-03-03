@@ -9,7 +9,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-white text-lg font-semibold mb-4">ZimBuildHub</h3>
+            <h3 className="text-white text-lg font-semibold mb-4">ILifa Property Group</h3>
             <p className="text-sm mb-4 text-gray-200">
               Zimbabwe's trusted platform for verified properties, contractors, and construction projects.
             </p>
@@ -73,7 +73,7 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-primary-700 text-center">
           <p className="text-sm text-gray-200">
-            &copy; {currentYear} ZimBuildHub. All rights reserved. Built for Zimbabwe.
+            &copy; {currentYear} ILifa Property Group. All rights reserved. Built for Zimbabwe.
           </p>
         </div>
       </div>

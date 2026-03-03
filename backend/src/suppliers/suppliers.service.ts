@@ -848,4 +848,377 @@ export class SuppliersService {
       },
     };
   }
+
+  // ==================== INVENTORY MANAGEMENT ====================
+
+  // Update product stock quantity
+  async updateStock(userId: string, productId: string, quantity: number, operation: 'add' | 'set' | 'subtract') {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: { supplier: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product.supplier.userId !== userId) {
+      throw new ForbiddenException('You can only manage your own products');
+    }
+
+    let newQuantity: number;
+    if (operation === 'set') {
+      newQuantity = quantity;
+    } else if (operation === 'add') {
+      newQuantity = product.stockQuantity + quantity;
+    } else {
+      newQuantity = product.stockQuantity - quantity;
+    }
+
+    if (newQuantity < 0) {
+      throw new BadRequestException('Stock quantity cannot be negative');
+    }
+
+    // Update stock and check against reorder level
+    const updated = await this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        stockQuantity: newQuantity,
+        status: newQuantity === 0 ? 'OUT_OF_STOCK' : 'AVAILABLE',
+        lowStockAlert: product.reorderLevel ? newQuantity <= product.reorderLevel : false,
+        lastRestockedAt: operation === 'add' ? new Date() : product.lastRestockedAt,
+      },
+    });
+
+    // Create notification if low stock
+    if (updated.lowStockAlert && updated.reorderLevel) {
+      await this.prisma.notification.create({
+        data: {
+          userId,
+          type: 'WARNING',
+          category: 'SYSTEM',
+          title: 'Low Stock Alert',
+          message: `Product "${product.name}" is running low (${newQuantity} remaining). Reorder level: ${product.reorderLevel}`,
+          linkUrl: `/supplier/products/${productId}`,
+        },
+      });
+    }
+
+    return updated;
+  }
+
+  // Set reorder levels
+  async setReorderLevel(userId: string, productId: string, reorderLevel: number, reorderQuantity: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: { supplier: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product.supplier.userId !== userId) {
+      throw new ForbiddenException('You can only manage your own products');
+    }
+
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        reorderLevel,
+        reorderQuantity,
+        lowStockAlert: product.stockQuantity <= reorderLevel,
+      },
+    });
+  }
+
+  // Get low stock products
+  async getLowStockProducts(userId: string) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { userId },
+    });
+
+    if (!supplier) {
+      throw new NotFoundException('Supplier profile not found');
+    }
+
+    return this.prisma.product.findMany({
+      where: {
+        supplierId: supplier.id,
+        lowStockAlert: true,
+      },
+      orderBy: {
+        stockQuantity: 'asc',
+      },
+    });
+  }
+
+  // Get inventory summary
+  async getInventorySummary(userId: string) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { userId },
+    });
+
+    if (!supplier) {
+      throw new NotFoundException('Supplier profile not found');
+    }
+
+    const [
+      totalProducts,
+      inStock,
+      outOfStock,
+      lowStock,
+      totalValue,
+    ] = await Promise.all([
+      this.prisma.product.count({
+        where: { supplierId: supplier.id },
+      }),
+      this.prisma.product.count({
+        where: { 
+          supplierId: supplier.id,
+          stockQuantity: { gt: 0 },
+          status: 'AVAILABLE',
+        },
+      }),
+      this.prisma.product.count({
+        where: { 
+          supplierId: supplier.id,
+          status: 'OUT_OF_STOCK',
+        },
+      }),
+      this.prisma.product.count({
+        where: { 
+          supplierId: supplier.id,
+          lowStockAlert: true,
+        },
+      }),
+      this.prisma.product.aggregate({
+        where: { supplierId: supplier.id },
+        _sum: {
+          stockQuantity: true,
+        },
+      }),
+    ]);
+
+    // Get products by category
+    const productsByCategory = await this.prisma.product.groupBy({
+      by: ['category'],
+      where: { supplierId: supplier.id },
+      _count: {
+        id: true,
+      },
+      _sum: {
+        stockQuantity: true,
+      },
+    });
+
+    return {
+      totalProducts,
+      inStock,
+      outOfStock,
+      lowStock,
+      totalValue: totalValue._sum.stockQuantity || 0,
+      productsByCategory: productsByCategory.map(cat => ({
+        category: cat.category,
+        count: cat._count.id,
+        totalQuantity: cat._sum.stockQuantity || 0,
+      })),
+    };
+  }
+
+  // Bulk update stock (for CSV imports, etc.)
+  async bulkUpdateStock(userId: string, updates: Array<{ productId: string; quantity: number }>) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { userId },
+    });
+
+    if (!supplier) {
+      throw new NotFoundException('Supplier profile not found');
+    }
+
+    const results = [];
+    for (const update of updates) {
+      try {
+        const product = await this.updateStock(userId, update.productId, update.quantity, 'set');
+        results.push({ productId: update.productId, success: true, product });
+      } catch (error) {
+        results.push({ 
+          productId: update.productId, 
+          success: false, 
+          error: error.message 
+        });
+      }
+    }
+
+    return {
+      total: updates.length,
+      successful: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
+    };
+  }
+
+  // ==================== BULK ORDERING ====================
+
+  // Create bulk order (for contractors/buyers ordering multiple items from multiple suppliers)
+  async createBulkOrder(userId: string, orders: Array<{
+    supplierId: string;
+    items: Array<{ productId: string; quantity: number }>;
+    deliveryAddress: string;
+    deliveryCity: string;
+    contactName: string;
+    contactPhone: string;
+    notes?: string;
+  }>) {
+    const results = [];
+
+    for (const orderData of orders) {
+      try {
+        const order = await this.createOrder(userId, orderData as any);
+        results.push({
+          supplierId: orderData.supplierId,
+          success: true,
+          order,
+        });
+      } catch (error) {
+        results.push({
+          supplierId: orderData.supplierId,
+          success: false,
+          error: error.message,
+        });
+      }
+    }
+
+    const successful = results.filter(r => r.success);
+    const failed = results.filter(r => !r.success);
+
+    return {
+      total: orders.length,
+      successful: successful.length,
+      failed: failed.length,
+      totalAmount: successful.reduce((sum, r) => sum + Number(r.order?.totalAmount || 0), 0),
+      results,
+    };
+  }
+
+  // Get bulk order discounts (for large quantity orders)
+  async calculateBulkDiscount(productId: string, quantity: number) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    const basePrice = Number(product.price);
+    let discount = 0;
+
+    // Apply tiered discounts based on quantity
+    if (quantity >= 100) {
+      discount = 0.15; // 15% discount for 100+ units
+    } else if (quantity >= 50) {
+      discount = 0.10; // 10% discount for 50+ units
+    } else if (quantity >= 20) {
+      discount = 0.05; // 5% discount for 20+ units
+    }
+
+    const unitPrice = basePrice * (1 - discount);
+    const totalPrice = unitPrice * quantity;
+    const savings = (basePrice * quantity) - totalPrice;
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      quantity,
+      basePrice,
+      discount: discount * 100, // Convert to percentage
+      unitPriceAfterDiscount: unitPrice,
+      totalPrice,
+      savings,
+      minOrderQuantity: product.minOrderQty,
+      stockAvailable: product.stockQuantity,
+    };
+  }
+
+  // Generate bulk order quote
+  async generateBulkQuote(userId: string, items: Array<{ productId: string; quantity: number }>) {
+    const quoteItems = [];
+    let subtotal = 0;
+
+    for (const item of items) {
+      const discountInfo = await this.calculateBulkDiscount(item.productId, item.quantity);
+      quoteItems.push(discountInfo);
+      subtotal += discountInfo.totalPrice;
+    }
+
+    // Apply additional bulk order discount if total is high
+    let additionalDiscount = 0;
+    if (subtotal >= 10000) {
+      additionalDiscount = 0.05; // 5% additional discount for orders over $10,000
+    } else if (subtotal >= 5000) {
+      additionalDiscount = 0.03; // 3% additional discount for orders over $5,000
+    }
+
+    const additionalDiscountAmount = subtotal * additionalDiscount;
+    const total = subtotal - additionalDiscountAmount;
+    const totalSavings = quoteItems.reduce((sum, item) => sum + item.savings, 0) + additionalDiscountAmount;
+
+    return {
+      quoteNumber: `BQ-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`,
+      generatedAt: new Date(),
+      validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Valid for 7 days
+      items: quoteItems,
+      subtotal,
+      additionalDiscount: additionalDiscount * 100,
+      additionalDiscountAmount,
+      total,
+      totalSavings,
+      itemCount: items.length,
+      totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
+    };
+  }
+
+  // Request bulk order from supplier (for special negotiations)
+  async requestBulkOrderQuote(
+    userId: string,
+    supplierId: string,
+    items: Array<{ productId: string; quantity: number }>,
+    message: string,
+  ) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { id: supplierId },
+      include: { user: true },
+    });
+
+    if (!supplier) {
+      throw new NotFoundException('Supplier not found');
+    }
+
+    // Generate initial quote
+    const quote = await this.generateBulkQuote(userId, items);
+
+    // Create notification for supplier
+    await this.prisma.notification.create({
+      data: {
+        userId: supplier.userId,
+        type: 'INFO',
+        category: 'ORDER',
+        title: 'Bulk Order Quote Request',
+        message: `A customer has requested a bulk order quote for ${items.length} products (${quote.totalQuantity} units total). Estimated value: $${quote.total.toFixed(2)}`,
+        linkUrl: `/supplier/bulk-orders`,
+      },
+    });
+
+    // In a real app, you'd save this quote request to the database
+    return {
+      success: true,
+      quote,
+      message: 'Bulk order quote request sent to supplier. They will review and respond soon.',
+      supplierContact: {
+        email: supplier.user.email,
+        phone: supplier.user.phone,
+      },
+    };
+  }
 }

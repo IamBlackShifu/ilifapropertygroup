@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ContractorsService } from './contractors.service';
 import { CreateContractorDto, UpdateContractorDto, FilterContractorDto, RateContractorDto } from './dto';
+import { CreateQuoteDto, UpdateQuoteDto, RejectQuoteDto } from './dto/create-quote.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
@@ -212,6 +213,121 @@ export class ContractorsController {
       success: true,
       data: review,
       message: 'Rating submitted successfully',
+    };
+  }
+
+  // Quote System Endpoints
+  @Post('quotes')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a quote' })
+  @ApiResponse({ status: 201, description: 'Quote created successfully' })
+  async createQuote(@CurrentUser() user: any, @Body() dto: CreateQuoteDto) {
+    const quote = await this.contractorsService.createQuote(user.userId, dto);
+    return {
+      success: true,
+      data: quote,
+      message: 'Quote created successfully',
+    };
+  }
+
+  @Patch('quotes/:id/send')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Send a quote to client' })
+  async sendQuote(@CurrentUser() user: any, @Param('id') id: string) {
+    const quote = await this.contractorsService.sendQuote(user.userId, id);
+    return {
+      success: true,
+      data: quote,
+      message: 'Quote sent to client',
+    };
+  }
+
+  @Get('quotes/my-quotes')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get contractor\'s quotes' })
+  async getMyQuotes(@CurrentUser() user: any, @Query('status') status?: string) {
+    const quotes = await this.contractorsService.getMyQuotes(user.userId, { status });
+    return {
+      success: true,
+      data: quotes,
+    };
+  }
+
+  @Get('quotes/received')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get quotes received by client' })
+  async getReceivedQuotes(@CurrentUser() user: any, @Query('status') status?: string) {
+    const quotes = await this.contractorsService.getReceivedQuotes(user.userId, { status });
+    return {
+      success: true,
+      data: quotes,
+    };
+  }
+
+  @Get('quotes/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get quote by ID' })
+  async getQuoteById(@Param('id') id: string) {
+    const quote = await this.contractorsService.getQuoteById(id);
+    return {
+      success: true,
+      data: quote,
+    };
+  }
+
+  @Patch('quotes/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a quote (draft only)' })
+  async updateQuote(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: UpdateQuoteDto) {
+    const quote = await this.contractorsService.updateQuote(user.userId, id, dto);
+    return {
+      success: true,
+      data: quote,
+      message: 'Quote updated successfully',
+    };
+  }
+
+  @Delete('quotes/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a quote (draft only)' })
+  async deleteQuote(@CurrentUser() user: any, @Param('id') id: string) {
+    const result = await this.contractorsService.deleteQuote(user.userId, id);
+    return {
+      success: true,
+      message: result.message,
+    };
+  }
+
+  @Patch('quotes/:id/accept')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Accept a quote (client only)' })
+  async acceptQuote(@CurrentUser() user: any, @Param('id') id: string) {
+    const quote = await this.contractorsService.acceptQuote(user.userId, id);
+    return {
+      success: true,
+      data: quote,
+      message: 'Quote accepted successfully',
+    };
+  }
+
+  @Patch('quotes/:id/reject')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Reject a quote (client only)' })
+  async rejectQuote(@CurrentUser() user: any, @Param('id') id: string, @Body() dto: RejectQuoteDto) {
+    const quote = await this.contractorsService.rejectQuote(user.userId, id, dto.rejectionReason);
+    return {
+      success: true,
+      data: quote,
+      message: 'Quote rejected',
     };
   }
 }

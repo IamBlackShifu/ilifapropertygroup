@@ -450,4 +450,391 @@ export class ContractorsService {
       isVerified: contractor.isVerified,
     };
   }
+
+  // Quote Management System
+  async createQuote(userId: string, dto: any) {
+    // Get contractor profile
+    const contractor = await this.prisma.contractor.findUnique({
+      where: { userId },
+    });
+
+    if (!contractor) {
+      throw new NotFoundException('Contractor profile not found');
+    }
+
+    // Calculate amounts
+    const subtotal = dto.items.reduce((sum: number, item: any) => sum + item.amount, 0);
+    const taxAmount = dto.taxPercentage ? (subtotal * dto.taxPercentage) / 100 : 0;
+    const totalAmount = subtotal + taxAmount;
+
+    // Generate quote number
+    const quoteNumber = `QT-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+
+    const quote = await this.prisma.quote.create({
+      data: {
+        contractorId: contractor.id,
+        clientId: dto.clientId,
+        serviceRequestId: dto.serviceRequestId,
+        projectId: dto.projectId,
+        quoteNumber,
+        title: dto.title,
+        description: dto.description,
+        items: dto.items,
+        subtotal: new Prisma.Decimal(subtotal),
+        taxAmount: new Prisma.Decimal(taxAmount),
+        totalAmount: new Prisma.Decimal(totalAmount),
+        validUntil: new Date(dto.validUntil),
+        paymentTerms: dto.paymentTerms,
+        notes: dto.notes,
+      },
+      include: {
+        contractor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        client: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return quote;
+  }
+
+  async sendQuote(userId: string, quoteId: string) {
+    const contractor = await this.prisma.contractor.findUnique({
+      where: { userId },
+    });
+
+    if (!contractor) {
+      throw new NotFoundException('Contractor profile not found');
+    }
+
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+      include: { client: true },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    if (quote.contractorId !== contractor.id) {
+      throw new ForbiddenException('You can only send your own quotes');
+    }
+
+    const updated = await this.prisma.quote.update({
+      where: { id: quoteId },
+      data: {
+        status: 'SENT',
+        sentAt: new Date(),
+      },
+      include: {
+        contractor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Notify client
+    await this.prisma.notification.create({
+      data: {
+        userId: quote.clientId,
+        type: 'INFO',
+        category: 'PROJECT',
+        title: 'New Quote Received',
+        message: `You received a quote for "${quote.title}" - Total: $${quote.totalAmount}`,
+        linkUrl: `/quotes/${quoteId}`,
+      },
+    });
+
+    return updated;
+  }
+
+  async getMyQuotes(userId: string, filters?: { status?: string }) {
+    const contractor = await this.prisma.contractor.findUnique({
+      where: { userId },
+    });
+
+    if (!contractor) {
+      throw new NotFoundException('Contractor profile not found');
+    }
+
+    const where: any = { contractorId: contractor.id };
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
+    return this.prisma.quote.findMany({
+      where,
+      include: {
+        client: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        serviceRequest: {
+          select: {
+            id: true,
+            serviceType: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getReceivedQuotes(userId: string, filters?: { status?: string }) {
+    const where: any = { clientId: userId };
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
+    return this.prisma.quote.findMany({
+      where,
+      include: {
+        contractor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profileImageUrl: true,
+              },
+            },
+          },
+        },
+        serviceRequest: {
+          select: {
+            id: true,
+            serviceType: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getQuoteById(quoteId: string) {
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+      include: {
+        contractor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+                profileImageUrl: true,
+              },
+            },
+          },
+        },
+        client: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        serviceRequest: true,
+      },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    // Mark as viewed if not already
+    if (!quote.viewedAt && quote.status === 'SENT') {
+      await this.prisma.quote.update({
+        where: { id: quoteId },
+        data: { viewedAt: new Date() },
+      });
+    }
+
+    return quote;
+  }
+
+  async acceptQuote(userId: string, quoteId: string) {
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+      include: { contractor: { include: { user: true } } },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    if (quote.clientId !== userId) {
+      throw new ForbiddenException('Only the quote recipient can accept it');
+    }
+
+    if (quote.status !== 'SENT') {
+      throw new BadRequestException('Quote must be in SENT status to be accepted');
+    }
+
+    const updated = await this.prisma.quote.update({
+      where: { id: quoteId },
+      data: {
+        status: 'ACCEPTED',
+        acceptedAt: new Date(),
+      },
+    });
+
+    // Notify contractor
+    await this.prisma.notification.create({
+      data: {
+        userId: quote.contractor.userId,
+        type: 'SUCCESS',
+        category: 'PROJECT',
+        title: 'Quote Accepted!',
+        message: `Your quote "${quote.title}" has been accepted by the client`,
+        linkUrl: `/contractor/quotes/${quoteId}`,
+      },
+    });
+
+    return updated;
+  }
+
+  async rejectQuote(userId: string, quoteId: string, reason: string) {
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+      include: { contractor: { include: { user: true } } },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    if (quote.clientId !== userId) {
+      throw new ForbiddenException('Only the quote recipient can reject it');
+    }
+
+    const updated = await this.prisma.quote.update({
+      where: { id: quoteId },
+      data: {
+        status: 'REJECTED',
+        rejectedAt: new Date(),
+        rejectionReason: reason,
+      },
+    });
+
+    // Notify contractor
+    await this.prisma.notification.create({
+      data: {
+        userId: quote.contractor.userId,
+        type: 'WARNING',
+        category: 'PROJECT',
+        title: 'Quote Rejected',
+        message: `Your quote "${quote.title}" was rejected`,
+        linkUrl: `/contractor/quotes/${quoteId}`,
+      },
+    });
+
+    return updated;
+  }
+
+  async updateQuote(userId: string, quoteId: string, dto: any) {
+    const contractor = await this.prisma.contractor.findUnique({
+      where: { userId },
+    });
+
+    if (!contractor) {
+      throw new NotFoundException('Contractor profile not found');
+    }
+
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    if (quote.contractorId !== contractor.id) {
+      throw new ForbiddenException('You can only update your own quotes');
+    }
+
+    if (quote.status !== 'DRAFT') {
+      throw new BadRequestException('Can only update quotes in DRAFT status');
+    }
+
+    // Recalculate amounts if items changed
+    let updateData: any = { ...dto };
+    if (dto.items) {
+      const subtotal = dto.items.reduce((sum: number, item: any) => sum + item.amount, 0);
+      const taxAmount = dto.taxPercentage ? (subtotal * dto.taxPercentage) / 100 : 0;
+      const totalAmount = subtotal + taxAmount;
+
+      updateData = {
+        ...updateData,
+        subtotal: new Prisma.Decimal(subtotal),
+        taxAmount: new Prisma.Decimal(taxAmount),
+        totalAmount: new Prisma.Decimal(totalAmount),
+      };
+    }
+
+    return this.prisma.quote.update({
+      where: { id: quoteId },
+      data: updateData,
+    });
+  }
+
+  async deleteQuote(userId: string, quoteId: string) {
+    const contractor = await this.prisma.contractor.findUnique({
+      where: { userId },
+    });
+
+    if (!contractor) {
+      throw new NotFoundException('Contractor profile not found');
+    }
+
+    const quote = await this.prisma.quote.findUnique({
+      where: { id: quoteId },
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Quote not found');
+    }
+
+    if (quote.contractorId !== contractor.id) {
+      throw new ForbiddenException('You can only delete your own quotes');
+    }
+
+    if (quote.status !== 'DRAFT') {
+      throw new BadRequestException('Can only delete quotes in DRAFT status');
+    }
+
+    await this.prisma.quote.delete({
+      where: { id: quoteId },
+    });
+
+    return { message: 'Quote deleted successfully' };
+  }
 }

@@ -1,4 +1,4 @@
-# ZimBuildHub
+# ILifa Property Group
 
 **Construction & Property Verification Platform for Zimbabwe**
 
@@ -11,7 +11,7 @@
 
 ## 🎯 Overview
 
-ZimBuildHub is a comprehensive, production-ready platform that connects property owners, contractors, suppliers, and buyers in Zimbabwe's construction industry. Every listing is verified, every contractor is vetted, and every project is tracked.
+ILifa Property Group is a comprehensive, production-ready platform that connects property owners, contractors, suppliers, and buyers in Zimbabwe's construction industry. Every listing is verified, every contractor is vetted, and every project is tracked.
 
 ### Key Features
 
@@ -86,8 +86,8 @@ ZimBuildHub is a comprehensive, production-ready platform that connects property
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/ZimBuildHub.git
-cd ZimBuildHub
+git clone https://github.com/yourusername/ilifa-property-group.git
+cd ilifa-property-group
 
 # Setup environment
 cp .env.example .env
@@ -208,7 +208,7 @@ The platform supports **unified registration** with the following roles:
 ### Project Structure
 
 ```
-ZimBuildHub/
+ilifa-property-group/
 ├── frontend/                 # Next.js application
 │   ├── src/
 │   │   ├── app/             # App router pages
@@ -275,8 +275,8 @@ Full API documentation available at `/api/docs` when running.
 
 ```bash
 # On your VPS
-git clone https://github.com/yourusername/ZimBuildHub.git
-cd ZimBuildHub
+git clone https://github.com/yourusername/ilifa-property-group.git
+cd ilifa-property-group
 
 # Configure environment
 cp .env.example .env
@@ -356,7 +356,7 @@ Contributions are welcome! Please read our contributing guidelines before submit
 
 ```bash
 # Fork and clone
-git clone https://github.com/yourusername/ZimBuildHub.git
+git clone https://github.com/yourusername/ilifa-property-group.git
 
 # Create feature branch
 git checkout -b feature/amazing-feature
@@ -399,9 +399,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Need help? 
 
 - 📖 [Documentation](./ARCHITECTURE.md)
-- 🐛 [Report Issues](https://github.com/yourusername/ZimBuildHub/issues)
-- 💬 [Discussions](https://github.com/yourusername/ZimBuildHub/discussions)
-- 📧 Email: support@zimbuild.com
+- 🐛 [Report Issues](https://github.com/yourusername/ilifa-property-group/issues)
+- 💬 [Discussions](https://github.com/yourusername/ilifa-property-group/discussions)
+- 📧 Email: support@ilifapropertygroup.com
 
 ---
 

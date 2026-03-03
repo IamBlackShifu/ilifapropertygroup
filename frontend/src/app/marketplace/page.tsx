@@ -86,7 +86,7 @@ export default function SuppliersMarketplacePage() {
   if (loading && suppliers.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
       </div>
     );
   }
@@ -94,10 +94,10 @@ export default function SuppliersMarketplacePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-blue-600 text-white py-12">
+      <div className="bg-primary-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold mb-4">Building Materials Marketplace</h1>
-          <p className="text-xl text-blue-100">
+          <h1 className="text-4xl font-bold">Building Materials Marketplace</h1>
+          <p className="text-xl text-primary-100">
             Find verified suppliers and quality building materials across Zimbabwe
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function SuppliersMarketplacePage() {
               onClick={() => setView('suppliers')}
               className={`px-6 py-3 text-sm font-medium rounded-l-lg border ${
                 view === 'suppliers'
-                  ? 'bg-blue-600 text-white border-blue-600'
+                  ? 'bg-primary-600 text-white border-primary-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               }`}
             >
@@ -121,7 +121,7 @@ export default function SuppliersMarketplacePage() {
               onClick={() => setView('products')}
               className={`px-6 py-3 text-sm font-medium rounded-r-lg border-t border-r border-b ${
                 view === 'products'
-                  ? 'bg-blue-600 text-white border-blue-600'
+                  ? 'bg-primary-600 text-white border-primary-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
               }`}
             >
@@ -141,7 +141,7 @@ export default function SuppliersMarketplacePage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 
@@ -150,7 +150,7 @@ export default function SuppliersMarketplacePage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
                 {PRODUCT_CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -163,7 +163,7 @@ export default function SuppliersMarketplacePage() {
               <select
                 value={cityFilter}
                 onChange={(e) => setCityFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
                 {ZIMBABWE_CITIES.map(city => (
                   <option key={city} value={city}>{city}</option>
@@ -179,7 +179,7 @@ export default function SuppliersMarketplacePage() {
                   type="checkbox"
                   checked={verifiedOnly}
                   onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 />
                 <span className="text-sm text-gray-700">Verified suppliers only</span>
               </label>
@@ -208,7 +208,7 @@ export default function SuppliersMarketplacePage() {
 
             <button
               onClick={handleSearch}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+              className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm font-medium"
             >
               Search
             </button>
@@ -269,7 +269,7 @@ export default function SuppliersMarketplacePage() {
                       </div>
                       <div className="flex flex-wrap gap-1">
                         {supplier.categories.slice(0, 3).map((cat: string) => (
-                          <span key={cat} className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                          <span key={cat} className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded">
                             {cat}
                           </span>
                         ))}
@@ -283,7 +283,7 @@ export default function SuppliersMarketplacePage() {
 
                     <Link
                       href={`/suppliers/${supplier.id}`}
-                      className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      className="block w-full text-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
                     >
                       View Details
                     </Link>
@@ -323,7 +323,7 @@ export default function SuppliersMarketplacePage() {
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-lg font-bold text-blue-600">
+                      <span className="text-lg font-bold text-primary-600">
                         ${Number(product.price).toFixed(2)}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -335,7 +335,7 @@ export default function SuppliersMarketplacePage() {
                     </div>
                     <Link
                       href={`/products/${product.id}`}
-                      className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                      className="block w-full text-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm"
                     >
                       View Details
                     </Link>

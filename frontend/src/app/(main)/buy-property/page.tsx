@@ -371,7 +371,7 @@ export default function BuyPropertyPage() {
                       href={`/buy-property/${property.id}`} 
                       className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
                     >
-                      <div className="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
+                      <div className="relative h-48 bg-gradient-to-br from-primary-500 to-secondary-600">
                         {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                           <img
                             src={`http://localhost:4000${property.images[0].imageUrl}`}
@@ -389,7 +389,7 @@ export default function BuyPropertyPage() {
                               ✓ Verified
                             </span>
                           )}
-                          <span className="block px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
+                          <span className="block px-3 py-1 bg-primary-500 text-white text-xs font-semibold rounded-full">
                             {property.propertyType}
                           </span>
                         </div>
@@ -415,7 +415,7 @@ export default function BuyPropertyPage() {
                         )}
                         <div className="flex items-center justify-between pt-3 border-t">
                           <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                               {property.owner.firstName.charAt(0)}
                             </div>
                             <div>

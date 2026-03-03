@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import apiClient from '@/lib/api-client'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
 interface ContractorProfile {
   id: string
@@ -102,8 +103,9 @@ export default function ContractorDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <DashboardLayout>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-start justify-between">
@@ -115,12 +117,6 @@ export default function ContractorDashboardPage() {
               <p className="text-gray-600">{profile.locationCity}</p>
             </div>
             <div className="flex gap-2">
-              <Link
-                href="/"
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                View Site
-              </Link>
               <Link
                 href="/contractors/profile/edit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -310,5 +306,6 @@ export default function ContractorDashboardPage() {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   )
 }

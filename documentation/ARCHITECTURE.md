@@ -1,4 +1,4 @@
-# ZimBuildHub - System Architecture
+# ILifa Property Group - System Architecture
 
 ## Overview
 A scalable construction and property verification platform with role-based access control, document verification workflows, and integrated payment processing.

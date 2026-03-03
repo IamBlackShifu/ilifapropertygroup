@@ -1,7 +1,7 @@
 # Role-Based Access Control (RBAC) Configuration
 
 ## Overview
-This document outlines the access permissions for each user role in ZimBuildHub.
+This document outlines the access permissions for each user role in ILifa Property Group.
 
 ## User Roles
 

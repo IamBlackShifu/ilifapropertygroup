@@ -412,7 +412,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadingImages || imageUrls.length >= 10}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
           >
             {uploadingImages ? 'Uploading...' : '+ Add Images'}
           </button>
@@ -428,7 +428,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
                   className="w-full h-32 object-cover rounded-lg"
                 />
                 {index === 0 && (
-                  <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                  <span className="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded">
                     Primary
                   </span>
                 )}
@@ -459,7 +459,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
         <button
           type="submit"
           disabled={loading || uploadingImages}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
         >
           {loading ? 'Saving...' : isEdit ? 'Update Property' : 'Create Property'}
         </button>

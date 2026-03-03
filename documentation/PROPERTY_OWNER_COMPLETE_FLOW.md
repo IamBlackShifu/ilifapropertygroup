@@ -1,7 +1,7 @@
 # Property Owner/Seller Complete Flow Documentation
 
 ## Overview
-This document describes the complete end-to-end flow for Property Owners/Sellers in the ZimBuildHub platform, from adding a property to managing it through verification, listing, and eventual sale.
+This document describes the complete end-to-end flow for Property Owners/Sellers in the ILifa Property Group platform, from adding a property to managing it through verification, listing, and eventual sale.
 
 ## Table of Contents
 1. [Property Creation](#property-creation)

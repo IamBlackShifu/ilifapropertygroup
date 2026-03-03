@@ -40,7 +40,7 @@ async function bootstrap() {
 
     // Swagger documentation
     const config = new DocumentBuilder()
-      .setTitle('ZimBuildHub API')
+      .setTitle('ILifa Property Group API')
       .setDescription('Construction & Property Verification Platform API')
       .setVersion('1.0')
       .addBearerAuth()

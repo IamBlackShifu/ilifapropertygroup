@@ -8,7 +8,7 @@
 - **Gradient Background**: Primary-600 to Primary-700 gradient
 - **Contact Information**:
   - Phone: +263 71 234 5678 (with icon)
-  - Email: info@zimbuildshub.com (with icon)
+  - Email: info@ilifapropertygroup.com (with icon)
   - Business Hours: Mon-Fri: 8AM-5PM (with clock icon)
 - **Responsive**: Hides text on smaller screens, shows icons only
 

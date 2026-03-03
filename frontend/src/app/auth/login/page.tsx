@@ -114,11 +114,11 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-2xl">Z</span>
+            <div className="w-12 h-12 flex items-center justify-center">
+              <img src="/logo.png" alt="ILifa Property Group" className="h-12 w-auto" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
-              ZimBuildHub
+              ILifa Property Group
             </span>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mt-4">Welcome Back</h1>
