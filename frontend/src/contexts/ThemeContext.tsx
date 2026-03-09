@@ -28,11 +28,11 @@ const themes: Record<ThemeType, ThemeColors> = {
     accent: '#778667',       // Sage green
   },
   warm: {
-    primary: '#956959',      // Terracotta
-    primaryDark: '#2A1713',  // Deep brown
-    primaryLight: '#E9B48A', // Warm peach
-    secondary: '#5C352C',    // Rich brown
-    accent: '#E9B48A',       // Warm peach
+    primary: '#f8b04b',      // Golden amber (primary-500)
+    primaryDark: '#c97d28',  // Dark golden (primary-700)
+    primaryLight: '#fac574', // Light golden (primary-400)
+    secondary: '#cd8357',    // Terracotta (secondary-500)
+    accent: '#e69937',       // Amber accent (primary-600)
   },
 }
 
@@ -45,7 +45,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeType>('blue')
+  const [theme, setThemeState] = useState<ThemeType>('warm')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
