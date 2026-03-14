@@ -233,15 +233,22 @@ NEXT_PUBLIC_APP_URL=https://www.ilifapropertygroup.com
 ### 13.4 Build backend and frontend for production
 
 ```bash
+unset NODE_ENV
+
 cd /root/ilifapropertygroup/backend
-npm install
+npm install --include=dev
 npm run build
 npx prisma migrate deploy
 
 cd /root/ilifapropertygroup/frontend
-npm install
+npm install --include=dev
 npm run build
 ```
+
+Notes:
+
+- Use `NODE_ENV=production` only in the systemd service runtime.
+- If `NODE_ENV=production` is exported in your shell while building, `npm` can skip dev dependencies and the build may not produce `dist/main.js` or the required Next.js runtime files.
 
 ### 13.5 Run apps as systemd services
 
@@ -333,6 +340,8 @@ sudo systemctl restart zimbuild-backend zimbuild-frontend
 sudo journalctl -u zimbuild-frontend -n 80 --no-pager
 sudo journalctl -u zimbuild-backend -n 80 --no-pager
 ```
+
+If backend fails with `Cannot find module '/root/ilifapropertygroup/backend/dist/main'`, update to the latest code and rebuild. This project's Nest build outputs to `dist/src/main.js`, and the `start:prod` script has been set accordingly.
 
 ### 13.6 Configure Nginx reverse proxy
 
