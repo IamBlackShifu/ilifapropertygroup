@@ -1,0 +1,19 @@
+[Unit]
+Description=ILifa Property Group Backend (NestJS)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/ilifapropertygroup/backend
+Environment=NODE_ENV=production
+EnvironmentFile=/root/ilifapropertygroup/backend/.env
+Environment=PATH=/usr/bin:/usr/local/bin
+ExecStart=/usr/bin/npm run start:prod
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=ILifa Property Group Frontend (Next.js)
+After=network.target zimbuild-backend.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/ilifapropertygroup/frontend
+Environment=NODE_ENV=production
+Environment=PATH=/usr/bin:/usr/local/bin
+EnvironmentFile=/root/ilifapropertygroup/frontend/.env.local
+ExecStart=/usr/bin/npm run start -- -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

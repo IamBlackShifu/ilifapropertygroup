@@ -2,7 +2,7 @@
   "name": "zimbuild-backend",
   "version": "0.1.0",
   "description": "ILifa Property Group Backend API",
-  "author": "",,
+  "author": "Anesu Chiodza",
   "private": true,
   "license": "MIT",
   "scripts": {
