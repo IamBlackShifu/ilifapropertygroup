@@ -390,22 +390,6 @@ export default function EditProductPage() {
                   />
                   <span className="text-sm text-gray-500 self-center">Max 5 images</span>
                 </div>
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      handleImageAdd(input.value);
-                      input.value = '';
-                    }}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-                  >
-                    Add Image
-                  </button>
-                </div>
 
                 {formData.images.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

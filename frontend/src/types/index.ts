@@ -87,6 +87,8 @@ export interface Property {
   locationCity: string
   locationArea?: string
   locationAddress?: string
+  coordinatesLat?: number
+  coordinatesLng?: number
   sizeSqm?: number
   bedrooms?: number
   bathrooms?: number
@@ -279,6 +281,8 @@ export interface PropertyFormData {
   locationCity: string
   locationArea?: string
   locationAddress?: string
+  coordinatesLat?: number
+  coordinatesLng?: number
   sizeSqm?: number
   bedrooms?: number
   bathrooms?: number

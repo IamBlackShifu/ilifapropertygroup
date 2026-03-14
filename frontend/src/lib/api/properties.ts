@@ -49,6 +49,14 @@ export interface PropertyStatsResponse {
   };
 }
 
+export interface PropertyMutationPayload extends Partial<Omit<Property, 'images'>> {
+  images?: string[];
+  imageUrls?: string[];
+  parkingSpaces?: number;
+  yearBuilt?: number;
+  features?: string[];
+}
+
 export const propertiesAPI = {
   // Get all properties with filters
   async getProperties(filters?: PropertyFilters): Promise<PropertiesListResponse> {
@@ -85,13 +93,13 @@ export const propertiesAPI = {
   },
 
   // Create new property
-  async createProperty(data: Partial<Property>): Promise<PropertyResponse> {
+  async createProperty(data: PropertyMutationPayload): Promise<PropertyResponse> {
     const response = await apiClient.post('/properties', data);
     return response.data;
   },
 
   // Update property
-  async updateProperty(id: string, data: Partial<Property>): Promise<PropertyResponse> {
+  async updateProperty(id: string, data: PropertyMutationPayload): Promise<PropertyResponse> {
     const response = await apiClient.patch(`/properties/${id}`, data);
     return response.data;
   },

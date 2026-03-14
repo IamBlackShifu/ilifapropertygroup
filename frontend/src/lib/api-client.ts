@@ -73,10 +73,24 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
+
+type AuthApiResponse = {
+  success?: boolean
+  message?: string
+  data?: {
+    accessToken?: string
+    refreshToken?: string
+    user?: any
+  }
+  accessToken?: string
+  refreshToken?: string
+  user?: any
+}
+
 // Auth API methods
 export const authAPI = {
   login: (email: string, password: string) =>
-    apiClient.post<{ accessToken: string; refreshToken: string; user: any }>('/auth/login', {
+    apiClient.post<AuthApiResponse>('/auth/login', {
       email,
       password,
     }),
@@ -89,7 +103,7 @@ export const authAPI = {
     role: string
     phone?: string
   }) =>
-    apiClient.post<{ accessToken: string; refreshToken: string; user: any }>(
+    apiClient.post<AuthApiResponse>(
       '/auth/register',
       data
     ),

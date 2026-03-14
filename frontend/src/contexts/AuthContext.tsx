@@ -5,11 +5,14 @@ import { authAPI } from '@/lib/api-client'
 
 interface User {
   id: string
-  name: string
+  firstName: string
+  lastName: string
+  name?: string
   email: string
   role: 'BUYER' | 'OWNER' | 'CONTRACTOR' | 'SUPPLIER' | 'AGENT' | 'ADMIN'
   phone?: string
   avatar?: string
+  profileImageUrl?: string
 }
 
 interface AuthContextType {
@@ -17,7 +20,8 @@ interface AuthContextType {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (data: {
-    name: string
+    firstName: string
+    lastName: string
     email: string
     password: string
     role: string
@@ -75,13 +79,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🔵 [AuthContext] Login API response received:', response)
       // Backend returns { success, data: { user, accessToken }, message }
       // refreshToken is in HTTP-only cookie
-      const data = response.data?.data || response.data
+      const data = (response.data?.data || response.data) as {
+        accessToken?: string
+        user?: User
+      }
       console.log('🔵 [AuthContext] Parsed login data:', {
         hasAccessToken: !!data.accessToken,
         hasUser: !!data.user,
         userRole: data.user?.role,
         note: 'refreshToken in HTTP-only cookie',
       })
+
+      if (!data.accessToken || !data.user) {
+        throw new Error('Invalid login response from server')
+      }
+
       localStorage.setItem('accessToken', data.accessToken)
       console.log('✅ [AuthContext] AccessToken saved to localStorage')
       setUser(data.user)
@@ -106,12 +118,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🔵 [AuthContext] Registration API response received')
       // Backend returns { success, data: { user, accessToken }, message }
       // refreshToken is in HTTP-only cookie
-      const responseData = response.data?.data || response.data
+      const responseData = (response.data?.data || response.data) as {
+        accessToken?: string
+        user?: User
+      }
       console.log('🔵 [AuthContext] Parsed registration data:', {
         hasAccessToken: !!responseData.accessToken,
         hasUser: !!responseData.user,
         note: 'refreshToken in HTTP-only cookie',
       })
+
+      if (!responseData.accessToken || !responseData.user) {
+        throw new Error('Invalid registration response from server')
+      }
+
       localStorage.setItem('accessToken', responseData.accessToken)
       console.log('✅ [AuthContext] AccessToken saved to localStorage')
       setUser(responseData.user)

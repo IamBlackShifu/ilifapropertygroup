@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { apiClient } from '@/lib/api/client'
+import apiClient from '@/lib/api-client'
 
 export default function CreateContractorProfilePage() {
   const router = useRouter()
