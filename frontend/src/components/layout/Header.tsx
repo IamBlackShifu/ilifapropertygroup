@@ -50,15 +50,15 @@ const navigationItems: NavItem[] = [
     href: '/market-insights',
     // Public - visible to everyone
   },
-  {
-    label: 'Verify',
-    href: '#',
-    roles: ['OWNER', 'AGENT', 'CONTRACTOR', 'ADMIN'], // Verification for sellers & professionals
-    submenu: [
-      { label: 'Verify Property', href: '/verify/property', roles: ['OWNER', 'AGENT', 'ADMIN'] },
-      { label: 'Verify Professional', href: '/verify/agent', roles: ['CONTRACTOR', 'AGENT', 'ADMIN'] },
-    ],
-  },
+  // {
+  //   label: 'Verify',
+  //   href: '#',
+  //   roles: ['OWNER', 'AGENT', 'CONTRACTOR', 'ADMIN'], // Verification for sellers & professionals
+  //   submenu: [
+  //     { label: 'Verify Property', href: '/verify/property', roles: ['OWNER', 'AGENT', 'ADMIN'] },
+  //     { label: 'Verify Professional', href: '/verify/agent', roles: ['CONTRACTOR', 'AGENT', 'ADMIN'] },
+  //   ],
+  // },
   {
     label: 'Learn',
     href: '/learn',
