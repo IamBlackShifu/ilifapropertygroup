@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { ThemeSwitcher } from './ThemeSwitcher'
@@ -71,6 +71,7 @@ export function Header() {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [authDropdownOpen, setAuthDropdownOpen] = useState(false)
+  const authCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
 
@@ -84,12 +85,39 @@ export function Header() {
     })
   }, [user, isAuthenticated])
 
+  useEffect(() => {
+    return () => {
+      if (authCloseTimeoutRef.current) {
+        clearTimeout(authCloseTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const handleLogout = () => {
     console.log('🔵 [Header] Logout button clicked')
     logout()
     console.log('🔵 [Header] Redirecting to home page')
     router.push('/')
     setUserDropdownOpen(false)
+  }
+
+  const openAuthDropdown = () => {
+    if (authCloseTimeoutRef.current) {
+      clearTimeout(authCloseTimeoutRef.current)
+      authCloseTimeoutRef.current = null
+    }
+    setAuthDropdownOpen(true)
+  }
+
+  const closeAuthDropdown = () => {
+    if (authCloseTimeoutRef.current) {
+      clearTimeout(authCloseTimeoutRef.current)
+    }
+
+    // Small delay prevents accidental close while moving from button to menu.
+    authCloseTimeoutRef.current = setTimeout(() => {
+      setAuthDropdownOpen(false)
+    }, 180)
   }
 
   const getUserInitials = (name: string | undefined) => {
@@ -329,11 +357,23 @@ export function Header() {
                   </button>
                 </>
               ) : (
-                <div className="relative">
+                <div
+                  className="relative"
+                  onMouseEnter={openAuthDropdown}
+                  onMouseLeave={closeAuthDropdown}
+                >
                   <button
-                    onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
-                    onMouseEnter={() => setAuthDropdownOpen(true)}
-                    onMouseLeave={() => setAuthDropdownOpen(false)}
+                    onClick={() => {
+                      if (authDropdownOpen) {
+                        setAuthDropdownOpen(false)
+                        if (authCloseTimeoutRef.current) {
+                          clearTimeout(authCloseTimeoutRef.current)
+                          authCloseTimeoutRef.current = null
+                        }
+                      } else {
+                        openAuthDropdown()
+                      }
+                    }}
                     className="flex items-center space-x-2 px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,8 +388,6 @@ export function Header() {
                   {authDropdownOpen && (
                     <div 
                       className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50"
-                      onMouseEnter={() => setAuthDropdownOpen(true)}
-                      onMouseLeave={() => setAuthDropdownOpen(false)}
                     >
                       <div className="py-2">
                         <Link
