@@ -15,6 +15,8 @@ const PROPERTY_TYPES = [
   { value: 'COMMERCIAL', label: 'Commercial' },
 ]
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function PropertyForm({ initialData, isEdit = false }: PropertyFormProps) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -67,7 +69,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
 
       console.log('📤 Sending upload request to backend...')
       const token = localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:4000/api/files/upload/property-images', {
+      const response = await fetch(`${API_URL}/api/files/upload/property-images`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -133,8 +135,8 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
 
       const token = localStorage.getItem('accessToken')
       const url = isEdit 
-        ? `http://localhost:4000/api/properties/${initialData.id}`
-        : 'http://localhost:4000/api/properties'
+        ? `${API_URL}/api/properties/${initialData.id}`
+        : `${API_URL}/api/properties`
       
       const response = await fetch(url, {
         method: isEdit ? 'PATCH' : 'POST',
@@ -423,7 +425,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
             {imageUrls.map((url, index) => (
               <div key={index} className="relative group">
                 <img
-                  src={`http://localhost:4000${url}`}
+                  src={`${API_URL}${url}`}
                   alt={`Property ${index + 1}`}
                   className="w-full h-32 object-cover rounded-lg"
                 />

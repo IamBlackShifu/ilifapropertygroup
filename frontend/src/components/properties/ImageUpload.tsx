@@ -3,6 +3,8 @@
 import { useState, useRef } from 'react';
 import { filesAPI } from '@/lib/api/properties';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 interface ImageUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
@@ -141,7 +143,7 @@ export default function ImageUpload({ images, onImagesChange, maxImages = 10 }: 
             >
               {/* Image */}
               <img
-                src={`http://localhost:4000${imageUrl}`}
+                src={`${API_URL}${imageUrl}`}
                 alt={`Property image ${index + 1}`}
                 className="w-full h-full object-cover"
               />

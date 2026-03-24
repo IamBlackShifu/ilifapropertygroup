@@ -23,6 +23,8 @@ interface DashboardStats {
   }
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
@@ -77,10 +79,10 @@ function DashboardContent() {
       // Fetch data based on role
       if (user.role === 'OWNER' || user.role === 'AGENT' || user.role === 'ADMIN') {
         const [propertiesRes, statsRes] = await Promise.all([
-          fetch('http://localhost:4000/api/properties/my-properties', {
+          fetch(`${API_URL}/api/properties/my-properties`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
-          fetch('http://localhost:4000/api/properties/user/stats', {
+          fetch(`${API_URL}/api/properties/user/stats`, {
             headers: { 'Authorization': `Bearer ${token}` }
           })
         ])

@@ -7,6 +7,8 @@ import { Property, PropertyStatus } from '@/types';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { user } = useAuth();
@@ -201,7 +203,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               {property.images && property.images.length > 0 ? (
                 <div className="relative">
                   <img
-                    src={`http://localhost:4000${property.images[currentImageIndex].imageUrl}`}
+                    src={`${API_URL}${property.images[currentImageIndex].imageUrl}`}
                     alt={property.title}
                     className="w-full h-96 object-cover"
                   />
@@ -287,7 +289,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <div className="flex items-center gap-3 mb-4">
                 {property.owner?.profileImageUrl ? (
                   <img
-                    src={`http://localhost:4000${property.owner.profileImageUrl}`}
+                    src={`${API_URL}${property.owner.profileImageUrl}`}
                     alt={`${property.owner.firstName} ${property.owner.lastName}`}
                     className="w-12 h-12 rounded-full object-cover"
                   />

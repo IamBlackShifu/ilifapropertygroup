@@ -6,6 +6,8 @@ import Link from 'next/link'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import PropertyForm from '@/components/properties/PropertyForm'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function EditPropertyPage() {
   return (
     <ProtectedRoute allowedRoles={['OWNER', 'AGENT', 'ADMIN']}>
@@ -32,7 +34,7 @@ function EditPropertyContent() {
   const fetchProperty = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:4000/api/properties/${propertyId}`, {
+      const response = await fetch(`${API_URL}/api/properties/${propertyId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

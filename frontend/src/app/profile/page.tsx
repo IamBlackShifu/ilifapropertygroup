@@ -7,6 +7,8 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function ProfilePage() {
   const { user } = useAuth()
   const router = useRouter()
@@ -41,7 +43,7 @@ export default function ProfilePage() {
 
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:4000/api/users/profile', {
+      const response = await fetch(`${API_URL}/api/users/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

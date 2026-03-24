@@ -7,6 +7,8 @@ import { Property, PropertyType, PropertyStatus } from '@/types';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 export default function PropertiesPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -236,7 +238,7 @@ export default function PropertiesPage() {
                   <div className="relative h-48 bg-gray-200">
                     {property.images && property.images.length > 0 ? (
                       <img
-                        src={`http://localhost:4000${property.images[0].imageUrl}`}
+                        src={`${API_URL}${property.images[0].imageUrl}`}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />

@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 interface PropertyAnalytics {
   property: {
     id: string
@@ -48,7 +50,7 @@ function PropertyAnalyticsContent() {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:4000/api/properties/${propertyId}/analytics`, {
+      const response = await fetch(`${API_URL}/api/properties/${propertyId}/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

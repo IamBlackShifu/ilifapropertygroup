@@ -21,6 +21,8 @@ interface Property {
   createdAt: string
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function MyPropertiesPage() {
   return (
     <ProtectedRoute allowedRoles={['OWNER', 'AGENT', 'ADMIN']}>
@@ -46,7 +48,7 @@ function MyPropertiesContent() {
   const fetchProperties = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:4000/api/properties/my-properties', {
+      const response = await fetch(`${API_URL}/api/properties/my-properties`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -68,7 +70,7 @@ function MyPropertiesContent() {
   const handleDelete = async (id: string) => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:4000/api/properties/${id}`, {
+      const response = await fetch(`${API_URL}/api/properties/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -89,7 +91,7 @@ function MyPropertiesContent() {
   const handleSubmitForVerification = async (id: string) => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:4000/api/properties/${id}/submit-verification`, {
+      const response = await fetch(`${API_URL}/api/properties/${id}/submit-verification`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -191,7 +193,7 @@ function MyPropertiesContent() {
                   <div className="relative h-48 bg-gradient-to-br from-primary-500 to-secondary-600">
                     {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                       <img
-                        src={`http://localhost:4000${property.images[0].imageUrl}`}
+                        src={`${API_URL}${property.images[0].imageUrl}`}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />

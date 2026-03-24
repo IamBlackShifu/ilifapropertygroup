@@ -7,6 +7,8 @@ import { Property } from '@/types'
 import ContactOwnerModal, { ContactOwnerFormData } from '@/components/properties/ContactOwnerModal'
 import ScheduleViewingModal, { ScheduleViewingFormData } from '@/components/properties/ScheduleViewingModal'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function PropertyDetailsPage({ params }: { params: { id: string } }) {
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
@@ -164,7 +166,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
               {property.images && property.images.length > 0 ? (
                 <div className="relative h-96">
                   <img
-                    src={`http://localhost:4000${property.images[currentImageIndex].imageUrl}`}
+                    src={`${API_URL}${property.images[currentImageIndex].imageUrl}`}
                     alt={property.title}
                     className="w-full h-full object-cover"
                   />
@@ -280,7 +282,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                   <div className="flex items-center mb-4">
                     {property.owner.profileImageUrl ? (
                       <img
-                        src={`http://localhost:4000${property.owner.profileImageUrl}`}
+                        src={`${API_URL}${property.owner.profileImageUrl}`}
                         alt={`${property.owner.firstName} ${property.owner.lastName}`}
                         className="w-16 h-16 rounded-full mr-4 object-cover"
                       />

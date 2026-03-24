@@ -36,6 +36,8 @@ interface Filters {
   maxSizeSqm: string
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function BuyPropertyPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
@@ -82,7 +84,7 @@ export default function BuyPropertyPage() {
       if (filters.minBedrooms) params.append('minBedrooms', filters.minBedrooms)
       if (filters.maxBedrooms) params.append('maxBedrooms', filters.maxBedrooms)
 
-      const response = await fetch(`http://localhost:4000/api/properties?${params.toString()}`)
+      const response = await fetch(`${API_URL}/api/properties?${params.toString()}`)
       
       if (response.ok) {
         const data = await response.json()
@@ -374,7 +376,7 @@ export default function BuyPropertyPage() {
                       <div className="relative h-48 bg-gradient-to-br from-primary-500 to-secondary-600">
                         {property.images && property.images.length > 0 && property.images[0].imageUrl ? (
                           <img
-                            src={`http://localhost:4000${property.images[0].imageUrl}`}
+                            src={`${API_URL}${property.images[0].imageUrl}`}
                             alt={property.title}
                             className="w-full h-full object-cover"
                           />

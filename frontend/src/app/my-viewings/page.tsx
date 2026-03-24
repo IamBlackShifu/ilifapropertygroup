@@ -5,6 +5,8 @@ import { propertiesAPI } from '@/lib/api-client'
 import Link from 'next/link'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function MyViewingsPage() {
   const [viewings, setViewings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -132,7 +134,7 @@ export default function MyViewingsPage() {
 
                   {viewing.property.images?.[0]?.imageUrl && (
                     <img
-                      src={`http://localhost:4000${viewing.property.images[0].imageUrl}`}
+                      src={`${API_URL}${viewing.property.images[0].imageUrl}`}
                       alt={viewing.property.title}
                       className="w-32 h-32 object-cover rounded ml-4"
                     />
