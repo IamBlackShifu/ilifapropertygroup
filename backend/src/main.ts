@@ -9,36 +9,57 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    const configuredOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '')
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean);
+    const parseConfiguredOrigins = (raw: string): string[] => {
+      return raw
+        .split(/[;,\n\r]+/)
+        .map((origin) => origin.trim())
+        .map((origin) => origin.replace(/^['\"]|['\"]$/g, ''))
+        .filter(Boolean);
+    };
+
+    const normalizeOrigin = (origin: string): string => {
+      try {
+        const url = new URL(origin);
+        const hostname = url.hostname.toLowerCase();
+        const protocol = url.protocol.toLowerCase();
+        const normalizedPort = url.port ? `:${url.port}` : '';
+        return `${protocol}//${hostname}${normalizedPort}`;
+      } catch {
+        return origin.trim().replace(/\/+$/, '').toLowerCase();
+      }
+    };
+
+    const configuredOrigins = parseConfiguredOrigins(process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '');
+    const allowAllOrigins = configuredOrigins.includes('*');
 
     const expandOriginVariants = (origin: string): string[] => {
       try {
         const url = new URL(origin);
-        const variants = new Set<string>([origin]);
+        const variants = new Set<string>([normalizeOrigin(origin)]);
 
         if (url.hostname.startsWith('www.')) {
-          variants.add(`${url.protocol}//${url.hostname.replace(/^www\./, '')}${url.port ? `:${url.port}` : ''}`);
+          variants.add(normalizeOrigin(`${url.protocol}//${url.hostname.replace(/^www\./, '')}${url.port ? `:${url.port}` : ''}`));
         } else if (!['localhost', '127.0.0.1'].includes(url.hostname)) {
-          variants.add(`${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ''}`);
+          variants.add(normalizeOrigin(`${url.protocol}//www.${url.hostname}${url.port ? `:${url.port}` : ''}`));
         }
 
         return Array.from(variants);
       } catch {
-        return [origin];
+        return [normalizeOrigin(origin)];
       }
     };
 
     const allowedOrigins = configuredOrigins.length
-      ? Array.from(new Set(configuredOrigins.flatMap((origin) => expandOriginVariants(origin))))
+      ? Array.from(new Set(configuredOrigins.filter((origin) => origin !== '*').flatMap((origin) => expandOriginVariants(origin))))
       : [
-          'http://localhost:3000',
-          'http://127.0.0.1:3000',
-          'https://ilifapropertygroup.com',
-          'https://www.ilifapropertygroup.com',
+          normalizeOrigin('http://localhost:3000'),
+          normalizeOrigin('http://127.0.0.1:3000'),
+          normalizeOrigin('https://ilifapropertygroup.com'),
+          normalizeOrigin('https://www.ilifapropertygroup.com'),
         ];
+
+    console.log('🌐 CORS allowAllOrigins:', allowAllOrigins);
+    console.log('🌐 CORS allowed origins:', allowedOrigins);
 
     // Serve static files from uploads directory (use absolute path)
     const uploadsPath = process.env.UPLOAD_DIR 
@@ -55,12 +76,19 @@ async function bootstrap() {
     app.enableCors({
       origin: (origin, callback) => {
         // Allow non-browser requests (curl/Postman) and configured web origins.
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) {
           callback(null, true);
           return;
         }
 
-        callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
+        const requestOrigin = normalizeOrigin(origin);
+
+        if (allowAllOrigins || allowedOrigins.includes(requestOrigin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error(`Origin ${requestOrigin} is not allowed by CORS`), false);
       },
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
