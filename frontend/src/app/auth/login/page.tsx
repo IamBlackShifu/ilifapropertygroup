@@ -84,7 +84,7 @@ export default function LoginPage() {
         redirectUrl = '/my-properties'
         console.log('🔵 [LoginPage] Owner user - redirecting to /my-properties')
       } else if (userRole === 'BUYER') {
-        redirectUrl = '/properties'
+        redirectUrl = '/dashboard'
         console.log('🔵 [LoginPage] Buyer user - redirecting to /properties')
       } else if (userRole === 'CONTRACTOR') {
         redirectUrl = '/projects'
