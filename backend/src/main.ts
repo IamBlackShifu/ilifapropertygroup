@@ -107,15 +107,20 @@ async function bootstrap() {
     // API prefix
     app.setGlobalPrefix('api');
 
-    // Swagger documentation
-    const config = new DocumentBuilder()
-      .setTitle('ILifa Property Group API')
-      .setDescription('Construction & Property Verification Platform API')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api/docs', app, document);
+    const enableSwagger = process.env.ENABLE_SWAGGER === 'true' || process.env.NODE_ENV !== 'production';
+
+    if (enableSwagger) {
+      const config = new DocumentBuilder()
+        .setTitle('ILifa Property Group API')
+        .setDescription('Construction & Property Verification Platform API')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup('api/docs', app, document);
+    } else {
+      console.log('📚 API Documentation disabled (set ENABLE_SWAGGER=true to enable)');
+    }
 
     const port = process.env.PORT || 4000;
     await app.listen(port);

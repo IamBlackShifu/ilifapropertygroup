@@ -13,6 +13,10 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   const { user, loading, isAuthenticated } = useAuth()
   const router = useRouter()
 
+  const requiredRolesLabel = allowedRoles?.length
+    ? allowedRoles.map((role) => role.toLowerCase()).join(', ')
+    : null
+
   useEffect(() => {
     console.log('🔵 [ProtectedRoute] Auth check:', {
       loading,
@@ -27,10 +31,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     if (!loading) {
       if (!isAuthenticated) {
         console.log('⚠️ [ProtectedRoute] User not authenticated, redirecting to login')
-        router.push('/auth/login')
-      } else if (allowedRoles && !allowedRoles.includes(user?.role || '')) {
-        console.log('⚠️ [ProtectedRoute] User role not allowed, redirecting to home')
-        router.push('/') // Redirect to home if user doesn't have required role
+        router.replace('/auth/login')
       } else {
         console.log('✅ [ProtectedRoute] Access granted')
       }
@@ -49,11 +50,54 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   if (!isAuthenticated) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow p-6 text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Sign in required</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Please sign in to access this page. You will be redirected to the login screen.
+          </p>
+          <button
+            onClick={() => router.replace('/auth/login')}
+            className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+          >
+            Go to login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (allowedRoles && !allowedRoles.includes(user?.role || '')) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow p-6 text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Access denied</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Your role ({(user?.role || 'unknown').toLowerCase()}) does not have access to this page.
+          </p>
+          {requiredRolesLabel && (
+            <p className="mt-2 text-xs text-gray-500">
+              Allowed roles: {requiredRolesLabel}
+            </p>
+          )}
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              onClick={() => router.back()}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            >
+              Go back
+            </button>
+            <button
+              onClick={() => router.replace('/')}
+              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
+            >
+              Return home
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return <>{children}</>

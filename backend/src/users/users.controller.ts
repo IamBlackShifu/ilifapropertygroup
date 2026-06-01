@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -27,6 +28,18 @@ export class UsersController {
       success: true,
       data: user,
       message: 'Profile updated successfully',
+    };
+  }
+
+  @Patch('change-password')
+  async changePassword(
+    @CurrentUser('id') userId: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    await this.usersService.changePassword(userId, dto.currentPassword, dto.newPassword);
+    return {
+      success: true,
+      message: 'Password updated successfully',
     };
   }
 }

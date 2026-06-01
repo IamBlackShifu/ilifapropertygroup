@@ -206,6 +206,9 @@ export const usersAPI = {
   update: (id: string, data: any) => apiClient.patch<any>(`/users/${id}`, data),
 
   delete: (id: string) => apiClient.delete(`/users/${id}`),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    apiClient.patch('/users/change-password', { currentPassword, newPassword }),
 }
 
 // Suppliers API methods

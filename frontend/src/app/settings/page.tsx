@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useAuth } from '@/contexts/AuthContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { usersAPI } from '@/lib/api-client'
 
 export default function SettingsPage() {
   return (
@@ -21,6 +22,8 @@ function SettingsContent() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('account')
   const [saving, setSaving] = useState(false)
+  const [accountError, setAccountError] = useState('')
+  const [accountSuccess, setAccountSuccess] = useState('')
 
   // Account Settings
   const [accountData, setAccountData] = useState({
@@ -47,12 +50,40 @@ function SettingsContent() {
   })
 
   const handleAccountSave = async () => {
+    setAccountError('')
+    setAccountSuccess('')
+
+    if (!accountData.currentPassword || !accountData.newPassword || !accountData.confirmPassword) {
+      setAccountError('Please fill in all password fields before saving.')
+      return
+    }
+
+    if (accountData.newPassword.length < 8) {
+      setAccountError('New password must be at least 8 characters long.')
+      return
+    }
+
+    if (accountData.newPassword !== accountData.confirmPassword) {
+      setAccountError('New password and confirmation do not match.')
+      return
+    }
+
     setSaving(true)
-    // TODO: Implement API call
-    setTimeout(() => {
+    try {
+      await usersAPI.changePassword(accountData.currentPassword, accountData.newPassword)
+      setAccountSuccess('Password updated successfully.')
+      setAccountData({
+        ...accountData,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
+    } catch (error) {
+      const message = (error as any)?.response?.data?.message || 'Unable to update password. Please try again.'
+      setAccountError(message)
+    } finally {
       setSaving(false)
-      alert('Account settings updated successfully!')
-    }, 1000)
+    }
   }
 
   const handleNotificationSave = async () => {
@@ -177,6 +208,18 @@ function SettingsContent() {
 
                   <div className="border-t pt-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+
+                    {(accountError || accountSuccess) && (
+                      <div
+                        className={`mb-4 rounded-lg px-4 py-3 text-sm ${
+                          accountError
+                            ? 'bg-red-50 text-red-700 border border-red-200'
+                            : 'bg-green-50 text-green-700 border border-green-200'
+                        }`}
+                      >
+                        {accountError || accountSuccess}
+                      </div>
+                    )}
                     
                     <div className="space-y-4">
                       <div>
