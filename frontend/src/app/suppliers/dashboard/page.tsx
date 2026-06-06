@@ -42,7 +42,7 @@ export default function SupplierDashboard() {
       console.error('Failed to fetch analytics:', error)
       if (error.response?.status === 404) {
         // Supplier profile not found, redirect to profile setup
-        router.push('/suppliers/profile/setup')
+        router.push('/suppliers/profile')
       }
     } finally {
       setLoading(false)

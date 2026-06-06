@@ -165,7 +165,7 @@ function DashboardContent() {
             </div>
             <div className="flex items-center space-x-3">
               <Link 
-                href="/profile"
+                href={user?.role === 'CONTRACTOR' ? '/contractors/profile/edit' : user?.role === 'SUPPLIER' ? '/suppliers/profile' : '/profile'}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
               >
                 Edit Profile
@@ -385,7 +385,7 @@ function ContractorDashboard() {
 
       <QuickActions actions={[
         { href: '/build-home', icon: 'home', title: 'Find Projects', desc: 'Browse opportunities', color: 'blue' },
-        { href: '/profile', icon: 'user', title: 'My Profile', desc: 'Update portfolio', color: 'green' },
+        { href: '/contractors/profile/edit', icon: 'user', title: 'My Profile', desc: 'Update portfolio', color: 'green' },
         { href: '/suppliers', icon: 'box', title: 'Find Suppliers', desc: 'Source materials', color: 'purple' },
       ]} />
 
@@ -431,7 +431,7 @@ function SupplierDashboard() {
       <QuickActions actions={[
         { href: '/suppliers', icon: 'plus', title: 'Add Products', desc: 'List your catalog', color: 'blue' },
         { href: '/suppliers', icon: 'grid', title: 'My Catalog', desc: 'Manage products', color: 'green' },
-        { href: '/profile', icon: 'user', title: 'Company Profile', desc: 'Update details', color: 'purple' },
+        { href: '/suppliers/profile', icon: 'user', title: 'Company Profile', desc: 'Update details', color: 'purple' },
       ]} />
 
       <InfoCard 

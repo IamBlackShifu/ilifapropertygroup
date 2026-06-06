@@ -27,6 +27,12 @@ export function DashboardSidebar() {
 
   if (!user) return null
 
+  const getProfileHref = () => {
+    if (user.role === 'CONTRACTOR') return '/contractors/profile/edit'
+    if (user.role === 'SUPPLIER') return '/suppliers/profile'
+    return '/profile'
+  }
+
   const handleLogout = () => {
     logout()
     router.push('/')
@@ -772,7 +778,7 @@ export function DashboardSidebar() {
         {userDropdownOpen && isSidebarOpen && (
           <div className="absolute bottom-full left-4 right-4 mb-2 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 overflow-hidden">
             <Link
-              href="/profile"
+              href={getProfileHref()}
               className="block px-4 py-3 hover:bg-gray-700 transition-colors text-sm"
               onClick={() => setUserDropdownOpen(false)}
             >

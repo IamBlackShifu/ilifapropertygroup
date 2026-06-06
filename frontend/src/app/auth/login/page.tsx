@@ -86,9 +86,12 @@ export default function LoginPage() {
       } else if (userRole === 'BUYER') {
         redirectUrl = '/dashboard'
         console.log('🔵 [LoginPage] Buyer user - redirecting to /properties')
+      } else if (userRole === 'SUPPLIER') {
+        redirectUrl = '/suppliers/dashboard'
+        console.log('🔵 [LoginPage] Supplier user - redirecting to /suppliers/dashboard')
       } else if (userRole === 'CONTRACTOR') {
-        redirectUrl = '/projects'
-        console.log('🔵 [LoginPage] Contractor user - redirecting to /projects')
+        redirectUrl = '/contractors/dashboard'
+        console.log('🔵 [LoginPage] Contractor user - redirecting to /contractors/dashboard')
       }
 
       console.log('🔵 [LoginPage] Redirecting to:', redirectUrl)

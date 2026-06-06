@@ -75,6 +75,12 @@ export function Header() {
   const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
 
+  const getProfileHref = () => {
+    if (user?.role === 'CONTRACTOR') return '/contractors/profile/edit'
+    if (user?.role === 'SUPPLIER') return '/suppliers/profile'
+    return '/profile'
+  }
+
   // Debug: Log auth state in Header
   useEffect(() => {
     console.log('🔵 [Header] Auth state:', {
@@ -299,7 +305,7 @@ export function Header() {
                         </div>
                         <div className="py-2">
                           <Link
-                            href="/profile"
+                            href={getProfileHref()}
                             className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
                             onClick={() => setUserDropdownOpen(false)}
                           >
@@ -423,6 +429,7 @@ export function Header() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              title="Toggle navigation menu"
               className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -495,7 +502,7 @@ export function Header() {
                       </div>
                     </div>
                     <Link
-                      href="/profile"
+                      href={getProfileHref()}
                       className="block py-2.5 px-3 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
