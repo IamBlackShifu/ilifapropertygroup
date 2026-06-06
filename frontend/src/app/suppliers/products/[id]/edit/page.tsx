@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { suppliersAPI, filesAPI } from '@/lib/api-client';
+import { resolveMediaUrl } from '@/lib/media';
 
 const PRODUCT_CATEGORIES = [
   'CEMENT', 'BRICKS', 'STEEL', 'ROOFING', 'PLUMBING',
@@ -189,6 +190,7 @@ export default function EditProductPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                aria-label="Product name"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -203,6 +205,7 @@ export default function EditProductPage() {
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                aria-label="Product description"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -217,6 +220,7 @@ export default function EditProductPage() {
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  aria-label="Product category"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {PRODUCT_CATEGORIES.map((cat) => (
@@ -233,6 +237,7 @@ export default function EditProductPage() {
                   required
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  aria-label="Product status"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {STATUS_OPTIONS.map((status) => (
@@ -255,6 +260,7 @@ export default function EditProductPage() {
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  aria-label="Product price"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -269,6 +275,7 @@ export default function EditProductPage() {
                   min="0"
                   value={formData.stockQuantity}
                   onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                  aria-label="Stock quantity"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
@@ -281,6 +288,7 @@ export default function EditProductPage() {
                   required
                   value={formData.unit}
                   onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                  aria-label="Product unit"
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {UNITS.map((unit) => (
@@ -300,6 +308,7 @@ export default function EditProductPage() {
                 min="1"
                 value={formData.minOrderQuantity}
                 onChange={(e) => setFormData({ ...formData, minOrderQuantity: e.target.value })}
+                aria-label="Minimum order quantity"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -315,6 +324,7 @@ export default function EditProductPage() {
                     value={specKey}
                     onChange={(e) => setSpecKey(e.target.value)}
                     placeholder="Property"
+                    aria-label="Specification key"
                     className="flex-1 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
@@ -322,6 +332,7 @@ export default function EditProductPage() {
                     value={specValue}
                     onChange={(e) => setSpecValue(e.target.value)}
                     placeholder="Value"
+                    aria-label="Specification value"
                     className="flex-1 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   />
                   <button
@@ -364,6 +375,7 @@ export default function EditProductPage() {
                     type="file"
                     accept="image/*"
                     multiple
+                    aria-label="Upload product images"
                     onChange={async (e) => {
                       const files = Array.from(e.target.files || []);
                       if (files.length === 0) return;
@@ -396,13 +408,14 @@ export default function EditProductPage() {
                     {formData.images.map((url, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={url}
+                          src={resolveMediaUrl(url)}
                           alt={`Product ${index + 1}`}
                           className="w-full h-32 object-cover rounded-md"
                         />
                         <button
                           type="button"
                           onClick={() => handleImageRemove(index)}
+                          aria-label={`Remove product image ${index + 1}`}
                           className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/api-client'
+import { getFirstMediaUrl } from '@/lib/media'
 
 type Product = {
   id: string
@@ -77,7 +78,7 @@ export default function ProductDetailsPage() {
   }
 
   const price = typeof product.price === 'number' ? product.price : Number(product.price || 0)
-  const primaryImage = product.images?.[0]
+  const primaryImage = getFirstMediaUrl(product.imageUrls || product.images)
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">

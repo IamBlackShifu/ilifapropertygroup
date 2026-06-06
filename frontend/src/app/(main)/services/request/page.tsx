@@ -69,7 +69,7 @@ function ServiceRequestPageContent() {
     try {
       const payload = {
         ...formData,
-        estimatedBudget: formData.estimatedBudget ? parseFloat(formData.estimatedBudget) : undefined,
+        estimatedBudget: formData.estimatedBudget ? formData.estimatedBudget.trim() : undefined,
         propertyId: formData.propertyId || undefined,
         preferredDate: formData.preferredDate || undefined,
       }
@@ -127,6 +127,7 @@ function ServiceRequestPageContent() {
                 <select
                   value={formData.propertyId}
                   onChange={(e) => setFormData(prev => ({ ...prev, propertyId: e.target.value }))}
+                  aria-label="Related property"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">-- No Property --</option>
@@ -149,6 +150,7 @@ function ServiceRequestPageContent() {
                 required
                 value={formData.serviceType}
                 onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value }))}
+                  aria-label="Service type"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 placeholder="e.g., New Construction, Renovation, Extension"
               />
@@ -163,6 +165,7 @@ function ServiceRequestPageContent() {
                 required
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  aria-label="Project description"
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 rows={6}
                 placeholder="Describe your project requirements, specifications, and any important details..."
@@ -178,6 +181,7 @@ function ServiceRequestPageContent() {
                 <select
                   value={formData.urgency}
                   onChange={(e) => setFormData(prev => ({ ...prev, urgency: e.target.value }))}
+                  aria-label="Urgency level"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="LOW">Low Priority</option>
@@ -194,6 +198,7 @@ function ServiceRequestPageContent() {
                   type="date"
                   value={formData.preferredDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, preferredDate: e.target.value }))}
+                  aria-label="Preferred start date"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
                 />
               </div>

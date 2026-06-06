@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/api-client'
+import { getFirstMediaUrl } from '@/lib/media'
 
 type Supplier = {
   id: string
@@ -150,8 +151,8 @@ export default function SupplierDetailsPage() {
                 supplier.products.map((product) => (
                   <div key={product.id} className="flex items-center gap-4 rounded-xl border border-gray-200 p-4">
                     <div className="h-16 w-16 overflow-hidden rounded-lg bg-gray-100 flex-shrink-0">
-                      {product.images?.[0] ? (
-                        <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                      {getFirstMediaUrl(product.imageUrls || product.images) ? (
+                        <img src={getFirstMediaUrl(product.imageUrls || product.images)} alt={product.name} className="h-full w-full object-cover" />
                       ) : null}
                     </div>
                     <div className="min-w-0 flex-1">

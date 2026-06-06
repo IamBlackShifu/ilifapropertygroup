@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { suppliersAPI } from '@/lib/api-client';
+import { getFirstMediaUrl } from '@/lib/media';
 
 const PRODUCT_CATEGORIES = [
   'ALL', 'CEMENT', 'BRICKS', 'STEEL', 'ROOFING', 'PLUMBING',
@@ -138,6 +139,7 @@ export default function ProductsPage() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
+                  aria-label="Filter products by category"
                   className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {PRODUCT_CATEGORIES.map(cat => (
@@ -151,6 +153,7 @@ export default function ProductsPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
+                  aria-label="Filter products by status"
                   className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   {STATUS_OPTIONS.map(status => (
@@ -195,9 +198,9 @@ export default function ProductsPage() {
               <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 {/* Product Image */}
                 <div className="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg overflow-hidden">
-                  {product.images && product.images.length > 0 ? (
+                  {getFirstMediaUrl(product.imageUrls || product.images) ? (
                     <img
-                      src={product.images[0]}
+                      src={getFirstMediaUrl(product.imageUrls || product.images)}
                       alt={product.name}
                       className="w-full h-48 object-cover"
                     />

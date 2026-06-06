@@ -169,6 +169,13 @@ export const propertiesAPI = {
     phone: string
     message: string
   }) => apiClient.post<any>('/properties/contact-owner', data),
+
+  getMyInquiries: () => apiClient.get<any>('/properties/inquiries/my-inquiries'),
+
+  getReceivedInquiries: () => apiClient.get<any>('/properties/inquiries/received'),
+
+  respondToInquiry: (id: string, ownerResponse: string) =>
+    apiClient.patch<any>(`/properties/inquiries/${id}/respond`, { ownerResponse }),
 }
 
 // Professionals API methods

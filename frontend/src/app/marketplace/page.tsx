@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { suppliersAPI } from '@/lib/api-client';
+import { getFirstMediaUrl } from '@/lib/media';
 
 const PRODUCT_CATEGORIES = [
   'ALL', 'CEMENT', 'BRICKS', 'STEEL', 'ROOFING', 'PLUMBING',
@@ -150,6 +151,7 @@ export default function SuppliersMarketplacePage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
+                aria-label="Filter by category"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
                 {PRODUCT_CATEGORIES.map(cat => (
@@ -163,6 +165,7 @@ export default function SuppliersMarketplacePage() {
               <select
                 value={cityFilter}
                 onChange={(e) => setCityFilter(e.target.value)}
+                aria-label="Filter by city"
                 className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
                 {ZIMBABWE_CITIES.map(city => (
@@ -301,9 +304,9 @@ export default function SuppliersMarketplacePage() {
               {products.map((product) => (
                 <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                   <div className="aspect-w-1 aspect-h-1 bg-gray-200 rounded-t-lg overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
+                    {getFirstMediaUrl(product.imageUrls || product.images) ? (
                       <img
-                        src={product.images[0]}
+                        src={getFirstMediaUrl(product.imageUrls || product.images)}
                         alt={product.name}
                         className="w-full h-48 object-cover"
                       />

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { adminApi } from '@/lib/api/admin'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
+import { resolveMediaUrl } from '@/lib/media'
 
 interface SupplierDetails {
   id: string
@@ -297,7 +298,7 @@ export default function AdminSupplierDetailsPage() {
               <div key={product.id} className="border rounded-lg p-4 flex items-start gap-4">
                 {product.imageUrls && product.imageUrls.length > 0 ? (
                   <Image
-                    src={product.imageUrls[0]}
+                    src={resolveMediaUrl(product.imageUrls[0])}
                     alt={product.name}
                     width={80}
                     height={80}
