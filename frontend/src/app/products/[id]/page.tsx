@@ -17,6 +17,7 @@ type Product = {
   minOrderQuantity?: number
   status?: string
   images?: string[]
+  imageUrls?: string[]
   specifications?: Record<string, string>
   supplier?: {
     id: string

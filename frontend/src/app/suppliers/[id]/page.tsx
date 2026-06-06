@@ -23,6 +23,7 @@ type Supplier = {
     name: string
     price: number | string
     images?: string[]
+    imageUrls?: string[]
     unit?: string
   }>
 }
