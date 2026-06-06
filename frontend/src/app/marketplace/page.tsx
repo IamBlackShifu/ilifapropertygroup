@@ -1,14 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { suppliersAPI } from '@/lib/api-client';
 import { getFirstMediaUrl } from '@/lib/media';
 
 const PRODUCT_CATEGORIES = [
-  'ALL', 'CEMENT', 'BRICKS', 'STEEL', 'ROOFING', 'PLUMBING',
-  'ELECTRICAL', 'PAINT', 'TILES', 'DOORS', 'WINDOWS',
-  'HARDWARE', 'TOOLS', 'OTHER'
+  { value: 'ALL', label: 'All Categories' },
+  { value: 'CEMENT', label: 'Cement' },
+  { value: 'BRICKS', label: 'Bricks' },
+  { value: 'STEEL', label: 'Steel' },
+  { value: 'TIMBER', label: 'Timber' },
+  { value: 'ROOFING', label: 'Roofing' },
+  { value: 'PLUMBING', label: 'Plumbing' },
+  { value: 'ELECTRICAL', label: 'Electrical' },
+  { value: 'PAINT', label: 'Paint' },
+  { value: 'TILES', label: 'Tiles' },
+  { value: 'DOORS_WINDOWS', label: 'Doors & Windows' },
+  { value: 'HARDWARE', label: 'Hardware' },
+  { value: 'TOOLS', label: 'Tools' },
+  { value: 'OTHER', label: 'Other' },
 ];
 
 const ZIMBABWE_CITIES = [
@@ -16,7 +28,8 @@ const ZIMBABWE_CITIES = [
   'Kwekwe', 'Kadoma', 'Masvingo', 'Chinhoyi', 'Norton'
 ];
 
-export default function SuppliersMarketplacePage() {
+function MarketplaceContent() {
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -24,15 +37,33 @@ export default function SuppliersMarketplacePage() {
   const [error, setError] = useState('');
 
   // Filters
-  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || 'ALL');
   const [cityFilter, setCityFilter] = useState('All Cities');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const category = searchParams.get('category');
+    const supplier = searchParams.get('supplier');
+
+    if (category && PRODUCT_CATEGORIES.some((item) => item.value === category)) {
+      setCategoryFilter(category);
+    }
+
+    if (supplier) {
+      setView('products');
+    }
+
+    const search = searchParams.get('search');
+    if (search) {
+      setSearchTerm(search);
+    }
+  }, [searchParams]);
 
   const fetchData = async () => {
     try {
@@ -63,6 +94,7 @@ export default function SuppliersMarketplacePage() {
         const response = await suppliersAPI.getAllSuppliers(params);
         setSuppliers(response.data || []);
       } else {
+        const supplier = searchParams.get('supplier');
         const params: any = {};
         if (categoryFilter !== 'ALL') params.category = categoryFilter;
         if (cityFilter !== 'All Cities') params.city = cityFilter;
@@ -70,7 +102,9 @@ export default function SuppliersMarketplacePage() {
         if (priceRange.min) params.minPrice = parseFloat(priceRange.min);
         if (priceRange.max) params.maxPrice = parseFloat(priceRange.max);
 
-        const response = await suppliersAPI.searchProducts(params);
+        const response = supplier
+          ? await suppliersAPI.getSupplierProducts(supplier, params)
+          : await suppliersAPI.searchProducts(params);
         setProducts(response.data || []);
       }
     } catch (err) {
@@ -82,7 +116,7 @@ export default function SuppliersMarketplacePage() {
 
   useEffect(() => {
     handleSearch();
-  }, [view, categoryFilter, cityFilter, verifiedOnly]);
+  }, [view, categoryFilter, cityFilter, verifiedOnly, searchTerm, searchParams]);
 
   if (loading && suppliers.length === 0) {
     return (
@@ -155,7 +189,7 @@ export default function SuppliersMarketplacePage() {
                 className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
                 {PRODUCT_CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
                 ))}
               </select>
             </div>
@@ -252,7 +286,7 @@ export default function SuppliersMarketplacePage() {
                             <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                           </svg>
                           <span className="ml-1 text-sm font-medium text-gray-900">
-                            {supplier.rating ? Number(supplier.rating).toFixed(1) : 'N/A'}
+                            {supplier.ratingAverage ? Number(supplier.ratingAverage).toFixed(1) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -268,12 +302,13 @@ export default function SuppliersMarketplacePage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        {supplier.city}
+                        {supplier.locationCity || supplier.city || 'Location not provided'}
                       </div>
+                      {Array.isArray(supplier.categories) && supplier.categories.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {supplier.categories.slice(0, 3).map((cat: string) => (
                           <span key={cat} className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded">
-                            {cat}
+                            {PRODUCT_CATEGORIES.find((item) => item.value === cat)?.label || cat}
                           </span>
                         ))}
                         {supplier.categories.length > 3 && (
@@ -282,6 +317,7 @@ export default function SuppliersMarketplacePage() {
                           </span>
                         )}
                       </div>
+                      )}
                     </div>
 
                     <Link
@@ -362,5 +398,17 @@ export default function SuppliersMarketplacePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SuppliersMarketplacePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    }>
+      <MarketplaceContent />
+    </Suspense>
   );
 }

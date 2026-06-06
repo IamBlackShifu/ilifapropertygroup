@@ -8,72 +8,72 @@ const supplierCategories = [
   {
     phase: 'Pre-Construction',
     categories: [
-      { name: 'Architects', count: 124, filter: null },
-      { name: 'Surveyors', count: 52, filter: null },
-      { name: 'Soil Testing', count: 18, filter: null },
-      { name: 'Geotechnical Services', count: 12, filter: null },
+      { name: 'Architects', filter: null },
+      { name: 'Surveyors', filter: null },
+      { name: 'Soil Testing', filter: null },
+      { name: 'Geotechnical Services', filter: null },
     ]
   },
   {
     phase: 'Legal & Compliance',
     categories: [
-      { name: 'Conveyancing Lawyers', count: 67, filter: null },
-      { name: 'Council Approvals', count: 8, filter: null },
-      { name: 'EMA Clearance', count: 5, filter: null },
-      { name: 'ZESA Connections', count: 3, filter: null },
+      { name: 'Conveyancing Lawyers', filter: null },
+      { name: 'Council Approvals', filter: null },
+      { name: 'EMA Clearance', filter: null },
+      { name: 'ZESA Connections', filter: null },
     ]
   },
   {
     phase: 'Foundation & Structure',
     categories: [
-      { name: 'Cement Suppliers', count: 45, filter: 'CEMENT' },
-      { name: 'Bricks & Blocks', count: 78, filter: 'BRICKS' },
-      { name: 'Steel & Reinforcement', count: 56, filter: 'STEEL' },
-      { name: 'Aggregates (Sand, Stone)', count: 34, filter: null },
-      { name: 'Roofing Materials', count: 92, filter: 'ROOFING' },
-      { name: 'Timber', count: 41, filter: 'TIMBER' },
+      { name: 'Cement Suppliers', filter: 'CEMENT' },
+      { name: 'Bricks & Blocks', filter: 'BRICKS' },
+      { name: 'Steel & Reinforcement', filter: 'STEEL' },
+      { name: 'Aggregates (Sand, Stone)', filter: null },
+      { name: 'Roofing Materials', filter: 'ROOFING' },
+      { name: 'Timber', filter: 'TIMBER' },
     ]
   },
   {
     phase: 'Windows & Doors',
     categories: [
-      { name: 'Aluminum Windows', count: 38, filter: 'DOORS_WINDOWS' },
-      { name: 'Wooden Doors', count: 29, filter: 'DOORS_WINDOWS' },
-      { name: 'Security Doors', count: 47, filter: 'DOORS_WINDOWS' },
-      { name: 'Garage Doors', count: 23, filter: 'DOORS_WINDOWS' },
+      { name: 'Aluminum Windows', filter: 'DOORS_WINDOWS' },
+      { name: 'Wooden Doors', filter: 'DOORS_WINDOWS' },
+      { name: 'Security Doors', filter: 'DOORS_WINDOWS' },
+      { name: 'Garage Doors', filter: 'DOORS_WINDOWS' },
     ]
   },
   {
     phase: 'Finishes',
     categories: [
-      { name: 'Kitchen Cupboards', count: 56, filter: null },
-      { name: 'Built-in Cupboards', count: 43, filter: null },
-      { name: 'Tiles & Flooring', count: 89, filter: 'TILES' },
-      { name: 'Ceilings', count: 31, filter: null },
-      { name: 'Paint & Painting', count: 67, filter: 'PAINT' },
-      { name: 'Sanitary Ware', count: 52, filter: 'PLUMBING' },
+      { name: 'Kitchen Cupboards', filter: null },
+      { name: 'Built-in Cupboards', filter: null },
+      { name: 'Tiles & Flooring', filter: 'TILES' },
+      { name: 'Ceilings', filter: null },
+      { name: 'Paint & Painting', filter: 'PAINT' },
+      { name: 'Sanitary Ware', filter: 'PLUMBING' },
     ]
   },
   {
     phase: 'Services',
     categories: [
-      { name: 'Plumbing', count: 123, filter: 'PLUMBING' },
-      { name: 'Electrical', count: 145, filter: 'ELECTRICAL' },
-      { name: 'Solar Systems', count: 78, filter: 'ELECTRICAL' },
-      { name: 'Borehole Drilling', count: 34, filter: null },
-      { name: 'Water Tanks', count: 29, filter: 'HARDWARE' },
-      { name: 'Septic Tanks', count: 18, filter: null },
+      { name: 'Plumbing', filter: 'PLUMBING' },
+      { name: 'Electrical', filter: 'ELECTRICAL' },
+      { name: 'Solar Systems', filter: 'ELECTRICAL' },
+      { name: 'Borehole Drilling', filter: null },
+      { name: 'Water Tanks', filter: 'HARDWARE' },
+      { name: 'Septic Tanks', filter: null },
     ]
   },
   {
     phase: 'Exterior & Security',
     categories: [
-      { name: 'Paving', count: 56, filter: 'TILES' },
-      { name: 'Fencing & Gates', count: 71, filter: 'HARDWARE' },
-      { name: 'CCTV Systems', count: 45, filter: 'ELECTRICAL' },
-      { name: 'Electric Fencing', count: 39, filter: 'ELECTRICAL' },
-      { name: 'Smart Home Systems', count: 22, filter: 'ELECTRICAL' },
-      { name: 'Landscaping', count: 34, filter: null },
+      { name: 'Paving', filter: 'TILES' },
+      { name: 'Fencing & Gates', filter: 'HARDWARE' },
+      { name: 'CCTV Systems', filter: 'ELECTRICAL' },
+      { name: 'Electric Fencing', filter: 'ELECTRICAL' },
+      { name: 'Smart Home Systems', filter: 'ELECTRICAL' },
+      { name: 'Landscaping', filter: null },
     ]
   },
 ]
@@ -94,13 +94,15 @@ interface Supplier {
 }
 
 export default function SuppliersPage() {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [featuredSuppliers, setFeaturedSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [stats, setStats] = useState({
     totalSuppliers: 0,
-    categories: 8,
+    categories: 0,
     totalProducts: 0,
+    deliverySuppliers: 0,
   })
 
   useEffect(() => {
@@ -110,17 +112,26 @@ export default function SuppliersPage() {
   const loadSuppliers = async () => {
     try {
       setLoading(true)
-      const response = await suppliersAPI.getAllSuppliers({ isVerified: true })
-      const suppliers = response.data || []
+      const [suppliersResponse, productsResponse] = await Promise.all([
+        suppliersAPI.getAllSuppliers({ isVerified: true }),
+        suppliersAPI.searchProducts({}),
+      ])
+      const suppliers = suppliersResponse.data || []
+      const products = productsResponse.data || []
       
+      setSuppliers(suppliers)
       setFeaturedSuppliers(suppliers.slice(0, 3))
       
-      // Calculate stats
-      const totalProducts = suppliers.reduce((sum: number, s: Supplier) => sum + (s._count?.products || 0), 0)
+      const supplierCategories = suppliers.flatMap((supplier: Supplier) => supplier.categories || [])
+      const productCategories = products.map((product: { category?: string }) => product.category).filter(Boolean)
+      const categories = new Set([...supplierCategories, ...productCategories]).size
+      const totalProducts = products.length || suppliers.reduce((sum: number, s: Supplier) => sum + (s._count?.products || 0), 0)
+
       setStats({
         totalSuppliers: suppliers.length,
-        categories: 8,
+        categories,
         totalProducts,
+        deliverySuppliers: suppliers.filter((supplier: Supplier) => supplier.deliveryAvailable).length,
       })
     } catch (err: any) {
       console.error('Error loading suppliers:', err)
@@ -128,6 +139,14 @@ export default function SuppliersPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getCategorySupplierCount = (filter: string | null) => {
+    if (!filter) return null
+
+    return suppliers.length === 0 && loading
+      ? null
+      : suppliers.filter((supplier) => supplier.categories?.includes(filter)).length
   }
 
   return (
@@ -164,16 +183,16 @@ export default function SuppliersPage() {
             <p className="text-sm text-gray-600">Verified Suppliers</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">{stats.categories}</p>
-            <p className="text-sm text-gray-600">Product Categories</p>
+            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.categories}</p>
+            <p className="text-sm text-gray-600">Active Categories</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
             <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.totalProducts}</p>
             <p className="text-sm text-gray-600">Products Listed</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">24/7</p>
-            <p className="text-sm text-gray-600">Support Available</p>
+            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.deliverySuppliers}</p>
+            <p className="text-sm text-gray-600">Offer Delivery</p>
           </div>
         </div>
       </section>
@@ -185,16 +204,22 @@ export default function SuppliersPage() {
             <div key={phase.phase} className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold mb-6 pb-4 border-b">{phase.phase}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {phase.categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.filter ? `/marketplace?category=${category.filter}` : `/suppliers/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:bg-primary-50 transition-colors group"
-                  >
-                    <h3 className="font-medium mb-2 group-hover:text-primary-600">{category.name}</h3>
-                    <p className="text-sm text-gray-600">{category.count} suppliers</p>
-                  </Link>
-                ))}
+                {phase.categories.map((category) => {
+                  const count = getCategorySupplierCount(category.filter)
+
+                  return (
+                    <Link
+                      key={category.name}
+                      href={category.filter ? `/marketplace?category=${category.filter}` : `/marketplace?search=${encodeURIComponent(category.name)}`}
+                      className="p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:bg-primary-50 transition-colors group"
+                    >
+                      <h3 className="font-medium mb-2 group-hover:text-primary-600">{category.name}</h3>
+                      <p className="text-sm text-gray-600">
+                        {count === null ? 'Loading...' : category.filter ? `${count} supplier${count === 1 ? '' : 's'}` : 'Search marketplace'}
+                      </p>
+                    </Link>
+                  )
+                })}
               </div>
             </div>
           ))}
@@ -221,22 +246,38 @@ export default function SuppliersPage() {
                       {supplier.companyName.charAt(0)}
                     </div>
                     {supplier.isVerified && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Verified</span>
+                    )}
+                    {false && supplier.isVerified && (
                       <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">✓ Verified</span>
                     )}
                   </div>
                   <h3 className="font-semibold text-lg mb-2">{supplier.companyName}</h3>
                   <p className="text-sm text-gray-600 mb-4 line-clamp-2">{supplier.description}</p>
-                  <div className="flex items-center mb-4">
+                  <div className="hidden">
                     <span className="text-yellow-400 text-sm">
                       {'★'.repeat(Math.round(Number(supplier.ratingAverage)))}
                       {'☆'.repeat(5 - Math.round(Number(supplier.ratingAverage)))}
                     </span>
                     <span className="text-sm text-gray-600 ml-2">({supplier.ratingCount} reviews)</span>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-600 mb-4">
+                  <div className="flex items-center mb-4">
+                    <span className="text-sm font-medium text-gray-900">
+                      {Number(supplier.ratingAverage) > 0 ? Number(supplier.ratingAverage).toFixed(1) : 'No rating'}
+                    </span>
+                    <span className="text-sm text-gray-600 ml-2">
+                      {supplier.ratingCount} review{supplier.ratingCount === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <div className="hidden">
                     <p>📍 {supplier.locationCity}</p>
                     {supplier.deliveryAvailable && <p>📦 Delivery Available</p>}
                     <p>🏷️ {supplier._count?.products || 0} Products</p>
+                  </div>
+                  <div className="space-y-2 text-sm text-gray-600 mb-4">
+                    <p>Location: {supplier.locationCity || 'Not provided'}</p>
+                    {supplier.deliveryAvailable && <p>Delivery available</p>}
+                    <p>{supplier._count?.products || 0} product{supplier._count?.products === 1 ? '' : 's'}</p>
                   </div>
                   <Link 
                     href={`/marketplace?supplier=${supplier.id}`}
