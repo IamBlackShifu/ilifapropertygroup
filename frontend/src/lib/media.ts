@@ -9,13 +9,25 @@ export function resolveMediaUrl(url?: string | null) {
   return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
-export function getFirstMediaUrl(media?: Array<string | { imageUrl?: string | null }> | null) {
+type MediaItem = string | {
+  imageUrl?: string | null
+  url?: string | null
+  src?: string | null
+}
+
+export function getFirstMediaUrl(media?: MediaItem[] | null) {
   if (!media || media.length === 0) return ''
 
-  const first = media[0]
-  if (typeof first === 'string') {
-    return resolveMediaUrl(first)
+  for (const item of media) {
+    if (typeof item === 'string') {
+      const resolved = resolveMediaUrl(item)
+      if (resolved) return resolved
+      continue
+    }
+
+    const resolved = resolveMediaUrl(item.imageUrl || item.url || item.src || '')
+    if (resolved) return resolved
   }
 
-  return resolveMediaUrl(first.imageUrl || '')
+  return ''
 }

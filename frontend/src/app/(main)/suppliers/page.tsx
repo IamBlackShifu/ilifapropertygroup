@@ -1,109 +1,89 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { suppliersAPI } from '@/lib/api-client'
 
-const supplierCategories = [
-  {
-    phase: 'Pre-Construction',
-    categories: [
-      { name: 'Architects', filter: null },
-      { name: 'Surveyors', filter: null },
-      { name: 'Soil Testing', filter: null },
-      { name: 'Geotechnical Services', filter: null },
-    ]
-  },
-  {
-    phase: 'Legal & Compliance',
-    categories: [
-      { name: 'Conveyancing Lawyers', filter: null },
-      { name: 'Council Approvals', filter: null },
-      { name: 'EMA Clearance', filter: null },
-      { name: 'ZESA Connections', filter: null },
-    ]
-  },
-  {
-    phase: 'Foundation & Structure',
-    categories: [
-      { name: 'Cement Suppliers', filter: 'CEMENT' },
-      { name: 'Bricks & Blocks', filter: 'BRICKS' },
-      { name: 'Steel & Reinforcement', filter: 'STEEL' },
-      { name: 'Aggregates (Sand, Stone)', filter: null },
-      { name: 'Roofing Materials', filter: 'ROOFING' },
-      { name: 'Timber', filter: 'TIMBER' },
-    ]
-  },
-  {
-    phase: 'Windows & Doors',
-    categories: [
-      { name: 'Aluminum Windows', filter: 'DOORS_WINDOWS' },
-      { name: 'Wooden Doors', filter: 'DOORS_WINDOWS' },
-      { name: 'Security Doors', filter: 'DOORS_WINDOWS' },
-      { name: 'Garage Doors', filter: 'DOORS_WINDOWS' },
-    ]
-  },
-  {
-    phase: 'Finishes',
-    categories: [
-      { name: 'Kitchen Cupboards', filter: null },
-      { name: 'Built-in Cupboards', filter: null },
-      { name: 'Tiles & Flooring', filter: 'TILES' },
-      { name: 'Ceilings', filter: null },
-      { name: 'Paint & Painting', filter: 'PAINT' },
-      { name: 'Sanitary Ware', filter: 'PLUMBING' },
-    ]
-  },
-  {
-    phase: 'Services',
-    categories: [
-      { name: 'Plumbing', filter: 'PLUMBING' },
-      { name: 'Electrical', filter: 'ELECTRICAL' },
-      { name: 'Solar Systems', filter: 'ELECTRICAL' },
-      { name: 'Borehole Drilling', filter: null },
-      { name: 'Water Tanks', filter: 'HARDWARE' },
-      { name: 'Septic Tanks', filter: null },
-    ]
-  },
-  {
-    phase: 'Exterior & Security',
-    categories: [
-      { name: 'Paving', filter: 'TILES' },
-      { name: 'Fencing & Gates', filter: 'HARDWARE' },
-      { name: 'CCTV Systems', filter: 'ELECTRICAL' },
-      { name: 'Electric Fencing', filter: 'ELECTRICAL' },
-      { name: 'Smart Home Systems', filter: 'ELECTRICAL' },
-      { name: 'Landscaping', filter: null },
-    ]
-  },
+const PRODUCT_CATEGORIES = [
+  { value: 'ALL', label: 'All categories' },
+  { value: 'CEMENT', label: 'Cement' },
+  { value: 'BRICKS', label: 'Bricks' },
+  { value: 'STEEL', label: 'Steel' },
+  { value: 'TIMBER', label: 'Timber' },
+  { value: 'ROOFING', label: 'Roofing' },
+  { value: 'PLUMBING', label: 'Plumbing' },
+  { value: 'ELECTRICAL', label: 'Electrical' },
+  { value: 'PAINT', label: 'Paint' },
+  { value: 'TILES', label: 'Tiles' },
+  { value: 'DOORS_WINDOWS', label: 'Doors & Windows' },
+  { value: 'HARDWARE', label: 'Hardware' },
+  { value: 'TOOLS', label: 'Tools' },
+  { value: 'OTHER', label: 'Other' },
+]
+
+const ZIMBABWE_CITIES = [
+  'All cities',
+  'Harare',
+  'Bulawayo',
+  'Chitungwiza',
+  'Mutare',
+  'Gweru',
+  'Kwekwe',
+  'Kadoma',
+  'Masvingo',
+  'Chinhoyi',
+  'Norton',
 ]
 
 interface Supplier {
   id: string
   companyName: string
-  description: string
-  categories: string[]
-  locationCity: string
+  description?: string
+  categories?: string[]
+  locationCity?: string
   isVerified: boolean
-  ratingAverage: number
-  ratingCount: number
-  deliveryAvailable: boolean
+  ratingAverage?: number | string
+  ratingCount?: number
+  deliveryAvailable?: boolean
+  minOrderAmount?: number | string
   _count?: {
-    products: number
+    products?: number
+    orders?: number
+    reviews?: number
   }
+}
+
+interface Product {
+  id: string
+  category?: string
+  price?: number | string
+  status?: string
+  supplier?: {
+    id?: string
+    companyName?: string
+    locationCity?: string
+    isVerified?: boolean
+  }
+}
+
+const getCategoryLabel = (value: string) =>
+  PRODUCT_CATEGORIES.find((category) => category.value === value)?.label || value.replace(/_/g, ' ')
+
+const formatMoney = (value?: number | string) => {
+  const amount = Number(value || 0)
+  return amount > 0 ? `$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : 'Not set'
 }
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [featuredSuppliers, setFeaturedSuppliers] = useState<Supplier[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [stats, setStats] = useState({
-    totalSuppliers: 0,
-    categories: 0,
-    totalProducts: 0,
-    deliverySuppliers: 0,
-  })
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('ALL')
+  const [cityFilter, setCityFilter] = useState('All cities')
+  const [verifiedOnly, setVerifiedOnly] = useState(true)
+  const [deliveryOnly, setDeliveryOnly] = useState(false)
 
   useEffect(() => {
     loadSuppliers()
@@ -112,198 +92,330 @@ export default function SuppliersPage() {
   const loadSuppliers = async () => {
     try {
       setLoading(true)
+      setError('')
       const [suppliersResponse, productsResponse] = await Promise.all([
         suppliersAPI.getAllSuppliers({ isVerified: true }),
         suppliersAPI.searchProducts({}),
       ])
-      const suppliers = suppliersResponse.data || []
-      const products = productsResponse.data || []
-      
-      setSuppliers(suppliers)
-      setFeaturedSuppliers(suppliers.slice(0, 3))
-      
-      const supplierCategories = suppliers.flatMap((supplier: Supplier) => supplier.categories || [])
-      const productCategories = products.map((product: { category?: string }) => product.category).filter(Boolean)
-      const categories = new Set([...supplierCategories, ...productCategories]).size
-      const totalProducts = products.length || suppliers.reduce((sum: number, s: Supplier) => sum + (s._count?.products || 0), 0)
 
-      setStats({
-        totalSuppliers: suppliers.length,
-        categories,
-        totalProducts,
-        deliverySuppliers: suppliers.filter((supplier: Supplier) => supplier.deliveryAvailable).length,
-      })
+      setSuppliers(suppliersResponse.data || [])
+      setProducts(productsResponse.data || [])
     } catch (err: any) {
-      console.error('Error loading suppliers:', err)
-      setError(err.response?.data?.message || 'Failed to load suppliers')
+      setError(err.response?.data?.message || 'Failed to load supplier data')
     } finally {
       setLoading(false)
     }
   }
 
-  const getCategorySupplierCount = (filter: string | null) => {
-    if (!filter) return null
+  const cities = useMemo(() => {
+    const dataCities = suppliers
+      .map((supplier) => supplier.locationCity)
+      .filter((city): city is string => Boolean(city))
 
-    return suppliers.length === 0 && loading
-      ? null
-      : suppliers.filter((supplier) => supplier.categories?.includes(filter)).length
-  }
+    return Array.from(new Set([...ZIMBABWE_CITIES, ...dataCities]))
+  }, [suppliers])
+
+  const filteredSuppliers = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase()
+
+    return suppliers.filter((supplier) => {
+      const matchesSearch =
+        !query ||
+        supplier.companyName.toLowerCase().includes(query) ||
+        supplier.description?.toLowerCase().includes(query) ||
+        supplier.categories?.some((category) => getCategoryLabel(category).toLowerCase().includes(query))
+
+      const matchesCategory =
+        categoryFilter === 'ALL' || supplier.categories?.includes(categoryFilter)
+
+      const matchesCity =
+        cityFilter === 'All cities' || supplier.locationCity?.toLowerCase() === cityFilter.toLowerCase()
+
+      const matchesVerified = !verifiedOnly || supplier.isVerified
+      const matchesDelivery = !deliveryOnly || supplier.deliveryAvailable
+
+      return matchesSearch && matchesCategory && matchesCity && matchesVerified && matchesDelivery
+    })
+  }, [categoryFilter, cityFilter, deliveryOnly, searchTerm, suppliers, verifiedOnly])
+
+  const categoryInsights = useMemo(() => {
+    return PRODUCT_CATEGORIES.filter((category) => category.value !== 'ALL')
+      .map((category) => {
+        const suppliersInCategory = suppliers.filter((supplier) => supplier.categories?.includes(category.value))
+        const productsInCategory = products.filter((product) => product.category === category.value)
+        const prices = productsInCategory.map((product) => Number(product.price)).filter((price) => price > 0)
+        const averagePrice = prices.length
+          ? prices.reduce((sum, price) => sum + price, 0) / prices.length
+          : 0
+
+        return {
+          ...category,
+          supplierCount: suppliersInCategory.length,
+          productCount: productsInCategory.length,
+          averagePrice,
+        }
+      })
+      .filter((category) => category.supplierCount > 0 || category.productCount > 0)
+      .sort((a, b) => b.productCount + b.supplierCount - (a.productCount + a.supplierCount))
+  }, [products, suppliers])
+
+  const stats = useMemo(() => {
+    const verifiedCount = suppliers.filter((supplier) => supplier.isVerified).length
+    const deliveryCount = suppliers.filter((supplier) => supplier.deliveryAvailable).length
+    const productCount = products.length || suppliers.reduce((sum, supplier) => sum + (supplier._count?.products || 0), 0)
+    const activeCities = new Set(suppliers.map((supplier) => supplier.locationCity).filter(Boolean)).size
+
+    return { verifiedCount, deliveryCount, productCount, activeCities }
+  }, [products.length, suppliers])
+
+  const maxInsightValue = Math.max(
+    1,
+    ...categoryInsights.map((category) => category.productCount + category.supplierCount)
+  )
 
   return (
-    <div className="bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Suppliers & Materials Directory</h1>
-          <p className="text-xl text-primary-100 mb-8">
-            A-Z of everything you need to build a house in Zimbabwe
-          </p>
-          
-          {/* Search */}
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-lg p-2 flex">
-              <input
-                type="text"
-                placeholder="Search suppliers, materials, or services..."
-                className="flex-1 px-4 py-2 text-gray-900 focus:outline-none"
-              />
-              <button className="px-6 py-2 bg-primary-600 text-white font-semibold rounded-md hover:bg-primary-700">
-                Search
-              </button>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      <section className="bg-primary-700 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary-100">Supplier network</p>
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl">Find building suppliers without the card clutter</h1>
+            <p className="text-lg text-primary-100">
+              Search verified material suppliers, compare category coverage, and jump straight to useful supplier details.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Quick Stats */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.totalSuppliers}</p>
-            <p className="text-sm text-gray-600">Verified Suppliers</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.categories}</p>
-            <p className="text-sm text-gray-600">Active Categories</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.totalProducts}</p>
-            <p className="text-sm text-gray-600">Products Listed</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6 text-center">
-            <p className="text-3xl font-bold text-primary-600 mb-2">{loading ? '...' : stats.deliverySuppliers}</p>
-            <p className="text-sm text-gray-600">Offer Delivery</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories by Building Phase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="space-y-8">
-          {supplierCategories.map((phase) => (
-            <div key={phase.phase} className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6 pb-4 border-b">{phase.phase}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {phase.categories.map((category) => {
-                  const count = getCategorySupplierCount(category.filter)
-
-                  return (
-                    <Link
-                      key={category.name}
-                      href={category.filter ? `/marketplace?category=${category.filter}` : `/marketplace?search=${encodeURIComponent(category.name)}`}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:bg-primary-50 transition-colors group"
-                    >
-                      <h3 className="font-medium mb-2 group-hover:text-primary-600">{category.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        {count === null ? 'Loading...' : category.filter ? `${count} supplier${count === 1 ? '' : 's'}` : 'Search marketplace'}
-                      </p>
-                    </Link>
-                  )
-                })}
-              </div>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[
+            { label: 'Verified suppliers', value: stats.verifiedCount },
+            { label: 'Products listed', value: stats.productCount },
+            { label: 'Delivery enabled', value: stats.deliveryCount },
+            { label: 'Cities covered', value: stats.activeCities },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+              <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stat.value}</p>
+              <p className="mt-1 text-sm text-gray-600">{stat.label}</p>
             </div>
           ))}
-        </div>
-      </section>
+        </section>
 
-      {/* Featured Suppliers */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Suppliers</h2>
-          
-          {loading ? (
-            <div className="text-center text-gray-600">Loading suppliers...</div>
-          ) : error ? (
-            <div className="text-center text-red-600">{error}</div>
-          ) : featuredSuppliers.length === 0 ? (
-            <div className="text-center text-gray-600">No featured suppliers available</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredSuppliers.map((supplier) => (
-                <div key={supplier.id} className="bg-gray-50 rounded-lg shadow p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded flex items-center justify-center text-white text-2xl font-bold">
-                      {supplier.companyName.charAt(0)}
-                    </div>
-                    {supplier.isVerified && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Verified</span>
-                    )}
-                    {false && supplier.isVerified && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">✓ Verified</span>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">{supplier.companyName}</h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{supplier.description}</p>
-                  <div className="hidden">
-                    <span className="text-yellow-400 text-sm">
-                      {'★'.repeat(Math.round(Number(supplier.ratingAverage)))}
-                      {'☆'.repeat(5 - Math.round(Number(supplier.ratingAverage)))}
-                    </span>
-                    <span className="text-sm text-gray-600 ml-2">({supplier.ratingCount} reviews)</span>
-                  </div>
-                  <div className="flex items-center mb-4">
-                    <span className="text-sm font-medium text-gray-900">
-                      {Number(supplier.ratingAverage) > 0 ? Number(supplier.ratingAverage).toFixed(1) : 'No rating'}
-                    </span>
-                    <span className="text-sm text-gray-600 ml-2">
-                      {supplier.ratingCount} review{supplier.ratingCount === 1 ? '' : 's'}
-                    </span>
-                  </div>
-                  <div className="hidden">
-                    <p>📍 {supplier.locationCity}</p>
-                    {supplier.deliveryAvailable && <p>📦 Delivery Available</p>}
-                    <p>🏷️ {supplier._count?.products || 0} Products</p>
-                  </div>
-                  <div className="space-y-2 text-sm text-gray-600 mb-4">
-                    <p>Location: {supplier.locationCity || 'Not provided'}</p>
-                    {supplier.deliveryAvailable && <p>Delivery available</p>}
-                    <p>{supplier._count?.products || 0} product{supplier._count?.products === 1 ? '' : 's'}</p>
-                  </div>
-                  <Link 
-                    href={`/marketplace?supplier=${supplier.id}`}
-                    className="block mt-4 text-center py-2 bg-primary-600 text-white text-sm font-medium rounded hover:bg-primary-700"
-                  >
-                    View Products
-                  </Link>
-                </div>
+        <section className="mb-8 rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+          <div className="grid gap-4 lg:grid-cols-[1fr_180px_180px_auto]">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search company, category, or description"
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            />
+            <select
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              aria-label="Filter by category"
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            >
+              {PRODUCT_CATEGORIES.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
               ))}
+            </select>
+            <select
+              value={cityFilter}
+              onChange={(event) => setCityFilter(event.target.value)}
+              aria-label="Filter by city"
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            >
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={verifiedOnly}
+                  onChange={(event) => setVerifiedOnly(event.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                Verified
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={deliveryOnly}
+                  onChange={(event) => setDeliveryOnly(event.target.checked)}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                Delivery
+              </label>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* CTA */}
-      <section className="bg-primary-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Are you a supplier?</h2>
-          <p className="text-xl text-primary-100 mb-8">
-            Join our verified supplier network and reach thousands of builders
-          </p>
-          <Link href="/for-professionals" className="inline-block px-8 py-3 bg-white text-primary-600 font-semibold rounded-md hover:bg-primary-50">
-            List Your Business
-          </Link>
+        {error && (
+          <div className="mb-8 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-8 lg:grid-cols-[360px_1fr]">
+          <aside className="space-y-6">
+            <section className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Category coverage</h2>
+                <Link href="/marketplace" className="text-sm font-medium text-primary-700 hover:text-primary-800">
+                  Marketplace
+                </Link>
+              </div>
+              {loading ? (
+                <p className="text-sm text-gray-600">Loading category data...</p>
+              ) : categoryInsights.length === 0 ? (
+                <p className="text-sm text-gray-600">No category data available yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {categoryInsights.slice(0, 8).map((category) => {
+                    const total = category.productCount + category.supplierCount
+                    return (
+                      <button
+                        key={category.value}
+                        type="button"
+                        onClick={() => setCategoryFilter(category.value)}
+                        className="block w-full text-left"
+                      >
+                        <div className="mb-1 flex items-center justify-between text-sm">
+                          <span className="font-medium text-gray-800">{category.label}</span>
+                          <span className="text-gray-500">{category.productCount} products</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-gray-100">
+                          <div
+                            className="h-2 rounded-full bg-primary-600"
+                            style={{ width: `${Math.max(8, (total / maxInsightValue) * 100)}%` }}
+                          />
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
+
+            <section className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick category pricing</h2>
+              <div className="space-y-3">
+                {categoryInsights.slice(0, 6).map((category) => (
+                  <div key={category.value} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{category.label}</p>
+                      <p className="text-xs text-gray-500">{category.supplierCount} supplier{category.supplierCount === 1 ? '' : 's'}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900">{formatMoney(category.averagePrice)}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </aside>
+
+          <section className="rounded-lg bg-white shadow-sm ring-1 ring-gray-200">
+            <div className="flex flex-col gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Suppliers</h2>
+                <p className="text-sm text-gray-600">{filteredSuppliers.length} matching supplier{filteredSuppliers.length === 1 ? '' : 's'}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('')
+                  setCategoryFilter('ALL')
+                  setCityFilter('All cities')
+                  setVerifiedOnly(true)
+                  setDeliveryOnly(false)
+                }}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Reset filters
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="p-8 text-center text-sm text-gray-600">Loading suppliers...</div>
+            ) : filteredSuppliers.length === 0 ? (
+              <div className="p-8 text-center">
+                <h3 className="text-sm font-semibold text-gray-900">No suppliers match those filters</h3>
+                <p className="mt-1 text-sm text-gray-600">Try another city or category.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {filteredSuppliers.map((supplier) => (
+                  <article key={supplier.id} className="p-5 hover:bg-gray-50">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{supplier.companyName}</h3>
+                          {supplier.isVerified && (
+                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Verified</span>
+                          )}
+                          {supplier.deliveryAvailable && (
+                            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">Delivery</span>
+                          )}
+                        </div>
+                        <p className="line-clamp-2 text-sm text-gray-600">{supplier.description || 'No supplier description provided yet.'}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(supplier.categories || []).slice(0, 4).map((category) => (
+                            <span key={category} className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                              {getCategoryLabel(category)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid min-w-[260px] grid-cols-2 gap-3 text-sm lg:text-right">
+                        <div>
+                          <p className="text-gray-500">City</p>
+                          <p className="font-medium text-gray-900">{supplier.locationCity || 'Not listed'}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Products</p>
+                          <p className="font-medium text-gray-900">{supplier._count?.products || 0}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Rating</p>
+                          <p className="font-medium text-gray-900">
+                            {Number(supplier.ratingAverage) > 0 ? Number(supplier.ratingAverage).toFixed(1) : 'New'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500">Minimum</p>
+                          <p className="font-medium text-gray-900">{formatMoney(supplier.minOrderAmount)}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <Link
+                        href={`/suppliers/${supplier.id}`}
+                        className="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                      >
+                        View supplier
+                      </Link>
+                      <Link
+                        href={`/marketplace?supplier=${supplier.id}`}
+                        className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
+                      >
+                        View products
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+      </main>
     </div>
   )
 }
