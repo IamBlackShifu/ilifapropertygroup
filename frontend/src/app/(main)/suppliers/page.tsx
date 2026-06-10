@@ -42,6 +42,7 @@ interface Supplier {
   categories?: string[]
   locationCity?: string
   isVerified: boolean
+  status?: string
   ratingAverage?: number | string
   ratingCount?: number
   deliveryAvailable?: boolean
@@ -73,6 +74,9 @@ const formatMoney = (value?: number | string) => {
   const amount = Number(value || 0)
   return amount > 0 ? `$${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : 'Not set'
 }
+
+const isSupplierVerified = (supplier: Pick<Supplier, 'isVerified' | 'status'>) =>
+  supplier.isVerified || supplier.status === 'VERIFIED'
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -131,7 +135,7 @@ export default function SuppliersPage() {
       const matchesCity =
         cityFilter === 'All cities' || supplier.locationCity?.toLowerCase() === cityFilter.toLowerCase()
 
-      const matchesVerified = !verifiedOnly || supplier.isVerified
+      const matchesVerified = !verifiedOnly || isSupplierVerified(supplier)
       const matchesDelivery = !deliveryOnly || supplier.deliveryAvailable
 
       return matchesSearch && matchesCategory && matchesCity && matchesVerified && matchesDelivery
@@ -160,7 +164,7 @@ export default function SuppliersPage() {
   }, [products, suppliers])
 
   const stats = useMemo(() => {
-    const verifiedCount = suppliers.filter((supplier) => supplier.isVerified).length
+    const verifiedCount = suppliers.filter((supplier) => isSupplierVerified(supplier)).length
     const deliveryCount = suppliers.filter((supplier) => supplier.deliveryAvailable).length
     const productCount = products.length || suppliers.reduce((sum, supplier) => sum + (supplier._count?.products || 0), 0)
     const activeCities = new Set(suppliers.map((supplier) => supplier.locationCity).filter(Boolean)).size
@@ -403,7 +407,7 @@ export default function SuppliersPage() {
                       <div className="min-w-0 flex-1">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
                           <h3 className="text-lg font-semibold text-gray-900">{supplier.companyName}</h3>
-                          {supplier.isVerified && (
+                          {isSupplierVerified(supplier) && (
                             <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Verified</span>
                           )}
                           {supplier.deliveryAvailable && (

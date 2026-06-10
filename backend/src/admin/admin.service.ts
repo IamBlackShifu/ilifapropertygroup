@@ -651,6 +651,7 @@ export class AdminService {
       where: { id: supplierId },
       data: {
         status: 'VERIFIED',
+        isVerified: true,
         verifiedAt: new Date(),
       },
     });
@@ -674,6 +675,8 @@ export class AdminService {
       where: { id: supplierId },
       data: {
         status: 'PENDING',
+        isVerified: false,
+        verifiedAt: null,
         // Store rejection reason in a notification or separate table
       },
     });
@@ -692,6 +695,7 @@ export class AdminService {
       where: { id: supplierId },
       data: {
         status: 'SUSPENDED',
+        isVerified: false,
       },
     });
   }
@@ -709,6 +713,8 @@ export class AdminService {
       where: { id: supplierId },
       data: {
         status: 'VERIFIED',
+        isVerified: true,
+        verifiedAt: supplier.verifiedAt || new Date(),
       },
     });
   }

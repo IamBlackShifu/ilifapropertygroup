@@ -28,6 +28,9 @@ const ZIMBABWE_CITIES = [
   'Kwekwe', 'Kadoma', 'Masvingo', 'Chinhoyi', 'Norton'
 ];
 
+const isSupplierVerified = (supplier?: { isVerified?: boolean; status?: string } | null) =>
+  Boolean(supplier?.isVerified || supplier?.status === 'VERIFIED');
+
 function MarketplaceContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -271,7 +274,7 @@ function MarketplaceContent() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-900">{supplier.companyName}</h3>
-                        {supplier.isVerified && (
+                        {isSupplierVerified(supplier) && (
                           <span className="inline-flex items-center text-xs text-green-600 mt-1">
                             <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -369,8 +372,11 @@ function MarketplaceContent() {
                         per {product.unit}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-500 mb-3">
-                      by {product.supplier?.companyName}
+                    <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <span>by {product.supplier?.companyName}</span>
+                      {isSupplierVerified(product.supplier) && (
+                        <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700">Verified</span>
+                      )}
                     </div>
                     <Link
                       href={`/products/${product.id}`}

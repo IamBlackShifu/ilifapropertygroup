@@ -170,12 +170,19 @@ export class SuppliersService {
       };
     }
 
-    if (filters?.isVerified !== undefined) {
-      where.isVerified = filters.isVerified;
+    if (filters?.isVerified === true) {
+      where.OR = [
+        ...(Array.isArray(where.OR) ? where.OR : []),
+        { isVerified: true },
+        { status: 'VERIFIED' },
+      ];
+    } else if (filters?.isVerified === false) {
+      where.isVerified = false;
+      where.status = { not: 'VERIFIED' } as any;
     }
 
     if (filters?.search) {
-      where.OR = [
+      const searchConditions = [
         {
           companyName: {
             contains: filters.search,
@@ -189,6 +196,16 @@ export class SuppliersService {
           },
         },
       ];
+
+      if (where.OR) {
+        where.AND = [
+          { OR: Array.isArray(where.OR) ? where.OR : [where.OR] },
+          { OR: searchConditions },
+        ];
+        delete where.OR;
+      } else {
+        where.OR = searchConditions;
+      }
     }
 
     return this.prisma.supplier.findMany({
@@ -330,6 +347,7 @@ export class SuppliersService {
             companyName: true,
             locationCity: true,
             isVerified: true,
+            status: true,
           },
         },
       },
@@ -482,6 +500,7 @@ export class SuppliersService {
             companyName: true,
             locationCity: true,
             isVerified: true,
+            status: true,
             ratingAverage: true,
           },
         },
