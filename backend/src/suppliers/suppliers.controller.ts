@@ -58,7 +58,7 @@ export class SuppliersController {
     return this.suppliersService.getAllSuppliers({
       category,
       city,
-      isVerified: isVerified === 'true',
+      isVerified: isVerified === undefined ? undefined : isVerified === 'true',
       status,
       search,
     });

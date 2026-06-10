@@ -94,7 +94,7 @@ export default function SuppliersPage() {
       setLoading(true)
       setError('')
       const [suppliersResponse, productsResponse] = await Promise.all([
-        suppliersAPI.getAllSuppliers({ isVerified: true }),
+        suppliersAPI.getAllSuppliers(),
         suppliersAPI.searchProducts({}),
       ])
 
@@ -173,6 +173,38 @@ export default function SuppliersPage() {
     ...categoryInsights.map((category) => category.productCount + category.supplierCount)
   )
 
+  const resetSupplierFilters = () => {
+    setSearchTerm('')
+    setCategoryFilter('ALL')
+    setCityFilter('All cities')
+    setVerifiedOnly(true)
+    setDeliveryOnly(false)
+  }
+
+  const showVerifiedSuppliers = () => {
+    setSearchTerm('')
+    setCategoryFilter('ALL')
+    setCityFilter('All cities')
+    setVerifiedOnly(true)
+    setDeliveryOnly(false)
+  }
+
+  const showDeliverySuppliers = () => {
+    setSearchTerm('')
+    setCategoryFilter('ALL')
+    setCityFilter('All cities')
+    setVerifiedOnly(false)
+    setDeliveryOnly(true)
+  }
+
+  const showAllCities = () => {
+    setSearchTerm('')
+    setCategoryFilter('ALL')
+    setCityFilter('All cities')
+    setVerifiedOnly(false)
+    setDeliveryOnly(false)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-primary-700 text-white">
@@ -189,17 +221,37 @@ export default function SuppliersPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {[
-            { label: 'Verified suppliers', value: stats.verifiedCount },
-            { label: 'Products listed', value: stats.productCount },
-            { label: 'Delivery enabled', value: stats.deliveryCount },
-            { label: 'Cities covered', value: stats.activeCities },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
-              <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stat.value}</p>
-              <p className="mt-1 text-sm text-gray-600">{stat.label}</p>
-            </div>
-          ))}
+          <button
+            type="button"
+            onClick={showVerifiedSuppliers}
+            className="rounded-lg bg-white p-5 text-left shadow-sm ring-1 ring-gray-200 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stats.verifiedCount}</p>
+            <p className="mt-1 text-sm text-gray-600">Verified suppliers</p>
+          </button>
+          <Link
+            href="/marketplace"
+            className="rounded-lg bg-white p-5 text-left shadow-sm ring-1 ring-gray-200 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stats.productCount}</p>
+            <p className="mt-1 text-sm text-gray-600">Products listed</p>
+          </Link>
+          <button
+            type="button"
+            onClick={showDeliverySuppliers}
+            className="rounded-lg bg-white p-5 text-left shadow-sm ring-1 ring-gray-200 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stats.deliveryCount}</p>
+            <p className="mt-1 text-sm text-gray-600">Delivery enabled</p>
+          </button>
+          <button
+            type="button"
+            onClick={showAllCities}
+            className="rounded-lg bg-white p-5 text-left shadow-sm ring-1 ring-gray-200 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <p className="text-2xl font-bold text-gray-900">{loading ? '...' : stats.activeCities}</p>
+            <p className="mt-1 text-sm text-gray-600">Cities covered</p>
+          </button>
         </section>
 
         <section className="mb-8 rounded-lg bg-white p-5 shadow-sm ring-1 ring-gray-200">
@@ -329,13 +381,7 @@ export default function SuppliersPage() {
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setSearchTerm('')
-                  setCategoryFilter('ALL')
-                  setCityFilter('All cities')
-                  setVerifiedOnly(true)
-                  setDeliveryOnly(false)
-                }}
+                onClick={resetSupplierFilters}
                 className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Reset filters
