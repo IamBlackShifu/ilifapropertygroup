@@ -182,7 +182,7 @@ export class SuppliersService {
     }
 
     if (filters?.search) {
-      const searchConditions = [
+      const searchConditions: Prisma.SupplierWhereInput[] = [
         {
           companyName: {
             contains: filters.search,
