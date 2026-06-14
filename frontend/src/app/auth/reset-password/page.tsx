@@ -1,26 +1,49 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { authAPI } from '@/lib/api-client'
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
+export default function ResetPasswordPage() {
+  const [token, setToken] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
+  useEffect(() => {
+    setToken(new URLSearchParams(window.location.search).get('token') || '')
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess(false)
+
+    if (!token) {
+      setError('This password reset link is missing a reset token.')
+      return
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setLoading(true)
 
     try {
-      await authAPI.forgotPassword(email)
+      await authAPI.resetPassword(token, password)
       setSuccess(true)
+      setPassword('')
+      setConfirmPassword('')
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'An error occurred. Please try again.')
+      setError(err.response?.data?.message || err.message || 'Unable to reset password. Please request a new link.')
     } finally {
       setLoading(false)
     }
@@ -29,7 +52,6 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
-        {/* Logo/Brand */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2 mb-2">
             <div className="w-12 h-12 flex items-center justify-center">
@@ -39,11 +61,10 @@ export default function ForgotPasswordPage() {
               ILifa Property Group
             </span>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-4">Reset Password</h1>
-          <p className="text-gray-600 mt-2">Enter your email to receive a password reset link</p>
+          <h1 className="text-3xl font-bold text-gray-900 mt-4">Set New Password</h1>
+          <p className="text-gray-600 mt-2">Choose a new password for your account</p>
         </div>
 
-        {/* Forgot Password Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {success ? (
             <div className="text-center">
@@ -52,22 +73,13 @@ export default function ForgotPasswordPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Check your email</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Password updated</h3>
               <p className="text-gray-600 mb-6">
-                We've sent a password reset link to <strong>{email}</strong>
+                Your password has been reset. You can now sign in with your new password.
               </p>
-              <p className="text-sm text-gray-500 mb-6">
-                Didn't receive the email? Check your spam folder or try again.
-              </p>
-              <button
-                onClick={() => {
-                  setSuccess(false)
-                  setEmail('')
-                }}
-                className="text-sm font-medium text-primary-600 hover:text-primary-700"
-              >
-                Try another email
-              </button>
+              <Link href="/auth/login" className="btn btn-primary inline-flex px-6 py-3">
+                Back to login
+              </Link>
             </div>
           ) : (
             <>
@@ -77,28 +89,53 @@ export default function ForgotPasswordPage() {
                 </div>
               )}
 
+              {!token && (
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-sm">
+                  This reset link is incomplete. Please request a new password reset email.
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="label">
-                    Email Address
+                  <label htmlFor="password" className="label">
+                    New Password
                   </label>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
+                    id="password"
+                    name="password"
+                    type="password"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="input"
-                    placeholder="you@example.com"
-                    disabled={loading}
+                    placeholder="Enter a new password"
+                    disabled={loading || !token}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="label">
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    minLength={8}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input"
+                    placeholder="Confirm your new password"
+                    disabled={loading || !token}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full btn btn-primary py-3 text-base font-semibold"
+                  disabled={loading || !token}
+                  className="w-full btn btn-primary py-3 text-base font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -106,26 +143,22 @@ export default function ForgotPasswordPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Sending...
+                      Updating...
                     </span>
                   ) : (
-                    'Send Reset Link'
+                    'Update Password'
                   )}
                 </button>
               </form>
             </>
           )}
 
-          {/* Back to Login */}
           <div className="mt-6 text-center">
             <Link
-              href="/auth/login"
+              href="/auth/forgot-password"
               className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900"
             >
-              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to login
+              Request a new reset link
             </Link>
           </div>
         </div>

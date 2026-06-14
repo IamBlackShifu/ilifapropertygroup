@@ -7,6 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, LoginDto } from './dto';
 import { JwtPayload } from '../common/interfaces';
@@ -231,6 +233,100 @@ export class AuthService {
     }
   }
 
+  async forgotPassword(email: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        isActive: true,
+        isSuspended: true,
+      },
+    });
+
+    const response = {
+      message: 'If an account exists for that email, a password reset link has been sent.',
+    };
+
+    if (!user || !user.isActive || user.isSuspended) {
+      return response;
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = this.hashResetToken(token);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await this.prisma.passwordResetToken.updateMany({
+      where: {
+        userId: user.id,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      data: { usedAt: new Date() },
+    });
+
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+
+    await this.sendPasswordResetEmail(user.email, user.firstName, token);
+
+    return response;
+  }
+
+  async resetPassword(token: string, password: string) {
+    const tokenHash = this.hashResetToken(token);
+    const resetToken = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      include: { user: true },
+    });
+
+    if (
+      !resetToken ||
+      resetToken.usedAt ||
+      resetToken.expiresAt <= new Date() ||
+      !resetToken.user.isActive ||
+      resetToken.user.isSuspended
+    ) {
+      throw new BadRequestException('Invalid or expired password reset link');
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { passwordHash },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.passwordResetToken.updateMany({
+        where: {
+          userId: resetToken.userId,
+          usedAt: null,
+        },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: {
+          userId: resetToken.userId,
+          isRevoked: false,
+        },
+        data: { isRevoked: true },
+      }),
+    ]);
+
+    return { message: 'Password reset successful. You can now sign in with your new password.' };
+  }
+
   private async generateTokens(user: Pick<User, 'id' | 'email' | 'role'>) {
     const payload: JwtPayload = {
       sub: user.id,
@@ -281,5 +377,70 @@ export class AuthService {
     };
 
     return value * (units[unit] || units.m);
+  }
+
+  private hashResetToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  private async sendPasswordResetEmail(email: string, firstName: string, token: string) {
+    const frontendUrl =
+      this.config.get<string>('FRONTEND_URL') ||
+      this.config.get<string>('NEXT_PUBLIC_APP_URL') ||
+      'http://localhost:3000';
+    const resetUrl = `${frontendUrl.replace(/\/$/, '')}/auth/reset-password?token=${token}`;
+
+    if (!this.isMailConfigured()) {
+      if (this.config.get<string>('NODE_ENV') !== 'production') {
+        console.warn(`Password reset mail is not configured. Reset link for ${email}: ${resetUrl}`);
+        return;
+      }
+
+      throw new BadRequestException('Password reset email could not be sent');
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: this.config.get<string>('MAIL_HOST'),
+      port: Number(this.config.get<string>('MAIL_PORT') || 587),
+      secure: Number(this.config.get<string>('MAIL_PORT')) === 465,
+      auth: {
+        user: this.config.get<string>('MAIL_USER'),
+        pass: this.config.get<string>('MAIL_PASSWORD'),
+      },
+    });
+
+    await transporter.sendMail({
+      from: this.config.get<string>('MAIL_FROM') || 'noreply@zimbuild.com',
+      to: email,
+      subject: 'Reset your ILifa Property Group password',
+      text: [
+        `Hi ${firstName},`,
+        '',
+        'We received a request to reset your password.',
+        `Use this secure link to set a new password: ${resetUrl}`,
+        '',
+        'This link expires in 1 hour. If you did not request this, you can ignore this email.',
+      ].join('\n'),
+      html: `
+        <p>Hi ${firstName},</p>
+        <p>We received a request to reset your password.</p>
+        <p><a href="${resetUrl}">Set a new password</a></p>
+        <p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>
+      `,
+    });
+  }
+
+  private isMailConfigured(): boolean {
+    const host = this.config.get<string>('MAIL_HOST');
+    const user = this.config.get<string>('MAIL_USER');
+    const password = this.config.get<string>('MAIL_PASSWORD');
+
+    return Boolean(
+      host &&
+        user &&
+        password &&
+        !user.includes('your-email') &&
+        !password.includes('your-app-password'),
+    );
   }
 }

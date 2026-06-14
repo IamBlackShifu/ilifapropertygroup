@@ -43,9 +43,84 @@ export class ContractorsService {
             profileImageUrl: true,
           },
         },
+        services: {
+          include: {
+            service: true,
+          },
+        },
+        stages: {
+          where: {
+            OR: [
+              { status: 'IN_PROGRESS' },
+              { status: 'INSPECTION_REQUIRED' },
+              { status: 'INSPECTION_PASSED' },
+              { status: 'COMPLETED' },
+            ],
+          },
+          include: {
+            project: {
+              select: {
+                id: true,
+                projectName: true,
+                projectType: true,
+                description: true,
+                status: true,
+                startDate: true,
+                expectedEndDate: true,
+                actualEndDate: true,
+                property: {
+                  select: {
+                    title: true,
+                    locationCity: true,
+                    locationArea: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [
+            { completedAt: 'desc' },
+            { startedAt: 'desc' },
+            { stageOrder: 'asc' },
+          ],
+          take: 12,
+        },
+        serviceRequests: {
+          where: {
+            status: {
+              in: ['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'],
+            },
+          },
+          select: {
+            id: true,
+            serviceType: true,
+            description: true,
+            status: true,
+            urgency: true,
+            startDate: true,
+            completedDate: true,
+            requestedAt: true,
+            locationCity: true,
+            property: {
+              select: {
+                title: true,
+                locationCity: true,
+                locationArea: true,
+              },
+            },
+          },
+          orderBy: [
+            { completedDate: 'desc' },
+            { startDate: 'desc' },
+            { requestedAt: 'desc' },
+          ],
+          take: 12,
+        },
         _count: {
           select: {
             reviews: true,
+            stages: true,
+            serviceRequests: true,
           },
         },
       },
@@ -112,6 +187,8 @@ export class ContractorsService {
           _count: {
             select: {
               reviews: true,
+              stages: true,
+              serviceRequests: true,
             },
           },
         },
@@ -162,10 +239,85 @@ export class ContractorsService {
           orderBy: { createdAt: 'desc' },
           take: 10,
         },
+        services: {
+          include: {
+            service: true,
+          },
+        },
+        stages: {
+          where: {
+            OR: [
+              { status: 'IN_PROGRESS' },
+              { status: 'INSPECTION_REQUIRED' },
+              { status: 'INSPECTION_PASSED' },
+              { status: 'COMPLETED' },
+            ],
+          },
+          include: {
+            project: {
+              select: {
+                id: true,
+                projectName: true,
+                projectType: true,
+                description: true,
+                status: true,
+                startDate: true,
+                expectedEndDate: true,
+                actualEndDate: true,
+                property: {
+                  select: {
+                    title: true,
+                    locationCity: true,
+                    locationArea: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [
+            { completedAt: 'desc' },
+            { startedAt: 'desc' },
+            { stageOrder: 'asc' },
+          ],
+          take: 8,
+        },
+        serviceRequests: {
+          where: {
+            status: {
+              in: ['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'],
+            },
+          },
+          select: {
+            id: true,
+            serviceType: true,
+            description: true,
+            status: true,
+            urgency: true,
+            startDate: true,
+            completedDate: true,
+            requestedAt: true,
+            locationCity: true,
+            property: {
+              select: {
+                title: true,
+                locationCity: true,
+                locationArea: true,
+              },
+            },
+          },
+          orderBy: [
+            { completedDate: 'desc' },
+            { startDate: 'desc' },
+            { requestedAt: 'desc' },
+          ],
+          take: 8,
+        },
         _count: {
           select: {
             reviews: true,
             verifications: true,
+            stages: true,
+            serviceRequests: true,
           },
         },
       },
@@ -193,9 +345,84 @@ export class ContractorsService {
             profileImageUrl: true,
           },
         },
+        services: {
+          include: {
+            service: true,
+          },
+        },
+        stages: {
+          where: {
+            OR: [
+              { status: 'IN_PROGRESS' },
+              { status: 'INSPECTION_REQUIRED' },
+              { status: 'INSPECTION_PASSED' },
+              { status: 'COMPLETED' },
+            ],
+          },
+          include: {
+            project: {
+              select: {
+                id: true,
+                projectName: true,
+                projectType: true,
+                description: true,
+                status: true,
+                startDate: true,
+                expectedEndDate: true,
+                actualEndDate: true,
+                property: {
+                  select: {
+                    title: true,
+                    locationCity: true,
+                    locationArea: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [
+            { completedAt: 'desc' },
+            { startedAt: 'desc' },
+            { stageOrder: 'asc' },
+          ],
+          take: 12,
+        },
+        serviceRequests: {
+          where: {
+            status: {
+              in: ['ACCEPTED', 'IN_PROGRESS', 'COMPLETED'],
+            },
+          },
+          select: {
+            id: true,
+            serviceType: true,
+            description: true,
+            status: true,
+            urgency: true,
+            startDate: true,
+            completedDate: true,
+            requestedAt: true,
+            locationCity: true,
+            property: {
+              select: {
+                title: true,
+                locationCity: true,
+                locationArea: true,
+              },
+            },
+          },
+          orderBy: [
+            { completedDate: 'desc' },
+            { startDate: 'desc' },
+            { requestedAt: 'desc' },
+          ],
+          take: 12,
+        },
         _count: {
           select: {
             reviews: true,
+            stages: true,
+            serviceRequests: true,
           },
         },
       },
@@ -439,7 +666,42 @@ export class ContractorsService {
       throw new NotFoundException('Contractor not found');
     }
 
+    const [activeProjects, completedProjects, activeServiceRequests, completedServiceRequests] = await Promise.all([
+      this.prisma.workflowStage.count({
+        where: {
+          assignedContractorId: contractorId,
+          status: {
+            in: ['IN_PROGRESS', 'INSPECTION_REQUIRED', 'INSPECTION_PASSED'],
+          },
+        },
+      }),
+      this.prisma.workflowStage.count({
+        where: {
+          assignedContractorId: contractorId,
+          status: 'COMPLETED',
+        },
+      }),
+      this.prisma.serviceRequest.count({
+        where: {
+          contractorId,
+          status: {
+            in: ['ACCEPTED', 'IN_PROGRESS'],
+          },
+        },
+      }),
+      this.prisma.serviceRequest.count({
+        where: {
+          contractorId,
+          status: 'COMPLETED',
+        },
+      }),
+    ]);
+
     return {
+      activeProjects,
+      completedProjects,
+      activeServiceRequests,
+      completedServiceRequests,
       rating: {
         average: Number(contractor.ratingAverage),
         count: contractor.ratingCount,

@@ -19,7 +19,7 @@ interface ContractorProfile {
   locationAddress?: string
   isVerified?: boolean
   verifiedAt?: string
-  ratingAverage?: number
+  ratingAverage?: number | string
   ratingCount?: number
   status: 'PENDING' | 'VERIFIED' | 'SUSPENDED'
 }
@@ -27,6 +27,8 @@ interface ContractorProfile {
 interface DashboardStats {
   activeProjects: number
   completedProjects: number
+  activeServiceRequests: number
+  completedServiceRequests: number
   totalEarnings: number
   pendingPayments: number
   averageRating: number
@@ -40,6 +42,8 @@ export default function ContractorDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     activeProjects: 0,
     completedProjects: 0,
+    activeServiceRequests: 0,
+    completedServiceRequests: 0,
     totalEarnings: 0,
     pendingPayments: 0,
     averageRating: 0,
@@ -47,6 +51,11 @@ export default function ContractorDashboardPage() {
   })
   const [profileMissing, setProfileMissing] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const toNumber = (value: unknown) => {
+    const numberValue = Number(value)
+    return Number.isFinite(numberValue) ? numberValue : 0
+  }
 
   useEffect(() => {
     if (user?.role !== 'CONTRACTOR') {
@@ -70,21 +79,25 @@ export default function ContractorDashboardPage() {
         const statsRes = await apiClient.get(`/contractors/${profileData.id}/stats`)
         const statsData = statsRes.data?.data || statsRes.data
         setStats({
-          activeProjects: statsData?.activeProjects || 0,
-          completedProjects: statsData?.completedProjects || 0,
-          totalEarnings: statsData?.totalEarnings || 0,
-          pendingPayments: statsData?.pendingPayments || 0,
-          averageRating: profileData?.ratingAverage || 0,
-          totalReviews: profileData?.ratingCount || 0,
+          activeProjects: toNumber(statsData?.activeProjects),
+          completedProjects: toNumber(statsData?.completedProjects),
+          activeServiceRequests: toNumber(statsData?.activeServiceRequests),
+          completedServiceRequests: toNumber(statsData?.completedServiceRequests),
+          totalEarnings: toNumber(statsData?.totalEarnings),
+          pendingPayments: toNumber(statsData?.pendingPayments),
+          averageRating: toNumber(statsData?.rating?.average ?? profileData?.ratingAverage),
+          totalReviews: toNumber(statsData?.rating?.count ?? profileData?.ratingCount),
         })
       } catch {
         setStats({
           activeProjects: 0,
           completedProjects: 0,
+          activeServiceRequests: 0,
+          completedServiceRequests: 0,
           totalEarnings: 0,
           pendingPayments: 0,
-          averageRating: profileData?.ratingAverage || 0,
-          totalReviews: profileData?.ratingCount || 0,
+          averageRating: toNumber(profileData?.ratingAverage),
+          totalReviews: toNumber(profileData?.ratingCount),
         })
       }
     } catch (error: any) {
@@ -253,14 +266,14 @@ export default function ContractorDashboardPage() {
               </Link>
 
               <Link
-                href="/contractors/projects"
+                href="/contractors/portfolio"
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className="text-3xl">📋</div>
                   <div>
-                    <p className="font-semibold">View Projects</p>
-                    <p className="text-sm text-gray-600">Manage your projects</p>
+                    <p className="font-semibold">Portfolio</p>
+                    <p className="text-sm text-gray-600">View public work</p>
                   </div>
                 </div>
               </Link>

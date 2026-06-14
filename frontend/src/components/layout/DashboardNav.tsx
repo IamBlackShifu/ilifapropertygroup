@@ -14,45 +14,46 @@ export default function DashboardNav() {
     switch (user.role) {
       case 'BUYER':
         return [
-          { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-          { href: '/buy-property', label: 'Browse Properties', icon: '🏠' },
-          { href: '/saved-properties', label: 'Saved Properties', icon: '❤️' },
-          { href: '/my-viewings', label: 'My Viewings', icon: '📅' },
-          { href: '/profile', label: 'Profile', icon: '👤' },
+          { href: '/dashboard', label: 'Dashboard' },
+          { href: '/buy-property', label: 'Browse Properties' },
+          { href: '/saved-properties', label: 'Saved Properties' },
+          { href: '/my-viewings', label: 'My Viewings' },
+          { href: '/profile', label: 'Profile' },
         ]
       case 'OWNER':
         return [
-          { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-          { href: '/my-properties', label: 'My Properties', icon: '🏘️' },
-          { href: '/my-properties/create', label: 'List Property', icon: '➕' },
-          { href: '/property-viewings', label: 'Viewing Requests', icon: '📅' },
-          { href: '/profile', label: 'Profile', icon: '👤' },
+          { href: '/dashboard', label: 'Dashboard' },
+          { href: '/my-properties', label: 'My Properties' },
+          { href: '/my-properties/create', label: 'List Property' },
+          { href: '/property-viewings', label: 'Viewing Requests' },
+          { href: '/profile', label: 'Profile' },
         ]
       case 'CONTRACTOR':
         return [
-          { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-          { href: '/contractor/profile', label: 'My Profile', icon: '🏢' },
-          { href: '/contractor/projects', label: 'Projects', icon: '🔨' },
-          { href: '/contractor/services', label: 'Services', icon: '⚙️' },
-          { href: '/profile', label: 'Account', icon: '👤' },
+          { href: '/contractors/dashboard', label: 'Dashboard' },
+          { href: '/contractors/profile/edit', label: 'Company Profile' },
+          { href: '/contractors/service-requests', label: 'Service Requests' },
+          { href: '/contractors/services', label: 'Services' },
+          { href: '/contractors/portfolio', label: 'Portfolio' },
+          { href: '/profile', label: 'Account' },
         ]
       case 'SUPPLIER':
         return [
-          { href: '/suppliers/dashboard', label: 'Dashboard', icon: '📊' },
-          { href: '/suppliers/profile', label: 'Company Profile', icon: '🏢' },
-          { href: '/suppliers/products', label: 'Products', icon: '📦' },
-          { href: '/suppliers/products/new', label: 'Add Product', icon: '➕' },
-          { href: '/suppliers/orders', label: 'Orders', icon: '🛒' },
-          { href: '/profile', label: 'Account', icon: '👤' },
+          { href: '/suppliers/dashboard', label: 'Dashboard' },
+          { href: '/suppliers/profile', label: 'Company Profile' },
+          { href: '/suppliers/products', label: 'Products' },
+          { href: '/suppliers/products/new', label: 'Add Product' },
+          { href: '/suppliers/orders', label: 'Orders' },
+          { href: '/profile', label: 'Account' },
         ]
       case 'ADMIN':
         return [
-          { href: '/admin', label: 'Dashboard', icon: '📊' },
-          { href: '/admin/properties', label: 'Properties', icon: '🏠' },
-          { href: '/admin/users', label: 'Users', icon: '👥' },
-          { href: '/admin/verifications', label: 'Verifications', icon: '✅' },
-          { href: '/admin/contractors', label: 'Contractors', icon: '🔨' },
-          { href: '/profile', label: 'Profile', icon: '👤' },
+          { href: '/admin', label: 'Dashboard' },
+          { href: '/admin/properties', label: 'Properties' },
+          { href: '/admin/users', label: 'Users' },
+          { href: '/admin/verifications', label: 'Verifications' },
+          { href: '/admin/contractors', label: 'Contractors' },
+          { href: '/profile', label: 'Profile' },
         ]
       default:
         return []
@@ -66,9 +67,9 @@ export default function DashboardNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex space-x-8 overflow-x-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || 
+            const isActive = pathname === item.href ||
               (item.href !== '/dashboard' && pathname.startsWith(item.href))
-            
+
             return (
               <Link
                 key={item.href}
@@ -81,7 +82,6 @@ export default function DashboardNav() {
                   }
                 `}
               >
-                <span>{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             )
