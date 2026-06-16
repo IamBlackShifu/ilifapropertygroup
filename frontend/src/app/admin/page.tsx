@@ -75,8 +75,8 @@ export default function AdminDashboard() {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Users */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Recent Users</h3>
             <Link
               href="/admin/users"
@@ -89,15 +89,15 @@ export default function AdminDashboard() {
             {recentUsers.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex flex-col gap-2 rounded-lg bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-medium text-sm">
                     {user.firstName} {user.lastName}
                   </p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
+                  <p className="break-all text-xs text-gray-500">{user.email}</p>
                 </div>
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                <span className="w-fit px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                   {user.role}
                 </span>
               </div>
@@ -106,8 +106,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Properties */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Recent Properties</h3>
             <Link
               href="/admin/properties"
@@ -120,15 +120,15 @@ export default function AdminDashboard() {
             {recentProperties.map((property) => (
               <div
                 key={property.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium text-sm">{property.title}</p>
                   <p className="text-xs text-gray-500">
                     by {property.owner.firstName} {property.owner.lastName}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-sm font-semibold text-green-600">
                     ${property.price.toLocaleString()}
                   </p>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <QuickActionButton
@@ -190,13 +190,13 @@ function StatCard({
   link?: string
 }) {
   const content = (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="min-w-0 pr-3">
           <p className="text-sm text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold">{value}</p>
+          <p className="break-words text-2xl font-bold">{value}</p>
         </div>
-        <div className={`${color} w-12 h-12 rounded-lg flex items-center justify-center text-2xl`}>
+        <div className={`${color} w-12 h-12 shrink-0 rounded-lg flex items-center justify-center text-2xl`}>
           {icon}
         </div>
       </div>

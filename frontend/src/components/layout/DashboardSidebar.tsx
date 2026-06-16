@@ -23,6 +23,7 @@ export function DashboardSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
 
   if (!user) return null
@@ -638,6 +639,7 @@ export function DashboardSidebar() {
   }
 
   const navigationSections = getNavigationForRole()
+  const showLabels = isSidebarOpen || isMobileSidebarOpen
 
   const isActive = (href: string) => {
     if (href === '/dashboard' || href === '/admin' || href === '/contractors/dashboard' || href === '/suppliers/dashboard') {
@@ -659,32 +661,69 @@ export function DashboardSidebar() {
   }
 
   return (
+    <>
+    {/* Mobile top bar */}
+    <div className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm lg:hidden">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold text-gray-900">ILifa Property Group</p>
+        <p className="truncate text-xs text-gray-500">{getRoleName()}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setIsMobileSidebarOpen(true)}
+        className="rounded-lg p-2 text-gray-700 hover:bg-gray-100"
+        aria-label="Open dashboard navigation"
+      >
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    {isMobileSidebarOpen && (
+      <button
+        type="button"
+        className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        aria-label="Close dashboard navigation"
+        onClick={() => setIsMobileSidebarOpen(false)}
+      />
+    )}
+
     <aside
       className={`${
-        isSidebarOpen ? 'w-64' : 'w-20'
-      } bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white transition-all duration-300 flex flex-col fixed h-screen z-50 shadow-2xl`}
+        isSidebarOpen ? 'lg:w-64' : 'lg:w-20'
+      } ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } fixed z-50 flex h-screen w-72 max-w-[85vw] flex-col bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white shadow-2xl transition-all duration-300 lg:translate-x-0`}
     >
       {/* Logo & Toggle */}
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center justify-between">
-          {isSidebarOpen && (
+          {showLabels && (
             <div>
               <h1 className="text-xl font-bold text-white">ILifa Property Group</h1>
               <p className="text-xs text-gray-400 mt-1">{getRoleName()}</p>
             </div>
           )}
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => {
+              if (isMobileSidebarOpen) {
+                setIsMobileSidebarOpen(false)
+              } else {
+                setIsSidebarOpen(!isSidebarOpen)
+              }
+            }}
             className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
             title={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+            aria-label={isMobileSidebarOpen ? 'Close dashboard navigation' : isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             <svg
-              className={`w-5 h-5 transition-transform ${isSidebarOpen ? '' : 'rotate-180'}`}
+              className={`w-5 h-5 transition-transform ${isMobileSidebarOpen ? 'lg:hidden' : isSidebarOpen ? '' : 'rotate-180'}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7'} />
             </svg>
           </button>
         </div>
@@ -694,7 +733,7 @@ export function DashboardSidebar() {
       <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
         {navigationSections.map((section, sectionIdx) => (
           <div key={sectionIdx}>
-            {section.title && isSidebarOpen && (
+            {section.title && showLabels && (
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-4">
                 {section.title}
               </h3>
@@ -710,11 +749,12 @@ export function DashboardSidebar() {
                       : 'hover:bg-gray-700 text-gray-300 hover:text-white'
                   }`}
                   title={!isSidebarOpen ? item.name : undefined}
+                  onClick={() => setIsMobileSidebarOpen(false)}
                 >
                   <span className={isActive(item.href) ? 'text-white' : 'text-gray-400 group-hover:text-white'}>
                     {item.icon}
                   </span>
-                  {isSidebarOpen && (
+                  {showLabels && (
                     <>
                       <span className="flex-1">{item.name}</span>
                       {item.badge && (
@@ -724,7 +764,7 @@ export function DashboardSidebar() {
                       )}
                     </>
                   )}
-                  {!isSidebarOpen && (
+                  {!showLabels && (
                     <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                       {item.name}
                     </div>
@@ -742,12 +782,13 @@ export function DashboardSidebar() {
           href="/"
           className="flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white transition-all duration-200 shadow-lg hover:shadow-xl group"
           title={!isSidebarOpen ? 'Back to Main Site' : undefined}
+          onClick={() => setIsMobileSidebarOpen(false)}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          {isSidebarOpen && <span className="font-medium">Back to Main Site</span>}
-          {!isSidebarOpen && (
+          {showLabels && <span className="font-medium">Back to Main Site</span>}
+          {!showLabels && (
             <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               Back to Main Site
             </div>
@@ -764,23 +805,26 @@ export function DashboardSidebar() {
           <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
             {user.firstName?.[0]}{user.lastName?.[0]}
           </div>
-          {isSidebarOpen && (
-            <div className="flex-1 text-left">
+          {showLabels && (
+            <div className="min-w-0 flex-1 text-left">
               <p className="text-sm font-medium text-white">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-xs text-gray-400">{user.email}</p>
+              <p className="truncate text-xs text-gray-400">{user.email}</p>
             </div>
           )}
         </button>
 
         {/* User Dropdown */}
-        {userDropdownOpen && isSidebarOpen && (
+        {userDropdownOpen && showLabels && (
           <div className="absolute bottom-full left-4 right-4 mb-2 bg-gray-800 rounded-lg shadow-2xl border border-gray-700 overflow-hidden">
             <Link
               href={getProfileHref()}
               className="block px-4 py-3 hover:bg-gray-700 transition-colors text-sm"
-              onClick={() => setUserDropdownOpen(false)}
+              onClick={() => {
+                setUserDropdownOpen(false)
+                setIsMobileSidebarOpen(false)
+              }}
             >
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -792,7 +836,10 @@ export function DashboardSidebar() {
             <Link
               href="/settings"
               className="block px-4 py-3 hover:bg-gray-700 transition-colors text-sm"
-              onClick={() => setUserDropdownOpen(false)}
+              onClick={() => {
+                setUserDropdownOpen(false)
+                setIsMobileSidebarOpen(false)
+              }}
             >
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -817,5 +864,6 @@ export function DashboardSidebar() {
         )}
       </div>
     </aside>
+    </>
   )
 }

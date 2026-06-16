@@ -135,13 +135,13 @@ export default function ContractorDashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
+          <div className="bg-white rounded-lg shadow p-4 mb-6 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h1 className="text-3xl font-bold">
+                  <h1 className="text-2xl font-bold sm:text-3xl">
                     {profile?.companyName || 'Complete Your Contractor Profile'}
                   </h1>
                   {getStatusBadge()}
@@ -153,7 +153,7 @@ export default function ContractorDashboardPage() {
               <div className="flex gap-2">
                 <Link
                   href={profile ? '/contractors/profile/edit' : '/contractors/profile/new'}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700 sm:w-auto"
                 >
                   {profile ? 'Edit Profile' : 'Complete Profile'}
                 </Link>
@@ -186,70 +186,70 @@ export default function ContractorDashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Active Projects</p>
-                  <p className="text-3xl font-bold">{stats.activeProjects}</p>
+                  <p className="text-2xl font-bold sm:text-3xl">{stats.activeProjects}</p>
                 </div>
-                <div className="text-4xl">🏗️</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">🏗️</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Completed Projects</p>
-                  <p className="text-3xl font-bold">{stats.completedProjects}</p>
+                  <p className="text-2xl font-bold sm:text-3xl">{stats.completedProjects}</p>
                 </div>
-                <div className="text-4xl">✅</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">✅</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Total Earnings</p>
-                  <p className="text-3xl font-bold">${stats.totalEarnings.toFixed(2)}</p>
+                  <p className="break-words text-2xl font-bold sm:text-3xl">${stats.totalEarnings.toFixed(2)}</p>
                 </div>
-                <div className="text-4xl">💰</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">💰</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Pending Payments</p>
-                  <p className="text-3xl font-bold">${stats.pendingPayments.toFixed(2)}</p>
+                  <p className="break-words text-2xl font-bold sm:text-3xl">${stats.pendingPayments.toFixed(2)}</p>
                 </div>
-                <div className="text-4xl">⏱️</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">⏱️</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Average Rating</p>
-                  <p className="text-3xl font-bold">{stats.averageRating.toFixed(1)}</p>
+                  <p className="text-2xl font-bold sm:text-3xl">{stats.averageRating.toFixed(1)}</p>
                   <p className="text-xs text-gray-500">{stats.totalReviews} reviews</p>
                 </div>
-                <div className="text-4xl">⭐</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">⭐</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="text-sm text-gray-500">Experience</p>
-                  <p className="text-3xl font-bold">{profile?.yearsExperience || 0}</p>
+                  <p className="text-2xl font-bold sm:text-3xl">{profile?.yearsExperience || 0}</p>
                   <p className="text-xs text-gray-500">years</p>
                 </div>
-                <div className="text-4xl">🎓</div>
+                <div className="shrink-0 text-3xl sm:text-4xl">🎓</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 mb-6 sm:p-6">
             <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link
@@ -306,7 +306,7 @@ export default function ContractorDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6">
             <h2 className="text-xl font-bold mb-4">Profile Summary</h2>
             {profile ? (
               <div className="space-y-4">

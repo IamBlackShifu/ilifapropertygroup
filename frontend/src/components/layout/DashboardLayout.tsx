@@ -25,8 +25,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <DashboardSidebar />
-      <main className="flex-1 ml-64 transition-all duration-300">
-        <div className="min-h-screen">
+      <main className="min-w-0 flex-1 pt-16 transition-all duration-300 lg:ml-64 lg:pt-0">
+        <div className="min-h-screen overflow-x-hidden">
           {children}
         </div>
       </main>

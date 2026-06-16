@@ -152,21 +152,21 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto">        
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.name || 'User'}!</h1>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Welcome back, {user?.name || 'User'}!</h1>
               <p className="mt-2 text-gray-600">
                 Role: <span className="font-semibold text-primary-600">{getRoleName()}</span>
               </p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               <Link 
                 href={user?.role === 'CONTRACTOR' ? '/contractors/profile/edit' : user?.role === 'SUPPLIER' ? '/suppliers/profile' : '/profile'}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-gray-700 transition hover:bg-gray-50 sm:w-auto"
               >
                 Edit Profile
               </Link>
@@ -267,9 +267,9 @@ function OwnerDashboard({ stats, loading, recentActivity }: any) {
 
       {/* Property Status Breakdown */}
       {!loading && stats.propertyStats && (
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="bg-white rounded-lg shadow p-4 mb-8 sm:p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Property Status Overview</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-gray-700">{stats.propertyStats.draft}</div>
               <div className="text-xs text-gray-600 mt-1">Draft</div>
@@ -526,13 +526,13 @@ function StatCard({ title, value, icon, color, link }: StatCardProps) {
   }
 
   const card = (
-    <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+    <div className="bg-white rounded-lg shadow p-4 transition hover:shadow-lg sm:p-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="min-w-0 pr-3">
           <h2 className="text-sm font-medium text-gray-600 mb-1">{title}</h2>
-          <p className={`text-3xl font-bold text-${color}-600`}>{value}</p>
+          <p className={`break-words text-2xl font-bold text-${color}-600 sm:text-3xl`}>{value}</p>
         </div>
-        <div className={`h-12 w-12 ${colorClasses[color]} rounded-lg flex items-center justify-center`}>
+        <div className={`h-11 w-11 shrink-0 ${colorClasses[color]} rounded-lg flex items-center justify-center sm:h-12 sm:w-12`}>
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPaths[icon]} />
           </svg>
@@ -573,7 +573,7 @@ function QuickActions({ actions }: { actions: Array<{ href: string; icon: string
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-8">
+    <div className="bg-white rounded-lg shadow p-4 mb-8 sm:p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {actions.map((action, idx) => {
@@ -584,12 +584,12 @@ function QuickActions({ actions }: { actions: Array<{ href: string; icon: string
               href={action.href}
               className={`flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg ${colors.border} ${colors.bg} transition`}
             >
-              <div className={`mr-4 h-10 w-10 ${colors.icon} rounded-lg flex items-center justify-center`}>
+              <div className={`mr-4 h-10 w-10 shrink-0 ${colors.icon} rounded-lg flex items-center justify-center`}>
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPaths[action.icon]} />
                 </svg>
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className="font-semibold text-gray-900">{action.title}</h3>
                 <p className="text-sm text-gray-600">{action.desc}</p>
               </div>
@@ -603,7 +603,7 @@ function QuickActions({ actions }: { actions: Array<{ href: string; icon: string
 
 function InfoCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="bg-gradient-to-r from-primary-50 to-secondary-50 border border-primary-200 rounded-lg p-6">
+    <div className="bg-gradient-to-r from-primary-50 to-secondary-50 border border-primary-200 rounded-lg p-4 sm:p-6">
       <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </div>
@@ -612,20 +612,20 @@ function InfoCard({ title, description }: { title: string; description: string }
 
 function RecentPropertiesCard({ properties, title }: { properties: any[]; title: string }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 mt-8">
+    <div className="bg-white rounded-lg shadow p-4 mt-8 sm:p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
       <div className="space-y-4">
         {properties.map((property: any) => (
           <Link 
             key={property.id}
             href={`/buy-property/${property.id}`}
-            className="flex items-center p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
+            className="flex flex-col gap-3 p-4 border border-gray-200 rounded-lg transition hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
           >
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <h3 className="font-semibold text-gray-900">{property.title}</h3>
               <p className="text-sm text-gray-600">{property.locationCity}</p>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="font-bold text-primary-600">${parseFloat(property.price).toLocaleString()}</p>
               <p className="text-sm text-gray-500">{property.propertyType}</p>
             </div>
