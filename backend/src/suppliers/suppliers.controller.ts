@@ -64,6 +64,25 @@ export class SuppliersController {
     });
   }
 
+  @Get(':id/reviews')
+  getReviews(
+    @Param('id') id: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.suppliersService.getReviews(id, page, limit);
+  }
+
+  @Post(':id/rate')
+  @UseGuards(JwtAuthGuard)
+  rateSupplier(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { rating: number; comment: string },
+  ) {
+    return this.suppliersService.rateSupplier(id, req.user.userId, body);
+  }
+
   @Get(':id')
   getSupplierById(@Param('id') id: string) {
     return this.suppliersService.getSupplierById(id);

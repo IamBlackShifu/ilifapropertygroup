@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import apiClient from '@/lib/api-client'
 import { useAuth } from '@/contexts/AuthContext'
+import { ReviewSection } from '@/components/ReviewSection'
 
 interface Contractor {
   id: string
@@ -375,37 +376,14 @@ export default function ContractorProfilePage() {
               )}
             </div>
 
-            {/* Reviews */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold mb-4">
-                Reviews {contractor.ratingCount > 0 && `(${contractor.ratingCount})`}
-              </h2>
-              
-              {contractor.reviews && contractor.reviews.length > 0 ? (
-                <div className="space-y-4">
-                  {contractor.reviews.map((review) => (
-                    <div key={review.id} className="border-b pb-4 last:border-b-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-semibold">
-                            {review.reviewer.firstName} {review.reviewer.lastName}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <span className="text-yellow-400">{'★'.repeat(review.rating)}</span>
-                      </div>
-                      {review.comment && (
-                        <p className="text-gray-700">{review.comment}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No reviews yet</p>
-              )}
-            </div>
+            <ReviewSection
+              entityName={contractor.companyName}
+              reviewsUrl={`/contractors/${contractor.id}/reviews`}
+              submitUrl={`/contractors/${contractor.id}/rate`}
+              initialReviews={contractor.reviews}
+              initialRatingAverage={contractor.ratingAverage}
+              initialRatingCount={contractor.ratingCount}
+            />
           </div>
 
           {/* Sidebar */}

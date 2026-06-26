@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/api-client'
 import { getFirstMediaUrl } from '@/lib/media'
 import { getWhatsAppUrl } from '@/lib/utils'
+import { ReviewSection } from '@/components/ReviewSection'
 
 type Supplier = {
   id: string
@@ -30,6 +31,16 @@ type Supplier = {
     email?: string
     phone?: string
   }
+  reviews?: Array<{
+    id: string
+    rating: number
+    comment?: string
+    createdAt: string
+    reviewer?: {
+      firstName?: string
+      lastName?: string
+    }
+  }>
   products?: Array<{
     id: string
     name: string
@@ -169,6 +180,15 @@ export default function SupplierDetailsPage() {
             </a>
           )}
         </div>
+
+        <ReviewSection
+          entityName={supplier.companyName || 'this supplier'}
+          reviewsUrl={`/suppliers/${supplier.id}/reviews`}
+          submitUrl={`/suppliers/${supplier.id}/rate`}
+          initialReviews={supplier.reviews || []}
+          initialRatingAverage={supplierRating}
+          initialRatingCount={supplier.ratingCount}
+        />
 
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
