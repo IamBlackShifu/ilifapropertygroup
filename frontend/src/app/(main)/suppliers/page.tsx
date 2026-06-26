@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { suppliersAPI } from '@/lib/api-client'
+import { getWhatsAppUrl } from '@/lib/utils'
 
 const PRODUCT_CATEGORIES = [
   { value: 'ALL', label: 'All categories' },
@@ -41,6 +42,7 @@ interface Supplier {
   description?: string
   categories?: string[]
   locationCity?: string
+  phone?: string
   isVerified: boolean
   status?: string
   ratingAverage?: number | string
@@ -51,6 +53,9 @@ interface Supplier {
     products?: number
     orders?: number
     reviews?: number
+  }
+  user?: {
+    phone?: string
   }
 }
 
@@ -401,66 +406,84 @@ export default function SuppliersPage() {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {filteredSuppliers.map((supplier) => (
-                  <article key={supplier.id} className="p-5 hover:bg-gray-50">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{supplier.companyName}</h3>
-                          {isSupplierVerified(supplier) && (
-                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Verified</span>
-                          )}
-                          {supplier.deliveryAvailable && (
-                            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">Delivery</span>
-                          )}
-                        </div>
-                        <p className="line-clamp-2 text-sm text-gray-600">{supplier.description || 'No supplier description provided yet.'}</p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {(supplier.categories || []).slice(0, 4).map((category) => (
-                            <span key={category} className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
-                              {getCategoryLabel(category)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                {filteredSuppliers.map((supplier) => {
+                  const supplierPhone = supplier.user?.phone || supplier.phone
+                  const supplierWhatsAppUrl = getWhatsAppUrl(
+                    supplierPhone,
+                    `Hello ${supplier.companyName}, I found your supplier profile on ILifa and would like to chat.`
+                  )
 
-                      <div className="grid min-w-[260px] grid-cols-2 gap-3 text-sm lg:text-right">
-                        <div>
-                          <p className="text-gray-500">City</p>
-                          <p className="font-medium text-gray-900">{supplier.locationCity || 'Not listed'}</p>
+                  return (
+                    <article key={supplier.id} className="p-5 hover:bg-gray-50">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{supplier.companyName}</h3>
+                            {isSupplierVerified(supplier) && (
+                              <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Verified</span>
+                            )}
+                            {supplier.deliveryAvailable && (
+                              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">Delivery</span>
+                            )}
+                          </div>
+                          <p className="line-clamp-2 text-sm text-gray-600">{supplier.description || 'No supplier description provided yet.'}</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {(supplier.categories || []).slice(0, 4).map((category) => (
+                              <span key={category} className="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                                {getCategoryLabel(category)}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-gray-500">Products</p>
-                          <p className="font-medium text-gray-900">{supplier._count?.products || 0}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Rating</p>
-                          <p className="font-medium text-gray-900">
-                            {Number(supplier.ratingAverage) > 0 ? Number(supplier.ratingAverage).toFixed(1) : 'New'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-500">Minimum</p>
-                          <p className="font-medium text-gray-900">{formatMoney(supplier.minOrderAmount)}</p>
+
+                        <div className="grid min-w-[260px] grid-cols-2 gap-3 text-sm lg:text-right">
+                          <div>
+                            <p className="text-gray-500">City</p>
+                            <p className="font-medium text-gray-900">{supplier.locationCity || 'Not listed'}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Products</p>
+                            <p className="font-medium text-gray-900">{supplier._count?.products || 0}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Rating</p>
+                            <p className="font-medium text-gray-900">
+                              {Number(supplier.ratingAverage) > 0 ? Number(supplier.ratingAverage).toFixed(1) : 'New'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Minimum</p>
+                            <p className="font-medium text-gray-900">{formatMoney(supplier.minOrderAmount)}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <Link
-                        href={`/suppliers/${supplier.id}`}
-                        className="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
-                      >
-                        View supplier
-                      </Link>
-                      <Link
-                        href={`/marketplace?supplier=${supplier.id}`}
-                        className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
-                      >
-                        View products
-                      </Link>
-                    </div>
-                  </article>
-                ))}
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <Link
+                          href={`/suppliers/${supplier.id}`}
+                          className="rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                        >
+                          View supplier
+                        </Link>
+                        <Link
+                          href={`/marketplace?supplier=${supplier.id}`}
+                          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
+                        >
+                          View products
+                        </Link>
+                        {supplierWhatsAppUrl && (
+                          <a
+                            href={supplierWhatsAppUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                          >
+                            WhatsApp supplier
+                          </a>
+                        )}
+                      </div>
+                    </article>
+                  )
+                })}
               </div>
             )}
           </section>

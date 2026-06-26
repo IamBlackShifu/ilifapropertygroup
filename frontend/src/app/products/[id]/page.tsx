@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/api-client'
 import { getFirstMediaUrl } from '@/lib/media'
+import { getWhatsAppUrl } from '@/lib/utils'
 
 type Product = {
   id: string
@@ -23,7 +24,14 @@ type Product = {
     id: string
     companyName?: string
     city?: string
+    address?: string
+    locationCity?: string
+    locationAddress?: string
     isVerified?: boolean
+    phone?: string
+    user?: {
+      phone?: string
+    }
   }
 }
 
@@ -80,6 +88,15 @@ export default function ProductDetailsPage() {
 
   const price = typeof product.price === 'number' ? product.price : Number(product.price || 0)
   const primaryImage = getFirstMediaUrl(product.imageUrls || product.images)
+  const supplierLocation = [
+    product.supplier?.locationAddress || product.supplier?.address,
+    product.supplier?.locationCity || product.supplier?.city,
+  ].filter(Boolean).join(', ')
+  const supplierPhone = product.supplier?.user?.phone || product.supplier?.phone
+  const supplierWhatsAppUrl = getWhatsAppUrl(
+    supplierPhone,
+    `Hello ${product.supplier?.companyName || 'supplier'}, I am interested in ${product.name} on ILifa.`
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -143,6 +160,10 @@ export default function ProductDetailsPage() {
                   <p className="text-gray-500">Category</p>
                   <p className="mt-1 font-semibold text-gray-900">{product.category || 'N/A'}</p>
                 </div>
+                <div className="rounded-xl bg-gray-50 p-4 col-span-2">
+                  <p className="text-gray-500">Supplier location</p>
+                  <p className="mt-1 font-semibold text-gray-900">{supplierLocation || 'Location not provided'}</p>
+                </div>
               </div>
 
               <div className="mt-6 flex gap-3">
@@ -159,6 +180,16 @@ export default function ProductDetailsPage() {
                   Browse More
                 </Link>
               </div>
+              {supplierWhatsAppUrl && (
+                <a
+                  href={supplierWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 block rounded-lg bg-green-600 px-4 py-3 text-center font-medium text-white hover:bg-green-700"
+                >
+                  Chat with Supplier on WhatsApp
+                </a>
+              )}
             </div>
 
             <div className="rounded-2xl bg-white p-6 shadow-lg border border-gray-100">
@@ -166,7 +197,8 @@ export default function ProductDetailsPage() {
               {product.supplier ? (
                 <div className="mt-4 space-y-2 text-sm text-gray-700">
                   <p className="font-medium text-gray-900">{product.supplier.companyName || 'Supplier company'}</p>
-                  <p>{product.supplier.city || 'Location not provided'}</p>
+                  <p>{supplierLocation || 'Location not provided'}</p>
+                  {supplierPhone && <p>{supplierPhone}</p>}
                   <p>{product.supplier.isVerified ? 'Verified supplier' : 'Unverified supplier'}</p>
                 </div>
               ) : (

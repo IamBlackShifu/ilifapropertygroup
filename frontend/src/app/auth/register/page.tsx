@@ -184,7 +184,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="phone" className="label">
-                Phone Number (Optional)
+                WhatsApp Phone Number (Optional)
               </label>
               <input
                 id="phone"
@@ -196,6 +196,7 @@ export default function RegisterPage() {
                 placeholder="+263 71 234 5678"
                 disabled={loading}
               />
+              <p className="mt-1 text-xs text-gray-500">Use a WhatsApp-enabled number so clients can contact you affordably.</p>
             </div>
 
             <div>

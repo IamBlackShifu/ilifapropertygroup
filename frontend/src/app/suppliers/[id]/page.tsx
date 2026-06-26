@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { suppliersAPI } from '@/lib/api-client'
 import { getFirstMediaUrl } from '@/lib/media'
+import { getWhatsAppUrl } from '@/lib/utils'
 
 type Supplier = {
   id: string
@@ -96,6 +97,10 @@ export default function SupplierDetailsPage() {
   const supplierEmail = supplier.user?.email || supplier.email
   const supplierWebsite = supplier.websiteUrl || supplier.website
   const supplierRating = supplier.ratingAverage ?? supplier.rating
+  const supplierWhatsAppUrl = getWhatsAppUrl(
+    supplierPhone,
+    `Hello ${supplier.companyName || 'supplier'}, I found your profile on ILifa and would like to chat.`
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -131,7 +136,18 @@ export default function SupplierDetailsPage() {
             </div>
             <div className="rounded-xl bg-gray-50 p-4">
               <p className="text-sm text-gray-500">Phone</p>
-              <p className="mt-1 font-semibold text-gray-900">{supplierPhone || 'N/A'}</p>
+              {supplierWhatsAppUrl ? (
+                <a
+                  href={supplierWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-flex font-semibold text-green-700 hover:text-green-800 hover:underline"
+                >
+                  {supplierPhone}
+                </a>
+              ) : (
+                <p className="mt-1 font-semibold text-gray-900">N/A</p>
+              )}
             </div>
             <div className="rounded-xl bg-gray-50 p-4">
               <p className="text-sm text-gray-500">Email</p>
@@ -142,6 +158,16 @@ export default function SupplierDetailsPage() {
               <p className="mt-1 font-semibold text-gray-900 break-words">{supplierWebsite || 'N/A'}</p>
             </div>
           </div>
+          {supplierWhatsAppUrl && (
+            <a
+              href={supplierWhatsAppUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
+            >
+              Chat on WhatsApp
+            </a>
+          )}
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
