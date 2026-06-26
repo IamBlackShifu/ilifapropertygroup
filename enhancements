@@ -1,0 +1,381 @@
+# ILIFA Website Enhancement Plan
+
+## Important Instructions
+
+Before making any changes:
+
+1. Create a new feature branch.
+2. Do NOT modify existing business logic unless specifically instructed.
+3. Preserve all current functionality.
+4. Implement changes incrementally.
+5. After completing each phase:
+
+   * Run the application.
+   * Verify no existing pages are broken.
+   * Check mobile responsiveness.
+   * Check desktop responsiveness.
+   * Commit changes before moving to the next phase.
+
+---
+
+# Phase 1: Landing Page Improvements
+
+## Task 1: Fix Hero Section Layout
+
+### Objective
+
+Improve the positioning of the website title, tagline, and hero content to prevent overlap.
+
+### Requirements
+
+* Review current hero section layout.
+* Ensure title, subtitle, and call-to-action buttons are properly aligned.
+* Remove any overlapping elements.
+* Maintain responsiveness across desktop, tablet, and mobile.
+
+### Acceptance Criteria
+
+* No overlapping text.
+* Clean spacing between all hero elements.
+* Responsive on all screen sizes.
+
+---
+
+## Task 2: Replace Static Hero Image with Video
+
+### Objective
+
+Improve user engagement by replacing the landing page hero image with a promotional video.
+
+### Requirements
+
+* Add support for a hero background video.
+* Include a fallback image if video fails to load.
+* Ensure video is optimized for performance.
+* Add overlay to maintain text readability.
+
+### Acceptance Criteria
+
+* Video loads smoothly.
+* Text remains readable.
+* Mobile devices display correctly.
+
+---
+
+# Phase 2: Improve User Understanding
+
+## Task 3: Add "What We Do" Section
+
+### Objective
+
+Clearly explain the purpose of ILIFA.
+
+### Requirements
+
+Create a section near the top of the landing page explaining:
+
+* Property investment opportunities.
+* Property purchasing process.
+* Property development/building services.
+* Benefits of using the platform.
+
+### Acceptance Criteria
+
+* New visitors understand the service within 30 seconds.
+* Clear distinction between:
+
+  * Buying property.
+  * Building property.
+  * Investing in property.
+
+---
+
+## Task 4: Clarify Property Services
+
+### Objective
+
+Reduce confusion around "Buy Property" and "Build Property".
+
+### Requirements
+
+Review wording throughout the website.
+
+Possible improvements:
+
+* Buy Property
+* Build Your Home
+* Property Development
+* Investment Opportunities
+
+Update labels only if clarity improves.
+
+### Acceptance Criteria
+
+* Users can easily understand the difference between services.
+
+---
+
+# Phase 3: User Onboarding
+
+## Task 5: Create Onboarding Process Section
+
+### Objective
+
+Guide new users through the process.
+
+### Requirements
+
+Add a visual step-by-step onboarding section.
+
+Suggested Flow:
+
+Step 1:
+Create an Account
+
+Step 2:
+Select Your Service
+
+Step 3:
+Choose a Package
+
+Step 4:
+Make Payment
+
+Step 5:
+Access Property Opportunities
+
+Step 6:
+Begin Your Investment Journey
+
+### Acceptance Criteria
+
+* Users can clearly see how to get started.
+* Process is visible on homepage and onboarding pages.
+
+---
+
+## Task 6: Display Payment Packages
+
+### Objective
+
+Clearly explain available payment options.
+
+### Requirements
+
+Create a dedicated pricing/packages section.
+
+Include:
+
+* Package name
+* Features
+* Cost
+* Call-to-action button
+
+### Acceptance Criteria
+
+* Pricing is easy to understand.
+* Users know exactly what they are paying for.
+
+---
+
+# Phase 4: Reviews and Testimonials
+
+## Task 7: Add Testimonials Section
+
+### Objective
+
+Increase trust and credibility.
+
+### Requirements
+
+Create a testimonial section near the bottom of the homepage.
+
+Features:
+
+* Customer photo (optional)
+* Customer name
+* Testimonial text
+* Star rating (optional)
+
+Design should match existing branding.
+
+### Acceptance Criteria
+
+* Testimonials display correctly.
+* Responsive on all devices.
+
+---
+
+## Task 8: Add Reviews Capability
+
+### Objective
+
+Allow collection of customer feedback.
+
+### Requirements
+
+Create infrastructure for:
+
+* User reviews
+* Comments
+* Ratings
+
+Initially:
+
+* Build frontend and backend structure.
+* Admin approval before public display.
+
+### Acceptance Criteria
+
+* Reviews can be submitted.
+* Reviews require approval before appearing publicly.
+
+---
+
+# Phase 5: Communication Features
+
+## Task 9: Add WhatsApp Contact Buttons
+
+### Objective
+
+Improve communication with stakeholders.
+
+### Requirements
+
+Add floating WhatsApp button.
+
+Display on:
+
+* Homepage
+* Property pages
+* Contact pages
+
+Should open WhatsApp directly.
+
+### Acceptance Criteria
+
+* Button visible but not intrusive.
+* Works on mobile and desktop.
+
+---
+
+## Task 10: Add Consultation Request Feature
+
+### Objective
+
+Allow users to request assistance.
+
+### Requirements
+
+Option A (Preferred):
+
+* Consultation Request Form
+
+Collect:
+
+* Name
+* Phone Number
+* Email
+* Message
+
+Option B (Future Enhancement):
+
+* Live Chat Integration
+
+Build architecture to support future chat implementation.
+
+### Acceptance Criteria
+
+* Users can request consultations.
+* Requests are stored and viewable by administrators.
+
+---
+
+# Phase 6: Payment and Access Control
+
+## Task 11: Implement Payment Verification Rules
+
+### Objective
+
+Ensure only paid listings appear publicly.
+
+### Requirements
+
+Review current listing workflow.
+
+Implement:
+
+Status Types:
+
+* Draft
+* Pending Payment
+* Pending Review
+* Approved
+* Published
+
+Rules:
+
+* Listings cannot appear on the homepage before payment.
+* Listings cannot appear publicly until approved.
+* Admin can manage status changes.
+
+### Acceptance Criteria
+
+* Unpaid listings are hidden.
+* Approved and paid listings are visible.
+
+---
+
+# Phase 7: Analytics and Monitoring
+
+## Task 12: User Behaviour Tracking
+
+### Objective
+
+Understand how users interact with the platform.
+
+### Requirements
+
+Implement analytics tracking for:
+
+* Page views
+* Session duration
+* Most visited pages
+* User journey flow
+* Conversion tracking
+
+Recommended:
+
+* Google Analytics 4
+* Event tracking
+
+Admin Dashboard Metrics:
+
+* Total visitors
+* Active users
+* Average session duration
+* Most viewed properties
+* Conversion rates
+
+### Acceptance Criteria
+
+* Analytics data is collected accurately.
+* No impact on site performance.
+
+---
+
+# Final Review
+
+After all phases:
+
+1. Run full regression testing.
+2. Verify existing functionality remains intact.
+3. Verify all new features work.
+4. Test mobile responsiveness.
+5. Test desktop responsiveness.
+6. Optimize performance.
+7. Document all changes made.
+8. Create deployment checklist before production release.
+
+End Goal:
+Improve clarity, trust, onboarding, communication, analytics, and conversion rates without disrupting the existing ILIFA platform.

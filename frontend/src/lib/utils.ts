@@ -94,6 +94,28 @@ export function isValidPhone(phone: string): boolean {
 }
 
 /**
+ * Convert a stored phone number into a WhatsApp-safe wa.me URL.
+ */
+export function getWhatsAppUrl(phone?: string | null, message?: string): string | null {
+  if (!phone) return null
+
+  let normalized = phone.replace(/\D/g, '')
+
+  if (normalized.startsWith('00')) {
+    normalized = normalized.slice(2)
+  }
+
+  if (normalized.startsWith('0')) {
+    normalized = `263${normalized.slice(1)}`
+  }
+
+  if (!normalized) return null
+
+  const encodedMessage = message ? `?text=${encodeURIComponent(message)}` : ''
+  return `https://wa.me/${normalized}${encodedMessage}`
+}
+
+/**
  * Generate slug from string
  */
 export function slugify(text: string): string {
