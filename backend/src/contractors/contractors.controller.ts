@@ -93,18 +93,6 @@ export class ContractorsController {
     };
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get single contractor by ID' })
-  @ApiResponse({ status: 200, description: 'Contractor retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'Contractor not found' })
-  async findOne(@Param('id') id: string) {
-    const contractor = await this.contractorsService.findOne(id);
-    return {
-      success: true,
-      data: contractor,
-    };
-  }
-
   @Get(':id/reviews')
   @ApiOperation({ summary: 'Get contractor reviews' })
   @ApiResponse({ status: 200, description: 'Reviews retrieved successfully' })
@@ -129,6 +117,18 @@ export class ContractorsController {
     return {
       success: true,
       data: stats,
+    };
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get single contractor by ID' })
+  @ApiResponse({ status: 200, description: 'Contractor retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Contractor not found' })
+  async findOne(@Param('id') id: string) {
+    const contractor = await this.contractorsService.findOne(id);
+    return {
+      success: true,
+      data: contractor,
     };
   }
 

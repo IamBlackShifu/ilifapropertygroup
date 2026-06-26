@@ -226,6 +226,10 @@ export class ContractorsService {
           },
         },
         reviews: {
+          where: {
+            reviewedEntityType: ReviewEntityType.CONTRACTOR,
+            isVisible: true,
+          },
           include: {
             reviewer: {
               select: {
@@ -539,9 +543,14 @@ export class ContractorsService {
       throw new NotFoundException('Contractor not found');
     }
 
+    if (contractor.userId === reviewerId) {
+      throw new BadRequestException('You cannot review your own contractor profile');
+    }
+
     // Check if user already reviewed this contractor
     const existingReview = await this.prisma.review.findFirst({
       where: {
+        reviewedEntityType: ReviewEntityType.CONTRACTOR,
         reviewedEntityId: contractorId,
         reviewerId,
       },
@@ -556,6 +565,7 @@ export class ContractorsService {
       data: {
         reviewedEntityId: contractorId,
         reviewedEntityType: ReviewEntityType.CONTRACTOR,
+        contractorId,
         reviewerId,
         rating: dto.rating,
         comment: dto.comment,
@@ -582,6 +592,7 @@ export class ContractorsService {
     // Get all reviews for this contractor
     const reviews = await this.prisma.review.findMany({
       where: {
+        reviewedEntityType: ReviewEntityType.CONTRACTOR,
         reviewedEntityId: contractorId,
       },
     });
@@ -601,11 +612,14 @@ export class ContractorsService {
 
   // Get contractor reviews
   async getReviews(contractorId: string, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
 
     const [reviews, total] = await Promise.all([
       this.prisma.review.findMany({
         where: {
+          reviewedEntityType: ReviewEntityType.CONTRACTOR,
           reviewedEntityId: contractorId,
         },
         include: {
@@ -620,10 +634,11 @@ export class ContractorsService {
         },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take: limitNumber,
       }),
       this.prisma.review.count({
         where: {
+          reviewedEntityType: ReviewEntityType.CONTRACTOR,
           reviewedEntityId: contractorId,
         },
       }),
@@ -633,9 +648,9 @@ export class ContractorsService {
       data: reviews,
       meta: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
       },
     };
   }

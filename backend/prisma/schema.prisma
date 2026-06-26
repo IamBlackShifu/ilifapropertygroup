@@ -668,6 +668,9 @@ model Review {
   reviewerId          String           @map("reviewer_id")
   reviewedEntityType  ReviewEntityType @map("reviewed_entity_type")
   reviewedEntityId    String           @map("reviewed_entity_id")
+  contractorId        String?          @map("contractor_id")
+  propertyId          String?          @map("property_id")
+  supplierId          String?          @map("supplier_id")
   rating              Int
   comment             String?
   isVerifiedPurchase  Boolean          @default(false) @map("is_verified_purchase")
@@ -676,11 +679,14 @@ model Review {
   updatedAt           DateTime         @updatedAt @map("updated_at")
 
   reviewer   User        @relation(fields: [reviewerId], references: [id])
-  contractor Contractor? @relation(fields: [reviewedEntityId], references: [id], map: "review_contractor_fk")
-  property   Property?   @relation(fields: [reviewedEntityId], references: [id], map: "review_property_fk")
-  supplier   Supplier?   @relation(fields: [reviewedEntityId], references: [id], map: "review_supplier_fk")
+  contractor Contractor? @relation(fields: [contractorId], references: [id], map: "review_contractor_fk")
+  property   Property?   @relation(fields: [propertyId], references: [id], map: "review_property_fk")
+  supplier   Supplier?   @relation(fields: [supplierId], references: [id], map: "review_supplier_fk")
 
   @@index([reviewedEntityType, reviewedEntityId])
+  @@index([contractorId])
+  @@index([propertyId])
+  @@index([supplierId])
   @@index([reviewerId])
   @@index([rating])
   @@index([createdAt])

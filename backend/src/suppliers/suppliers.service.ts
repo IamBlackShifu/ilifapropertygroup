@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSupplierDto, UpdateSupplierDto, CreateProductDto, UpdateProductDto, CreateOrderDto, UpdateOrderDto } from './dto';
-import { ProductCategory, SupplierStatus, OrderStatus, Prisma } from '@prisma/client';
+import { ProductCategory, SupplierStatus, OrderStatus, Prisma, ReviewEntityType } from '@prisma/client';
 
 @Injectable()
 export class SuppliersService {
@@ -256,6 +256,10 @@ export class SuppliersService {
           orderBy: { createdAt: 'desc' },
         },
         reviews: {
+          where: {
+            reviewedEntityType: ReviewEntityType.SUPPLIER,
+            isVisible: true,
+          },
           take: 10,
           orderBy: { createdAt: 'desc' },
           include: {
@@ -284,6 +288,124 @@ export class SuppliersService {
     }
 
     return supplier;
+  }
+
+  async getReviews(supplierId: string, page = 1, limit = 10) {
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 10;
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const [reviews, total] = await Promise.all([
+      this.prisma.review.findMany({
+        where: {
+          reviewedEntityType: ReviewEntityType.SUPPLIER,
+          reviewedEntityId: supplierId,
+          isVisible: true,
+        },
+        include: {
+          reviewer: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limitNumber,
+      }),
+      this.prisma.review.count({
+        where: {
+          reviewedEntityType: ReviewEntityType.SUPPLIER,
+          reviewedEntityId: supplierId,
+          isVisible: true,
+        },
+      }),
+    ]);
+
+    return {
+      data: reviews,
+      meta: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
+    };
+  }
+
+  async rateSupplier(supplierId: string, reviewerId: string, dto: { rating: number; comment: string }) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { id: supplierId },
+    });
+
+    if (!supplier) {
+      throw new NotFoundException('Supplier not found');
+    }
+
+    if (supplier.userId === reviewerId) {
+      throw new BadRequestException('You cannot review your own supplier profile');
+    }
+
+    const existingReview = await this.prisma.review.findFirst({
+      where: {
+        reviewedEntityType: ReviewEntityType.SUPPLIER,
+        reviewedEntityId: supplierId,
+        reviewerId,
+      },
+    });
+
+    if (existingReview) {
+      throw new BadRequestException('You have already reviewed this supplier');
+    }
+
+    const review = await this.prisma.review.create({
+      data: {
+        reviewedEntityId: supplierId,
+        reviewedEntityType: ReviewEntityType.SUPPLIER,
+        supplierId,
+        reviewerId,
+        rating: dto.rating,
+        comment: dto.comment,
+      },
+      include: {
+        reviewer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+    });
+
+    await this.updateSupplierRating(supplierId);
+
+    return review;
+  }
+
+  private async updateSupplierRating(supplierId: string) {
+    const reviews = await this.prisma.review.findMany({
+      where: {
+        reviewedEntityType: ReviewEntityType.SUPPLIER,
+        reviewedEntityId: supplierId,
+        isVisible: true,
+      },
+    });
+
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const avgRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+
+    await this.prisma.supplier.update({
+      where: { id: supplierId },
+      data: {
+        ratingAverage: new Prisma.Decimal(avgRating),
+        ratingCount: reviews.length,
+      },
+    });
   }
 
   // ==================== PRODUCT CRUD ====================
