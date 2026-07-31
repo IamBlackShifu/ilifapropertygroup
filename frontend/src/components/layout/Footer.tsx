@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 export function Footer() {
@@ -42,7 +44,6 @@ export function Footer() {
               <li><Link href="/buy-property" className="text-sm text-gray-200 hover:text-white transition-colors">Buy Property</Link></li>
               <li><Link href="/build-home" className="text-sm text-gray-200 hover:text-white transition-colors">Build a Home</Link></li>
               <li><Link href="/diaspora" className="text-sm text-gray-200 hover:text-white transition-colors">Diaspora Support</Link></li>
-              <li><Link href="/verify/property" className="text-sm text-gray-200 hover:text-white transition-colors">Verify Property</Link></li>
               <li><Link href="/learn" className="text-sm text-gray-200 hover:text-white transition-colors">Learning Hub</Link></li>
             </ul>
           </div>
@@ -66,7 +67,9 @@ export function Footer() {
               <li><Link href="/market-insights" className="text-sm text-gray-200 hover:text-white transition-colors">Market Insights</Link></li>
               <li><Link href="/contact" className="text-sm text-gray-200 hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/terms" className="text-sm text-gray-200 hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="text-sm text-gray-200 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/privacy-policy" className="text-sm text-gray-200 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/cookie-policy" className="text-sm text-gray-200 hover:text-white transition-colors">Cookie Policy</Link></li>
+              <li><button type="button" onClick={() => window.dispatchEvent(new Event('ilifa:cookie-settings'))} className="text-sm text-gray-200 hover:text-white transition-colors">Cookie Settings</button></li>
             </ul>
           </div>
         </div>

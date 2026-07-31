@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { Analytics } from '@/components/layout/Analytics'
+import { CookieConsent } from '@/components/privacy/CookieConsent'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,6 +32,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Analytics />
+            <CookieConsent />
           </AuthProvider>
         </ThemeProvider>
       </body>
