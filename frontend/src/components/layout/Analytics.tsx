@@ -1,9 +1,31 @@
+'use client'
+
 import Script from 'next/script'
+import { useEffect, useState } from 'react'
 
 const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export function Analytics() {
-  if (!measurementId) {
+  const [allowed, setAllowed] = useState(false)
+
+  useEffect(() => {
+    const syncConsent = () => {
+      try {
+        const consent = JSON.parse(localStorage.getItem('ilifa-cookie-consent') || 'null')
+        const analyticsAllowed = consent?.analytics === true
+        setAllowed(analyticsAllowed)
+        if (measurementId) Object.assign(window, { [`ga-disable-${measurementId}`]: !analyticsAllowed })
+      } catch {
+        setAllowed(false)
+        if (measurementId) Object.assign(window, { [`ga-disable-${measurementId}`]: true })
+      }
+    }
+    syncConsent()
+    window.addEventListener('ilifa:consent-changed', syncConsent)
+    return () => window.removeEventListener('ilifa:consent-changed', syncConsent)
+  }, [])
+
+  if (!measurementId || !allowed) {
     return null
   }
 
