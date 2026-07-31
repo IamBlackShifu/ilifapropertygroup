@@ -1,6 +1,6 @@
 'use client'
 
-const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '263712345678'
+const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '447471414983'
 const message = encodeURIComponent('Hello ILifa Property Group, I would like help with property or building services.')
 
 export function WhatsAppFloatingButton() {

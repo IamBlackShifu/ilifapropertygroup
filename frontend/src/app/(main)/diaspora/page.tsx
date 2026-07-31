@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getWhatsAppUrl } from '@/lib/utils'
 
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '263712345678'
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '447471414983'
 const whatsappUrl = getWhatsAppUrl(
   whatsappNumber,
   'Hello ILifa Property Group, I am outside Zimbabwe and would like help with property or building services.'

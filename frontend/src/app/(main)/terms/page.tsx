@@ -3,7 +3,7 @@ export default function TermsPage() {
     <div className="bg-gray-50">
       <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-14">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-sm uppercase tracking-widest text-primary-100">Ilifa Property Limited</p>
+          <p className="text-sm uppercase tracking-widest text-primary-100">Ilifa Property Group</p>
           <h1 className="text-3xl md:text-4xl font-bold mt-2">Website Terms of Use</h1>
           <p className="text-lg text-primary-100 mt-4">
             Please read these terms and conditions carefully before using this site as they are a
@@ -19,7 +19,7 @@ export default function TermsPage() {
             <p>
               These terms outline the rules and guidelines for using the Ilifa Property Group
               website, including our website: www.Ilifa property group.co.uk, as well as any
-              sub-domain or sibling-domain registered to Ilifa property group Group Limited and any
+              sub-domain or sibling-domain operated by Ilifa Property Group and any
               Uniform Resource Locator (URL) or Application Programming Interface (API) by which
               Ilifa property group&apos;s data may be accessed (referred to as the "Site").
               Throughout this document we refer to them as the "Terms". A reference to "you" or
@@ -28,14 +28,14 @@ export default function TermsPage() {
 
             <h2>1. Who we are and how to contact us</h2>
             <p>
-              1.1. We are Ilifa property group Group Limited (company number XXX) and our address is
-              XXX (referred to as "we" or "us" or "our"). We are not a property sales or lettings
+              1.1. We are Ilifa Property Group and our address is 3854 Haya Close, Old Windsor,
+              Ruwa, Zimbabwe (referred to as "we" or "us" or "our"). We are not a property sales or lettings
               agency. We are the providers of the Site. It is our members (which include estate
               agents, property sellers, new home developers, construction suppliers, professionals
               in the real estate industry and subcontractors and are referred to as "members") that
               display property details for you to view.
             </p>
-            <p>1.2. To contact us, please email XXX or write to us via the postal address above.</p>
+            <p>1.2. To contact us, please email info@ilifapropertygroup.com, call or WhatsApp +44 7471 414983, or write to us at the postal address above. We normally respond within 24 hours.</p>
 
             <h2>2. By using our site you accept these terms</h2>
             <p>2.1. These Terms set out all of the rules and obligations that apply to your use of the Site.</p>
@@ -253,7 +253,7 @@ export default function TermsPage() {
             <p>16.2. If you are a business, these Terms, their subject matter and their formation (and any non-contractual disputes or claims) are governed by Zimbabwean law. We both agree to the exclusive jurisdiction of the courts of Zimbabwe.</p>
 
             <h2>17. Customer feedback and quality</h2>
-            <p>17.1. We try to ensure that all customer feedback is dealt with fairly and consistently, and is properly recorded. We welcome any suggestions that you make about how we may improve our service. Please write to us at Customer Services, Ilifa property group Group Limited, using the address provided at the beginning of these Terms or via the Contact Us section on our Site. We aim to acknowledge all customer feedback.</p>
+            <p>17.1. We try to ensure that all customer feedback is dealt with fairly and consistently, and is properly recorded. We welcome any suggestions that you make about how we may improve our service. Please write to Customer Services, Ilifa Property Group, using the address provided at the beginning of these Terms or via the Contact Us section on our Site. We normally respond within 24 hours.</p>
 
             <h2>18. General provisions</h2>
             <p>18.1. The headings in these Terms of Use are solely used for convenience only.</p>
