@@ -188,7 +188,7 @@ export default function MarketInsightsPage() {
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary-100">Live marketplace data</p>
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">Market Insights & Analytics</h1>
           <p className="max-w-3xl text-lg text-primary-100">
-            Property, supplier, and material signals calculated from listings already in ZimBuild Hub.
+            Property, supplier, and material signals calculated from listings already on Ilifa.
           </p>
         </div>
       </section>
