@@ -1,10 +1,10 @@
 // Focused pilot options; stored as strings so the list can grow without a migration.
 export const PILOT_CONTRACTOR_SERVICES = [
-  'Real Estate Agent', 'Property Lawyer', 'Land Surveyor', 'Town Planner',
+  'Property Lawyer', 'Land Surveyor', 'Town Planner',
   'Property Valuer', 'Architect', 'Quantity Surveyor', 'Structural Engineer',
   'Civil Engineer', 'Project Manager', 'Main Contractor', 'Plumbing Contractor',
-  'Electrical Contractor', 'Roofing Contractor', 'Solar & Renewable Energy Installer',
-  'Snagging & Property Inspection',
+  'Electrical Contractor', 'Roofing Contractor', 'Carpenter',
+  'Solar & Renewable Energy Installer', 'Snagging & Property Inspection', 'Other',
 ] as const
 
 export const ZIMBABWE_CITIES = [
