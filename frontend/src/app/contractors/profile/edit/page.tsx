@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient from '@/lib/api-client'
+import { PILOT_CONTRACTOR_SERVICES, ZIMBABWE_CITIES } from '@/lib/contractor-options'
 
 export default function EditContractorProfilePage() {
   const router = useRouter()
@@ -63,7 +64,7 @@ export default function EditContractorProfilePage() {
   }, [user, router])
 
   const addService = () => {
-    const service = servicesInput.trim()
+    const service = servicesInput
     if (!service || formData.servicesOffered.includes(service)) return
 
     setFormData((previous) => ({
@@ -173,19 +174,14 @@ export default function EditContractorProfilePage() {
                 <span className="text-xs text-gray-500">Add every service you regularly offer.</span>
               </div>
               <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
+                <select
                   value={servicesInput}
                   onChange={(event) => setServicesInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault()
-                      addService()
-                    }
-                  }}
-                  placeholder="e.g. Roofing, Renovations, Plumbing"
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                />
+                >
+                  <option value="">Select a profession or trade</option>
+                  {PILOT_CONTRACTOR_SERVICES.map(service => <option key={service} value={service} disabled={formData.servicesOffered.includes(service)}>{service}</option>)}
+                </select>
                 <button type="button" onClick={addService} className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white hover:bg-blue-700">
                   Add
                 </button>
@@ -234,13 +230,15 @@ export default function EditContractorProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <input
-                  type="text"
+                <select
                   value={formData.locationCity}
                   onChange={(event) => setFormData({ ...formData, locationCity: event.target.value })}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  placeholder="Harare"
-                />
+                >
+                  <option value="">Select city</option>
+                  {!ZIMBABWE_CITIES.includes(formData.locationCity as typeof ZIMBABWE_CITIES[number]) && formData.locationCity && <option value={formData.locationCity}>{formData.locationCity}</option>}
+                  {ZIMBABWE_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>

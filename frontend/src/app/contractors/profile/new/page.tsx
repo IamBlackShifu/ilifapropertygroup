@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import apiClient from '@/lib/api-client'
+import { PILOT_CONTRACTOR_SERVICES, ZIMBABWE_CITIES } from '@/lib/contractor-options'
 
 export default function CreateContractorProfilePage() {
   const router = useRouter()
@@ -24,10 +25,10 @@ export default function CreateContractorProfilePage() {
   const [serviceInput, setServiceInput] = useState('')
 
   const handleAddService = () => {
-    if (serviceInput.trim() && !formData.servicesOffered.includes(serviceInput.trim())) {
+    if (serviceInput && !formData.servicesOffered.includes(serviceInput)) {
       setFormData(prev => ({
         ...prev,
-        servicesOffered: [...prev.servicesOffered, serviceInput.trim()]
+        servicesOffered: [...prev.servicesOffered, serviceInput]
       }))
       setServiceInput('')
     }
@@ -159,14 +160,14 @@ export default function CreateContractorProfilePage() {
               
               <div className="space-y-3">
                 <div className="flex gap-2">
-                  <input
-                    type="text"
+                  <select
                     value={serviceInput}
                     onChange={(e) => setServiceInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddService())}
                     className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., New Construction, Renovation, etc."
-                  />
+                  >
+                    <option value="">Select a profession or trade</option>
+                    {PILOT_CONTRACTOR_SERVICES.map(service => <option key={service} value={service} disabled={formData.servicesOffered.includes(service)}>{service}</option>)}
+                  </select>
                   <button
                     type="button"
                     onClick={handleAddService}
@@ -213,13 +214,14 @@ export default function CreateContractorProfilePage() {
                   <label className="block text-sm font-medium mb-2">
                     City
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.locationCity}
                     onChange={(e) => setFormData(prev => ({ ...prev, locationCity: e.target.value }))}
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Harare"
-                  />
+                  >
+                    <option value="">Select city</option>
+                    {ZIMBABWE_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                  </select>
                 </div>
 
                 <div>
