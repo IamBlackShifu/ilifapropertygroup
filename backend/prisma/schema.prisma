@@ -9,6 +9,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model PageView {
+  id         String   @id @default(uuid())
+  visitorId  String   @map("visitor_id")
+  sessionId  String   @map("session_id")
+  path       String
+  title      String?
+  referrer   String?
+  deviceType String   @map("device_type")
+  occurredAt DateTime @default(now()) @map("occurred_at")
+
+  @@index([occurredAt])
+  @@index([visitorId, occurredAt])
+  @@index([path, occurredAt])
+  @@map("page_views")
+}
+
 enum UserRole {
   BUYER
   OWNER

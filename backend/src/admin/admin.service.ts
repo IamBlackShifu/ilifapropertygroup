@@ -17,6 +17,10 @@ export class AdminService {
       totalRevenue,
       recentUsers,
       recentProperties,
+      trafficSummary,
+      dailyTraffic,
+      topPages,
+      deviceBreakdown,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.property.count(),
@@ -52,7 +56,39 @@ export class AdminService {
           },
         },
       }),
+      this.prisma.$queryRaw<Array<{ page_views: bigint; unique_visitors: bigint; views_today: bigint; visitors_today: bigint }>>`
+        SELECT
+          COUNT(*)::bigint AS page_views,
+          COUNT(DISTINCT "visitor_id")::bigint AS unique_visitors,
+          COUNT(*) FILTER (WHERE "occurred_at" >= CURRENT_DATE)::bigint AS views_today,
+          COUNT(DISTINCT "visitor_id") FILTER (WHERE "occurred_at" >= CURRENT_DATE)::bigint AS visitors_today
+        FROM "page_views"
+        WHERE "occurred_at" >= NOW() - INTERVAL '30 days'
+      `,
+      this.prisma.$queryRaw<Array<{ date: Date; views: bigint; visitors: bigint }>>`
+        SELECT DATE_TRUNC('day', "occurred_at") AS date,
+          COUNT(*)::bigint AS views,
+          COUNT(DISTINCT "visitor_id")::bigint AS visitors
+        FROM "page_views"
+        WHERE "occurred_at" >= CURRENT_DATE - INTERVAL '13 days'
+        GROUP BY 1 ORDER BY 1 ASC
+      `,
+      this.prisma.$queryRaw<Array<{ path: string; views: bigint; visitors: bigint }>>`
+        SELECT "path", COUNT(*)::bigint AS views,
+          COUNT(DISTINCT "visitor_id")::bigint AS visitors
+        FROM "page_views"
+        WHERE "occurred_at" >= NOW() - INTERVAL '30 days'
+        GROUP BY "path" ORDER BY views DESC LIMIT 5
+      `,
+      this.prisma.$queryRaw<Array<{ device_type: string; views: bigint }>>`
+        SELECT "device_type", COUNT(*)::bigint AS views
+        FROM "page_views"
+        WHERE "occurred_at" >= NOW() - INTERVAL '30 days'
+        GROUP BY "device_type" ORDER BY views DESC
+      `,
     ]);
+
+    const summary = trafficSummary[0];
 
     return {
       stats: {
@@ -65,6 +101,20 @@ export class AdminService {
       recentActivity: {
         users: recentUsers,
         properties: recentProperties,
+      },
+      traffic: {
+        periodDays: 30,
+        pageViews: Number(summary?.page_views || 0),
+        uniqueVisitors: Number(summary?.unique_visitors || 0),
+        viewsToday: Number(summary?.views_today || 0),
+        visitorsToday: Number(summary?.visitors_today || 0),
+        daily: dailyTraffic.map((item) => ({
+          date: item.date.toISOString().slice(0, 10),
+          views: Number(item.views),
+          visitors: Number(item.visitors),
+        })),
+        topPages: topPages.map((item) => ({ ...item, views: Number(item.views), visitors: Number(item.visitors) })),
+        devices: deviceBreakdown.map((item) => ({ device: item.device_type, views: Number(item.views) })),
       },
     };
   }

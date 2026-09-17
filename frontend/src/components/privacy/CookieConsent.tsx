@@ -43,6 +43,8 @@ export function CookieConsent() {
     const value: Consent = { necessary: true, analytics: analyticsValue, marketing: marketingValue, updatedAt: new Date().toISOString(), version: 1 }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
     if (!analyticsValue) {
+      localStorage.removeItem('ilifa-analytics-visitor')
+      sessionStorage.removeItem('ilifa-analytics-session')
       document.cookie.split(';').forEach(cookie => {
         const name = cookie.split('=')[0].trim()
         if (name.startsWith('_ga')) {

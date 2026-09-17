@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { adminApi, DashboardStats, RecentUser, RecentProperty } from '@/lib/api/admin'
+import { adminApi, DashboardStats, RecentUser, RecentProperty, TrafficAnalytics } from '@/lib/api/admin'
 import Link from 'next/link'
 
 export default function AdminDashboard() {
@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([])
   const [recentProperties, setRecentProperties] = useState<RecentProperty[]>([])
   const [loading, setLoading] = useState(true)
+  const [traffic, setTraffic] = useState<TrafficAnalytics | null>(null)
 
   useEffect(() => {
     loadDashboardData()
@@ -20,6 +21,7 @@ export default function AdminDashboard() {
       setStats(data.stats)
       setRecentUsers(data.recentActivity.users)
       setRecentProperties(data.recentActivity.properties)
+      setTraffic(data.traffic)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     } finally {
@@ -71,6 +73,8 @@ export default function AdminDashboard() {
           color="bg-indigo-500"
         />
       </div>
+
+      <TrafficOverview traffic={traffic} />
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -174,6 +178,71 @@ export default function AdminDashboard() {
       </div>
     </div>
   )
+}
+
+function TrafficOverview({ traffic }: { traffic: TrafficAnalytics | null }) {
+  const maxViews = Math.max(1, ...(traffic?.daily.map((day) => day.views) || [1]))
+
+  return (
+    <section className="rounded-lg bg-white p-4 shadow sm:p-6" aria-labelledby="traffic-heading">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id="traffic-heading" className="text-lg font-semibold">Website traffic</h2>
+          <p className="text-sm text-gray-500">Consented, anonymous visits from the last 30 days</p>
+        </div>
+        <p className="text-sm text-gray-500">Today: {traffic?.viewsToday || 0} views · {traffic?.visitorsToday || 0} visitors</p>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <TrafficMetric label="Page views" value={traffic?.pageViews || 0} />
+        <TrafficMetric label="Unique visitors" value={traffic?.uniqueVisitors || 0} />
+        <TrafficMetric label="Views today" value={traffic?.viewsToday || 0} />
+        <TrafficMetric label="Visitors today" value={traffic?.visitorsToday || 0} />
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-gray-700">Daily views (14 days)</h3>
+          {traffic?.daily.length ? (
+            <div className="flex h-40 items-end gap-1 rounded-lg bg-gray-50 p-3">
+              {traffic.daily.map((day) => (
+                <div key={day.date} className="group flex h-full min-w-0 flex-1 items-end" title={`${day.date}: ${day.views} views, ${day.visitors} visitors`}>
+                  <div className="w-full rounded-t bg-blue-500 transition-colors group-hover:bg-blue-600" style={{ height: `${Math.max(4, (day.views / maxViews) * 100)}%` }} />
+                </div>
+              ))}
+            </div>
+          ) : <EmptyTraffic />}
+        </div>
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-gray-700">Top pages</h3>
+          {traffic?.topPages.length ? (
+            <div className="space-y-2">
+              {traffic.topPages.map((page) => (
+                <div key={page.path} className="flex items-center justify-between gap-4 rounded-lg bg-gray-50 px-3 py-2 text-sm">
+                  <span className="min-w-0 truncate font-medium" title={page.path}>{page.path}</span>
+                  <span className="shrink-0 text-gray-500">{page.views} views</span>
+                </div>
+              ))}
+            </div>
+          ) : <EmptyTraffic />}
+        </div>
+      </div>
+
+      {!!traffic?.devices.length && (
+        <div className="mt-5 flex flex-wrap gap-2 text-xs text-gray-600">
+          {traffic.devices.map((item) => <span key={item.device} className="rounded-full bg-gray-100 px-3 py-1 capitalize">{item.device}: {item.views}</span>)}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function TrafficMetric({ label, value }: { label: string; value: number }) {
+  return <div className="rounded-lg border border-gray-200 p-3"><p className="text-xs text-gray-500">{label}</p><p className="mt-1 text-2xl font-bold text-gray-900">{value.toLocaleString()}</p></div>
+}
+
+function EmptyTraffic() {
+  return <div className="flex h-24 items-center justify-center rounded-lg bg-gray-50 text-sm text-gray-500">Traffic will appear after visitors consent to analytics.</div>
 }
 
 function StatCard({

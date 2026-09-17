@@ -8,6 +8,17 @@ export interface DashboardStats {
   totalRevenue: number
 }
 
+export interface TrafficAnalytics {
+  periodDays: number
+  pageViews: number
+  uniqueVisitors: number
+  viewsToday: number
+  visitorsToday: number
+  daily: Array<{ date: string; views: number; visitors: number }>
+  topPages: Array<{ path: string; views: number; visitors: number }>
+  devices: Array<{ device: string; views: number }>
+}
+
 export interface RecentUser {
   id: string
   firstName: string
