@@ -9,3 +9,4 @@ The cleanup script removes all accounts and operational/test data while retainin
 5. Recreate the first administrator with the existing `backend/scripts/create-admin.ts` workflow, then smoke-test login and core journeys.
 
 Do not point the script at production until the backup has been restored successfully in a separate environment. Uploaded files in object storage or on disk are not deleted by this SQL and should be reviewed separately against the retention policy.
+

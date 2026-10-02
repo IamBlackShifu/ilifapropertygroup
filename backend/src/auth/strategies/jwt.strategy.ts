@@ -31,6 +31,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         isActive: true,
         isSuspended: true,
         profileImageUrl: true,
+        companyName: true,
+        companyLogoUrl: true,
+        agentRegistrationNumber: true,
+        isAgentVerified: true,
       },
     });
 
@@ -49,6 +53,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       avatar: user.profileImageUrl,
       firstName: user.firstName,
       lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
+      companyName: user.companyName,
+      companyLogoUrl: user.companyLogoUrl,
+      agentRegistrationNumber: user.agentRegistrationNumber,
+      isAgentVerified: user.isAgentVerified,
     };
   }
 }

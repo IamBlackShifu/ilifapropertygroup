@@ -13,6 +13,10 @@ interface User {
   phone?: string
   avatar?: string
   profileImageUrl?: string
+  companyName?: string
+  companyLogoUrl?: string
+  agentRegistrationNumber?: string
+  isAgentVerified?: boolean
 }
 
 interface AuthContextType {

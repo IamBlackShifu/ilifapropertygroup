@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { resolveMediaUrl } from '@/lib/media'
 
 interface Property {
   id: string
@@ -20,6 +21,12 @@ interface Property {
   owner: {
     firstName: string
     lastName: string
+    role: string
+    profileImageUrl?: string
+    companyName?: string
+    companyLogoUrl?: string
+    agentRegistrationNumber?: string
+    isAgentVerified?: boolean
   }
   createdAt: string
 }
@@ -417,14 +424,37 @@ export default function BuyPropertyPage() {
                         )}
                         <div className="flex items-center justify-between pt-3 border-t">
                           <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                              {property.owner.firstName.charAt(0)}
-                            </div>
+                            {property.owner.role === 'AGENT' && property.owner.companyLogoUrl ? (
+                              <img
+                                src={resolveMediaUrl(property.owner.companyLogoUrl)}
+                                alt={`${property.owner.companyName || 'Agency'} logo`}
+                                className="w-9 h-9 rounded-md border border-gray-200 bg-white object-contain p-0.5"
+                              />
+                            ) : property.owner.profileImageUrl ? (
+                              <img
+                                src={resolveMediaUrl(property.owner.profileImageUrl)}
+                                alt={`${property.owner.firstName} ${property.owner.lastName}`}
+                                className="w-9 h-9 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                {property.owner.firstName.charAt(0)}
+                              </div>
+                            )}
                             <div>
-                              <p className="text-xs font-medium">
-                                {property.owner.firstName} {property.owner.lastName}
+                              <p className="text-xs font-semibold text-gray-900">
+                                {property.owner.role === 'AGENT' && property.owner.companyName
+                                  ? property.owner.companyName
+                                  : `${property.owner.firstName} ${property.owner.lastName}`}
                               </p>
-                              <p className="text-xs text-gray-500">Property Owner</p>
+                              <p className="text-xs text-gray-500">
+                                {property.owner.role === 'AGENT'
+                                  ? `Listed by ${property.owner.firstName} ${property.owner.lastName}`
+                                  : 'Property owner'}
+                              </p>
+                              {property.owner.role === 'AGENT' && property.owner.isAgentVerified && (
+                                <p className="text-xs font-medium text-green-700">✓ Verified agent</p>
+                              )}
                             </div>
                           </div>
                           <span className="text-xs text-gray-500">

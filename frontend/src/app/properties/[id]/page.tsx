@@ -6,6 +6,7 @@ import { propertiesAPI } from '@/lib/api/properties';
 import { Property, PropertyStatus } from '@/types';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { resolveMediaUrl } from '@/lib/media';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -285,7 +286,28 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
           <div className="space-y-6">
             {/* Owner Info */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Property Owner</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">
+                {property.owner?.role === 'AGENT' ? 'Listing Agent' : 'Property Owner'}
+              </h3>
+              {property.owner?.role === 'AGENT' && property.owner.companyName && (
+                <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+                  {property.owner.companyLogoUrl ? (
+                    <img
+                      src={resolveMediaUrl(property.owner.companyLogoUrl)}
+                      alt={`${property.owner.companyName} logo`}
+                      className="h-12 w-12 rounded-lg border bg-white object-contain p-1"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100 font-bold text-primary-700">
+                      {property.owner.companyName.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-gray-900">{property.owner.companyName}</p>
+                    {property.owner.isAgentVerified && <p className="text-xs font-medium text-green-700">✓ Verified agent</p>}
+                  </div>
+                </div>
+              )}
               <div className="flex items-center gap-3 mb-4">
                 {property.owner?.profileImageUrl ? (
                   <img
@@ -303,6 +325,9 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
                     {property.owner?.firstName} {property.owner?.lastName}
                   </p>
                   <p className="text-gray-500 text-sm">{property.owner?.email}</p>
+                  {property.owner?.role === 'AGENT' && property.owner.agentRegistrationNumber && (
+                    <p className="text-xs text-gray-500">Reg. {property.owner.agentRegistrationNumber}</p>
+                  )}
                 </div>
               </div>
               {property.owner?.phone && (
@@ -385,7 +410,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Interested?</h3>
                 <button className="w-full btn-primary px-4 py-3 rounded-lg">
-                  Contact Owner
+                  Contact {property.owner?.role === 'AGENT' ? 'Agent' : 'Owner'}
                 </button>
               </div>
             )}

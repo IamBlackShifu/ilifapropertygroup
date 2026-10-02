@@ -30,7 +30,7 @@ export class FilesService {
   }
 
   private async ensureUploadDirExists() {
-    const directories = ['properties', 'documents', 'profiles', 'contractors', 'products'];
+    const directories = ['properties', 'documents', 'profiles', 'contractors', 'products', 'companies'];
     
     try {
       await mkdir(this.uploadDir, { recursive: true });
@@ -45,7 +45,7 @@ export class FilesService {
 
   async uploadImage(
     file: Express.Multer.File,
-    category: 'properties' | 'documents' | 'profiles' | 'contractors' | 'products',
+    category: 'properties' | 'documents' | 'profiles' | 'contractors' | 'products' | 'companies',
   ): Promise<string> {
     console.log('📤 Upload attempt:', { 
       filename: file.originalname, 
@@ -99,7 +99,7 @@ export class FilesService {
 
   async uploadMultipleImages(
     files: Express.Multer.File[],
-    category: 'properties' | 'documents' | 'profiles' | 'contractors' | 'products',
+    category: 'properties' | 'documents' | 'profiles' | 'contractors' | 'products' | 'companies',
   ): Promise<string[]> {
     const uploadPromises = files.map(file => this.uploadImage(file, category));
     return Promise.all(uploadPromises);

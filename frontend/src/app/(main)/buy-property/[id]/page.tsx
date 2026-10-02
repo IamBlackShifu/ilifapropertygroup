@@ -6,6 +6,7 @@ import { propertiesAPI } from '@/lib/api-client'
 import { Property } from '@/types'
 import ContactOwnerModal, { ContactOwnerFormData } from '@/components/properties/ContactOwnerModal'
 import ScheduleViewingModal, { ScheduleViewingFormData } from '@/components/properties/ScheduleViewingModal'
+import { resolveMediaUrl } from '@/lib/media'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
@@ -279,6 +280,33 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
             <div className="bg-white rounded-lg shadow p-6 mb-6 sticky top-24">
               {property.owner && (
                 <>
+                  {property.owner.role === 'AGENT' && property.owner.companyName && (
+                    <div className="mb-5 border-b border-gray-100 pb-5">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Listed by</p>
+                      <div className="flex items-center gap-3">
+                        {property.owner.companyLogoUrl ? (
+                          <img
+                            src={resolveMediaUrl(property.owner.companyLogoUrl)}
+                            alt={`${property.owner.companyName} logo`}
+                            className="h-14 w-14 rounded-lg border border-gray-200 bg-white object-contain p-1"
+                          />
+                        ) : (
+                          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary-100 text-lg font-bold text-primary-700">
+                            {property.owner.companyName.charAt(0)}
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-bold text-gray-900">{property.owner.companyName}</h3>
+                          <div className="mt-1 flex flex-wrap items-center gap-2">
+                            <span className="text-xs text-gray-500">Real estate agency</span>
+                            {property.owner.isAgentVerified && (
+                              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">✓ Verified agent</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center mb-4">
                     {property.owner.profileImageUrl ? (
                       <img
@@ -297,7 +325,12 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       <h3 className="font-semibold text-lg">
                         {property.owner.firstName} {property.owner.lastName}
                       </h3>
-                      <p className="text-sm text-gray-600">Property Owner</p>
+                      <p className="text-sm text-gray-600">
+                        {property.owner.role === 'AGENT' ? 'Listing agent' : 'Property owner'}
+                      </p>
+                      {property.owner.role === 'AGENT' && property.owner.agentRegistrationNumber && (
+                        <p className="mt-1 text-xs text-gray-500">Reg. {property.owner.agentRegistrationNumber}</p>
+                      )}
                       {property.isVerified && (
                         <p className="text-xs text-green-600 mt-1">✓ Verified Property</p>
                       )}
@@ -309,7 +342,7 @@ export default function PropertyDetailsPage({ params }: { params: { id: string }
                       onClick={() => setShowContactModal(true)}
                       className="w-full py-3 bg-primary-600 text-white font-semibold rounded-md hover:bg-primary-700 transition-colors"
                     >
-                      Contact Owner
+                      Contact {property.owner.role === 'AGENT' ? 'Agent' : 'Owner'}
                     </button>
                     <button 
                       onClick={() => setShowViewingModal(true)}

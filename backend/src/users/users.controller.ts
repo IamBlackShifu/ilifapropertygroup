@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -22,7 +23,7 @@ export class UsersController {
   }
 
   @Patch('profile')
-  async updateProfile(@CurrentUser('id') userId: string, @Body() data: any) {
+  async updateProfile(@CurrentUser('id') userId: string, @Body() data: UpdateProfileDto) {
     const user = await this.usersService.updateProfile(userId, data);
     return {
       success: true,

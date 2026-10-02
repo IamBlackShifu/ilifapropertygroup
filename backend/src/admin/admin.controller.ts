@@ -66,6 +66,7 @@ export class AdminController {
       phone?: string;
       role?: string;
       emailVerified?: boolean;
+      isAgentVerified?: boolean;
     },
   ) {
     return this.adminService.updateUser(id, updateData as any);

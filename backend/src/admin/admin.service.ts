@@ -238,15 +238,25 @@ export class AdminService {
     phone?: string;
     role?: UserRole;
     emailVerified?: boolean;
+    isAgentVerified?: boolean;
   }) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
+    if (data.isAgentVerified !== undefined && user.role !== UserRole.AGENT) {
+      throw new BadRequestException('Only real estate agent accounts can receive agent verification');
+    }
+
     return this.prisma.user.update({
       where: { id: userId },
-      data,
+      data: {
+        ...data,
+        ...(data.isAgentVerified !== undefined && {
+          agentVerifiedAt: data.isAgentVerified ? new Date() : null,
+        }),
+      },
     });
   }
 

@@ -15,6 +15,11 @@ interface UserDetails {
   isActive: boolean
   isSuspended: boolean
   profileImageUrl: string | null
+  companyName: string | null
+  companyLogoUrl: string | null
+  agentRegistrationNumber: string | null
+  isAgentVerified: boolean
+  agentVerifiedAt: string | null
   createdAt: string
   lastLogin: string | null
   properties: any[]
@@ -99,6 +104,21 @@ export default function AdminUserDetailsPage() {
     }
   }
 
+  const handleAgentVerification = async () => {
+    const nextStatus = !user?.isAgentVerified
+    if (!confirm(`${nextStatus ? 'Verify' : 'Remove verification from'} this real estate agent?`)) return
+
+    try {
+      setActionLoading(true)
+      await adminApi.updateUser(userId, { isAgentVerified: nextStatus })
+      await loadUser()
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Failed to update agent verification')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -169,6 +189,16 @@ export default function AdminUserDetailsPage() {
           >
             Delete User
           </button>
+          {user.role === 'AGENT' && (
+            <button
+              onClick={handleAgentVerification}
+              disabled={actionLoading || !user.companyName}
+              className={`px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 ${user.isAgentVerified ? 'bg-gray-600 hover:bg-gray-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+              title={!user.companyName ? 'The agent must add a company name first' : undefined}
+            >
+              {user.isAgentVerified ? 'Remove Agent Verification' : 'Verify Agent'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -188,6 +218,24 @@ export default function AdminUserDetailsPage() {
             <p className="text-sm text-gray-500 mb-1">Role</p>
             <p className="font-medium">{user.role}</p>
           </div>
+          {user.role === 'AGENT' && (
+            <>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Company</p>
+                <p className="font-medium">{user.companyName || 'Not provided'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Registration number</p>
+                <p className="font-medium">{user.agentRegistrationNumber || 'Not provided'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Agent verification</p>
+                <p className={`font-medium ${user.isAgentVerified ? 'text-green-700' : 'text-gray-600'}`}>
+                  {user.isAgentVerified ? 'Verified' : 'Not verified'}
+                </p>
+              </div>
+            </>
+          )}
           <div>
             <p className="text-sm text-gray-500 mb-1">Member Since</p>
             <p className="font-medium">{new Date(user.createdAt).toLocaleDateString()}</p>

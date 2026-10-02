@@ -71,6 +71,11 @@ export interface User {
   emailVerified: boolean
   isActive: boolean
   profileImageUrl?: string
+  companyName?: string
+  companyLogoUrl?: string
+  agentRegistrationNumber?: string
+  isAgentVerified?: boolean
+  agentVerifiedAt?: string
   createdAt: string
   updatedAt: string
 }

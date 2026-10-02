@@ -128,6 +128,26 @@ export class FilesController {
     };
   }
 
+  @Post('upload/company-logo')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload a real estate company logo' })
+  async uploadCompanyLogo(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const imageUrl = await this.filesService.uploadImage(file, 'companies');
+
+    return {
+      success: true,
+      data: { imageUrl },
+      message: 'Company logo uploaded successfully',
+    };
+  }
+
   @Post('upload/document')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
