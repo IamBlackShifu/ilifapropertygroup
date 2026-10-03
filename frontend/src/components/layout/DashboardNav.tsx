@@ -24,7 +24,7 @@ export default function DashboardNav() {
         return [
           { href: '/dashboard', label: 'Dashboard' },
           { href: '/my-properties', label: 'My Properties' },
-          { href: '/my-properties/create', label: 'List Property' },
+          { href: '/my-properties/new', label: 'List Property' },
           { href: '/property-viewings', label: 'Viewing Requests' },
           { href: '/profile', label: 'Profile' },
         ]
